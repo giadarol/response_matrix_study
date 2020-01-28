@@ -43,8 +43,17 @@ for ss in slices:
         ss.x -= ss.mean_x()
         ss.xp -= ss.mean_xp()
 
+# Optionally remove charge from bunch
+if flag_no_bunch_charge:
+    for ss in list_slice_objects:
+        ss.particlenumber_per_mp = 1e-10
+
 # Get slice centers
 z_slices = np.array([ss.slice_info['z_bin_center'] for ss in slices])
+
+# Measure
+x_slices = np.array([ss.mean_x() for ss in list_slice_objects])
+int_slices = np.array([ss.intensity for ss in list_slice_objects])
 
 # Get z_step beween slices and define z_range
 z_step = z_slices[1] - z_slices[0]
