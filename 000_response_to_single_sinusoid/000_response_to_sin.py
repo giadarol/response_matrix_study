@@ -1,5 +1,7 @@
 import os
 import numpy as np
+import scipy.io as sio
+import time
 
 from PyPARIS_sim_class import Simulation as sim_mod
 import PyPARIS.util as pu
@@ -11,7 +13,7 @@ sin_amplitude = 0.00000000e+00
 N_oscillations = 0.00000000e+00
 
 flag_no_bunch_charge = False
-flag_plots = False
+flag_plots = True
 
 # Instantiate simulation
 sim_content = sim_mod.Simulation(
@@ -36,6 +38,7 @@ sim_content.init_all()
 if os.path.exists('simulation_status.sta'):
     os.remove('simulation_status.sta')
 slices = sim_content.init_master()
+N_slices = len(slices)
 
 # Re-center all slices
 for ss in slices:
@@ -45,15 +48,15 @@ for ss in slices:
 
 # Optionally remove charge from bunch
 if flag_no_bunch_charge:
-    for ss in list_slice_objects:
+    for ss in slices:
         ss.particlenumber_per_mp = 1e-10
 
 # Get slice centers
 z_slices = np.array([ss.slice_info['z_bin_center'] for ss in slices])
 
 # Measure
-x_slices = np.array([ss.mean_x() for ss in list_slice_objects])
-int_slices = np.array([ss.intensity for ss in list_slice_objects])
+x_slices = np.array([ss.mean_x() for ss in slices])
+int_slices = np.array([ss.intensity for ss in slices])
 
 # Get z_step beween slices and define z_range
 z_step = z_slices[1] - z_slices[0]
@@ -69,5 +72,74 @@ for ss in slices:
         #if ss.mean_z() < 0:
         ss.x += sin_amplitude * np.sin(2*np.pi*N_oscillations*ss.z/z_range)
         ss.x += cos_amplitude * np.cos(2*np.pi*N_oscillations*ss.z/z_range)
+
+# Simulate e-cloud interactions
+t_start = time.mktime(time.localtime())
+dpx_slices = []
+rho_slices = []
+for i_ss, ss in enumerate(slices[::-1]):
+    if np.mod(i_ss, 20)==0:
+        print(("%d / %d"%(i_ss, N_slices)))
+    for i_ee, ee in enumerate(sim_content.parent_eclouds):
+        ee.track(ss)
+        if i_ee == 0:
+            temp_rho = ee.cloudsim.cloud_list[0].rho.copy()
+        else:
+            temp_rho += ee.cloudsim.cloud_list[0].rho.copy()
+    dpx_slices.append(ss.mean_xp())
+    rho_slices.append(temp_rho)
+dpx_slices = np.array(dpx_slices[::-1])
+rho_slices = np.array(rho_slices[::-1])
+t_end = time.mktime(time.localtime())
+print(('Ecloud sim time %.2f s' % (t_end - t_start)))
+
+dpx_slices_all_clouds = dpx_slices * sim_content.machine.n_segments
+
+# Savings and plots
+first_ecloud = sim_content.parent_eclouds[0]
+xg = first_ecloud.cloudsim.spacech_ele.xg
+yg = first_ecloud.cloudsim.spacech_ele.yg
+
+i_yzero = np.argmin(np.abs(xg))
+rho_cut = rho_slices[:, :, i_yzero]
+
+
+sio.savemat('response.mat',{
+    'z_slices': z_slices,
+    'x_slices': x_slices,
+    'x_ideal': x_ideal,
+    'dpx_slices': dpx_slices,
+    'xg': xg,
+    'yg': yg,
+    'rho_cut': rho_cut,
+    })
+
+if flag_plots:
+    import matplotlib.pyplot as plt
+    plt.close('all')
+    fig1 = plt.figure(1)
+    ax1 = fig1.add_subplot(3,1,1)
+    ax2 = fig1.add_subplot(3,1,2, sharex=ax1)
+    ax3 = fig1.add_subplot(3,1,3, sharex=ax1)
+
+    ax1.plot(z_slices, int_slices)
+    ax2.plot(z_slices, x_slices)
+    ax3.plot(z_slices, dpx_slices)
+
+    for ax in [ax1, ax2, ax3]:
+        ax.grid(True)
+
+
+    fig2 = plt.figure(2)
+    ax21 = fig2.add_subplot(2,1,1)
+    ax22 = fig2.add_subplot(2,1,2, sharex=ax21)
+
+    ax21.pcolormesh(z_slices, xg, rho_slices[:, :, i_yzero].T)
+    ax21.plot(z_slices, x_slices, 'k', lw=2)
+    ax22.plot(z_slices, dpx_slices)
+    ax22.set_ylim(np.nanmax(np.abs(dpx_slices))*np.array([-1, 1]))
+    ax22.grid(True)
+    plt.show()
+
 
 
