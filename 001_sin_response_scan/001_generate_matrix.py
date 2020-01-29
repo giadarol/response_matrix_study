@@ -2,6 +2,7 @@ import PyECLOUD.myfilemanager as mfm
 
 import numpy as np
 
+folder_sims = 'simulations_2'
 
 N_samples = 200
 ref_ampl = 1e-4
@@ -30,11 +31,11 @@ for ii in range(len(n_osc_list)):
     n_osc = n_osc_list[ii]
 
     current_sim_ident= f'n_{n_osc:.1f}_c{cos_ampl:.2e}_s{sin_ampl:.2e}'
-    ob = mfm.myloadmat_to_obj('../simulations/' + current_sim_ident + '/response.mat')
+    ob = mfm.myloadmat_to_obj(folder_sims + '/' + current_sim_ident + '/response.mat')
 
     x_mat.append(ob.x_ideal)
     x_meas_mat.append(ob.x_slices)
-    dpx_mat.append(ob.dpx_slices)
+    dpx_mat.append(ob.dpx_slices_all_clouds)
 
 z_slices = ob.z_slices
 
