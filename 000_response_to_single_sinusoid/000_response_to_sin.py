@@ -7,7 +7,7 @@ from PyPARIS_sim_class import Simulation as sim_mod
 import PyPARIS.util as pu
 
 
-# Settings
+# start-settings-section
 cos_amplitude = 1.00000000e-04
 sin_amplitude = 0.00000000e+00
 N_oscillations = 3.00000000e+00
@@ -15,14 +15,18 @@ N_oscillations = 3.00000000e+00
 flag_no_bunch_charge = False
 flag_plots = True
 
+sim_param_file = '../reference_simulation/Simulation_parameters.py'
+sim_param_amend_files = [
+        '../Simulation_parameters_amend.py',
+        'Simulation_parameters_amend_for_sin_response.py']
+# end-settings-section
+
 # Instantiate simulation
-sim_content = sim_mod.Simulation(
-    param_file='../reference_simulation/Simulation_parameters.py')
+sim_content = sim_mod.Simulation(param_file=sim_param_file)
 
 # Here sim_content.pp can be edited (directly and through files)
-sim_content.pp.update(param_file='../Simulation_parameters_amend.py')
-sim_content.pp.update(
-        param_file='Simulation_parameters_amend_for_sin_response.py')
+for ff in sim_param_amend_files:
+    sim_content.pp.update(param_file=ff)
 
 # Add ring of CPU information (mimicking the master core)
 pu.get_sim_instance(sim_content,
