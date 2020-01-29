@@ -112,7 +112,7 @@ sio.savemat('response.mat',{
     'z_slices': z_slices,
     'x_slices': x_slices,
     'x_ideal': x_ideal,
-    'dpx_slices': dpx_slices,
+    'dpx_slices_all_clouds': dpx_slices_all_clouds,
     'xg': xg,
     'yg': yg,
     'rho_cut': rho_cut,

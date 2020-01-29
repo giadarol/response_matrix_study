@@ -1,7 +1,7 @@
 import os
 import numpy as np
 
-scan_folder_rel = 'simulations'
+scan_folder_rel = 'simulations_2'
 
 environment_preparation = '''
 source /afs/cern.ch/work/g/giadarol/sim_workspace_mpi_py3/venvs/py3/bin/activate
@@ -41,6 +41,7 @@ for ii in range(len(n_osc_list)):
 
     # Make directory
     current_sim_ident= f'n_{n_osc_list[ii]:.1f}_c{cos_ampl_list[ii]:.2e}_s{sin_ampl_list[ii]:.2e}'
+    print(current_sim_ident)
     current_sim_abs_path = scan_folder_abs+'/'+current_sim_ident
     os.mkdir(current_sim_abs_path)
 
@@ -74,8 +75,7 @@ sim_param_amend_files = [
         fid.writelines(lines[iend+1:])
 
     # Prepare job script
-    job_content = f'''
-#!/bin/bash
+    job_content = f'''#!/bin/bash
 
 {environment_preparation}
 
@@ -91,3 +91,10 @@ python {settings_to_be_replaced_in}
 '''
     with open(current_sim_abs_path + '/job.job', 'w') as fid:
        fid.write(job_content)
+
+# Prepare htcondor cluster of jobs
+import htcondor_config as htcc
+htcc.htcondor_config(
+        scan_folder_abs,
+        time_requirement_days=30./(24*60.), # 30 minutes
+        htcondor_files_in=scan_folder_abs)
