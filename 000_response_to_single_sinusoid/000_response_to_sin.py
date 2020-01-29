@@ -10,7 +10,7 @@ import PyPARIS.util as pu
 # Settings
 cos_amplitude = 1.00000000e-04
 sin_amplitude = 0.00000000e+00
-N_oscillations = 0.00000000e+00
+N_oscillations = 3.00000000e+00
 
 flag_no_bunch_charge = False
 flag_plots = True
@@ -54,10 +54,6 @@ if flag_no_bunch_charge:
 # Get slice centers
 z_slices = np.array([ss.slice_info['z_bin_center'] for ss in slices])
 
-# Measure
-x_slices = np.array([ss.mean_x() for ss in slices])
-int_slices = np.array([ss.intensity for ss in slices])
-
 # Get z_step beween slices and define z_range
 z_step = z_slices[1] - z_slices[0]
 z_range = z_slices[-1] - z_slices[0] + z_step # Last term is to make the sampled 
@@ -68,10 +64,14 @@ x_ideal = (sin_amplitude * np.sin(2*np.pi*N_oscillations*z_slices/z_range)
 
 # Add sinusoidal distortion to particles
 for ss in slices:
-    if ss.macroparticlenumber:
+    if ss.macroparticlenumber>0:
         #if ss.mean_z() < 0:
         ss.x += sin_amplitude * np.sin(2*np.pi*N_oscillations*ss.z/z_range)
         ss.x += cos_amplitude * np.cos(2*np.pi*N_oscillations*ss.z/z_range)
+
+# Measure
+x_slices = np.array([ss.mean_x() for ss in slices])
+int_slices = np.array([ss.intensity for ss in slices])
 
 # Simulate e-cloud interactions
 t_start = time.mktime(time.localtime())
@@ -93,7 +93,7 @@ rho_slices = np.array(rho_slices[::-1])
 t_end = time.mktime(time.localtime())
 print(('Ecloud sim time %.2f s' % (t_end - t_start)))
 
-dpx_slices_all_clouds = dpx_slices * sim_content.machine.n_segments
+dpx_slices_all_clouds = dpx_slices * sim_content.n_segments
 
 # Savings and plots
 first_ecloud = sim_content.parent_eclouds[0]
