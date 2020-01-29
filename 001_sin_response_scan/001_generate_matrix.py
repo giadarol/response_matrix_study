@@ -2,7 +2,7 @@ import PyECLOUD.myfilemanager as mfm
 
 import numpy as np
 
-folder_sims = 'simulations_2'
+folder_sims = 'simulations'
 
 N_samples = 200
 ref_ampl = 1e-4

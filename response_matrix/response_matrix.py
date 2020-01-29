@@ -46,7 +46,12 @@ class ResponseMatrix(Element):
         WW_no_harmonic_cut = np.dot(MM, np.dot(RR_inv, FF.T))
         WW = np.dot(MM, np.dot(CC, np.dot(RR_inv, np.dot(FF.T, CC_tails))))
 
-        # Bind matrices
+        # Bind to object
+        self.slicer = slicer
+        self.coord = coord
+        self.kick_factor = kick_factor
+        self.n_terms_to_be_kept = n_terms_to_be_kept
+        self.n_tail_cut = n_tail_cut
         self.z_resp = z_resp
         self.FF = FF
         self.MM = MM
@@ -58,13 +63,13 @@ class ResponseMatrix(Element):
         self.WW = WW
 
     def response_to_slice_array(self, arr):
-        return np.dot(self.WW, arr.T)
+        return np.dot(self.WW, arr.T)*self.kick_factor
 
     def track(self, bunch):
         slices = bunch.get_slices(
                 self.slicer, statistics=['mean_'+ self.coord])
         arr = getattr(slices, 'mean_'+ self.coord)
-        dp_slices = np.dot(self.WW, arr.T)
+        dp_slices = self.response_to_slice_array(arr)
         dp_prt = np.interp(bunch.z, slices.z_centers, dp_slices)
         p_old = getattr(bunch, self.coord + 'p')
         setattr(bunch, self.coord + 'p', p_old + dp_prt)
