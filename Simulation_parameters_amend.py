@@ -6,4 +6,3 @@ pyecl_input_folder = '!folder_of_this_file!/reference_simulation/pyecloud_config
 enable_transverse_damper = False
 
 n_slices = 200
-macroparticles_per_slice = 200000

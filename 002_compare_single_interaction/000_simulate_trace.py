@@ -93,7 +93,6 @@ rho_slices = np.array(rho_slices[::-1])
 t_end = time.mktime(time.localtime())
 print(('Ecloud sim time %.2f s' % (t_end - t_start)))
 
-
 # Savings and plots
 first_ecloud = sim_content.parent_eclouds[0]
 xg = first_ecloud.cloudsim.spacech_ele.xg

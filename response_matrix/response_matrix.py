@@ -1,6 +1,7 @@
 import numpy as np
 
 from PyHEADTAIL.general.element import Element
+import PyECLOUD.myfilemanager as mfm
 
 class ResponseMatrix(Element):
 
@@ -10,7 +11,6 @@ class ResponseMatrix(Element):
         if coord != 'x':
             raise ValueError('Only x plane implemented for now!')
 
-        response_data_file = 'response_data.mat'
         ob_responses = mfm.myloadmat_to_obj(response_data_file)
 
         z_resp = ob_responses.z_slices
@@ -53,7 +53,7 @@ class ResponseMatrix(Element):
         self.RR = RR
         self.RR_inv = RR_inv
         self.CC = CC
-        self.CC_tails
+        self.CC_tails = CC_tails
         self.WW_no_harmonic_cut = WW_no_harmonic_cut
         self.WW = WW
 
