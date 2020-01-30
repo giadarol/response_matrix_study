@@ -1,4 +1,5 @@
 import os
+import time
 
 import numpy as np
 
@@ -17,7 +18,8 @@ recenter_all_slices = True # Cancels initial kick from input
 
 
 sim_param_file = '../reference_simulation/Simulation_parameters.py'
-sim_param_amend_files = ['../Simulation_parameters_amend.py']
+sim_param_amend_files = ['../Simulation_parameters_amend.py',
+                    'Simulation_parameters_amend_for_matrixsim.py']
 
 include_response_matrix = True
 response_data_file = '../001_sin_response_scan/response_data.mat'
@@ -56,7 +58,7 @@ bunch_monitor = sim_content.bunch_monitor
 slice_monitor = sim_content.slice_monitor
 
 # Recenter all slices
-if recenter_all_slices:
+if recenter_all_slices and sim_content.SimSt.first_run:
     slices = bunch.get_slices(slicer)
     for ii in range(slices.n_slices):
         ix = slices.particle_indices_of_slice(ii)
@@ -97,7 +99,7 @@ if include_non_linear_map:
 
 # Simulate
 slice_x_list = []
-for i_turn in range(N_turns):
+for i_turn in range(sim_content.N_turns):
     print('%s Turn %d' % (time.strftime("%d/%m/%Y %H:%M:%S", time.localtime()), i_turn))
 
     bunch_monitor.dump(bunch)
