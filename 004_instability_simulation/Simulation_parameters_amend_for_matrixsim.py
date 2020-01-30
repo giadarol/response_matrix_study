@@ -1,1 +1,1 @@
-N_turns = 50
+N_turns = 500
