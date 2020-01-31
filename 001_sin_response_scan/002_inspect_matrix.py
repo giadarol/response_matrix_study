@@ -62,7 +62,7 @@ for ii in range(0, 200, 10):
 fig60 = plt.figure(60)
 ax61 = fig60.add_subplot(111)
 for ii in range(0, 200, 10):
-    ax61.plot(z_resp-z_resp[ii], WW[:, ii], '.-')
+    ax61.plot(z_resp-z_resp[ii], WW[:, ii], '-')
 
 fig70 = plt.figure(70)
 ax71 = fig70.add_subplot(111)

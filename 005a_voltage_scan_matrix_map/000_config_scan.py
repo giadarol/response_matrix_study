@@ -1,46 +1,33 @@
 import os
 import numpy as np
 
-scan_folder_rel = 'simulations_bla'
+scan_folder_rel = 'simulations'
 
-environment_preparation = '''
+environment_preparation = f'''
 source /afs/cern.ch/work/g/giadarol/sim_workspace_mpi_py3/venvs/py3/bin/activate
 source /afs/cern.ch/work/g/giadarol/sim_workspace_mpi_py3/setpythopath
+PYTHONPATH=$PYTHONPATH:{os.path.abspath('../')}
 '''
+# Last one is to get response matrix path
 
-N_samples = 200
-sin_amplitude = 1e-4
-
+V_RF_scan = np.arange(3e6, 8.1e6, 1e6)
 
 files_to_be_copied = [
-        '../000_response_to_single_sinusoid/000_response_to_sin.py',
-        '../000_response_to_single_sinusoid/Simulation_parameters_amend_for_sin_response.py'
+        '../004_instability_simulation/000_simulation_matrix_map.py',
+        '../004_instability_simulation/run_it_several_times',
         ]
 
-settings_to_be_replaced_in = '000_response_to_sin.py'
+settings_to_be_replaced_in = '000_simulation_matrix_map.py'
 
-# Generate configurations
-assert(N_samples % 2 ==0)
-cos_ampl_list = []
-sin_ampl_list = []
-n_osc_list = []
-for ii in range(N_samples//2):
-    cos_ampl_list.append(sin_amplitude)
-    sin_ampl_list.append(0.)
-    n_osc_list.append(ii)
-
-    cos_ampl_list.append(0.)
-    sin_ampl_list.append(sin_amplitude)
-    n_osc_list.append(ii+1)
 
 scan_folder_abs = os.getcwd() + '/' + scan_folder_rel
 os.mkdir(scan_folder_abs)
 
 # prepare scan
-for ii in range(len(n_osc_list)):
+for ii in range(len(V_RF_scan)):
 
     # Make directory
-    current_sim_ident= f'n_{n_osc_list[ii]:.1f}_c{cos_ampl_list[ii]:.2e}_s{sin_ampl_list[ii]:.2e}'
+    current_sim_ident= f'V_RF_{V_RF_scan[ii]/1e6:.1e}'
     print(current_sim_ident)
     current_sim_abs_path = scan_folder_abs+'/'+current_sim_ident
     os.mkdir(current_sim_abs_path)
@@ -51,19 +38,32 @@ for ii in range(len(n_osc_list)):
 
     # Replace settings section
     settings_section = f'''# start-settings-section
-cos_amplitude = {cos_ampl_list[ii]:e}
-sin_amplitude = {sin_ampl_list[ii]:e}
-N_oscillations = {n_osc_list[ii]:e}
+n_terms_to_be_kept = 12
+n_tail_cut = 10
+recenter_all_slices = True # Cancels initial kick from input
 
-flag_no_bunch_charge = False
-flag_plots = False
+ecloud_strength_scale = 1.
 
 sim_param_file = '../../../reference_simulation/Simulation_parameters.py'
-sim_param_amend_files = [
-        '../../../Simulation_parameters_amend.py',
-        'Simulation_parameters_amend_for_sin_response.py']
+sim_param_amend_files = ['../../../Simulation_parameters_amend.py',
+                    'Simulation_parameters_amend_for_matrixsim.py']
 
+include_response_matrix = True
+response_data_file = '../../../001_sin_response_scan/response_data.mat'
+
+include_non_linear_map = True
+field_map_file = '../../../003_generate_field_map/field_map.mat'
 # end-settings-section'''
+
+    sim_param_amend_curr= f'''
+N_turns = 500
+
+enable_transverse_damper = True
+V_RF = {V_RF_scan[ii]}'''
+
+    with open(current_sim_abs_path
+        + '/Simulation_parameters_amend_for_matrixsim.py', 'w') as fid:
+        fid.write(sim_param_amend_curr)
 
     with open(current_sim_abs_path+'/'+settings_to_be_replaced_in, 'r') as fid:
         lines = fid.readlines()
@@ -86,8 +86,7 @@ which python
 
 cd {current_sim_abs_path}
 
-python {settings_to_be_replaced_in}
-
+bash run_it_several_times
 '''
     with open(current_sim_abs_path + '/job.job', 'w') as fid:
        fid.write(job_content)

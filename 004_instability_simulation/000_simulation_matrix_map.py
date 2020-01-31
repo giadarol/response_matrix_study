@@ -18,6 +18,7 @@ n_terms_to_be_kept = 12
 n_tail_cut = 10
 recenter_all_slices = True # Cancels initial kick from input
 
+ecloud_strength_scale = 1.
 
 sim_param_file = '../reference_simulation/Simulation_parameters.py'
 sim_param_amend_files = ['../Simulation_parameters_amend.py',
@@ -75,7 +76,7 @@ if include_response_matrix:
         slicer=slicer,
         response_data_file=response_data_file,
         coord='x',
-        kick_factor=1./sim_content.n_segments,
+        kick_factor=1./sim_content.n_segments*ecloud_strength_scale,
         n_terms_to_be_kept=n_terms_to_be_kept,
         n_tail_cut=n_tail_cut)
     machine.install_after_each_transverse_segment(respmat)
@@ -90,7 +91,7 @@ if include_non_linear_map:
         yg=obfmap.yg,
         Ex=obfmap.Ex_L_map,
         Ey=obfmap.Ey_L_map,
-        L_interaction=1./sim_content.n_segments,
+        L_interaction=1./sim_content.n_segments*ecloud_strength_scale,
         slicer=slicer,
         flag_clean_slices=False,
         wrt_slice_centroid=True,
