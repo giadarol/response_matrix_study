@@ -110,6 +110,7 @@ for i_turn in range(sim_content.N_turns):
     machine.track(bunch)
 
     if sim_content._check_stop_conditions():
+        os.system('touch met_stop_condition')
         break
 
 sim_content._finalize_multijob_mode()
