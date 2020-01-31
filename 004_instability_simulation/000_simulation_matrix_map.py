@@ -12,6 +12,8 @@ import sys
 sys.path.append('../')
 import response_matrix.response_matrix as rm
 
+
+# start-settings-section
 n_terms_to_be_kept = 12
 n_tail_cut = 10
 recenter_all_slices = True # Cancels initial kick from input
@@ -26,6 +28,7 @@ response_data_file = '../001_sin_response_scan/response_data.mat'
 
 include_non_linear_map = True
 field_map_file = '../003_generate_field_map/field_map.mat'
+# end-settings-section
 
 
 # Instantiate simulation

@@ -96,5 +96,5 @@ python {settings_to_be_replaced_in}
 import htcondor_config as htcc
 htcc.htcondor_config(
         scan_folder_abs,
-        time_requirement_days=30./(24*60.), # 30 minutes
+        time_requirement_days=60./(24*60.), # 60 minutes
         htcondor_files_in=scan_folder_abs)
