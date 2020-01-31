@@ -51,7 +51,7 @@ sim_param_amend_files = ['../../../Simulation_parameters_amend.py',
 include_response_matrix = True
 response_data_file = '../../../001_sin_response_scan/response_data.mat'
 
-include_non_linear_map = True
+include_non_linear_map = False
 field_map_file = '../../../003_generate_field_map/field_map.mat'
 # end-settings-section'''
 

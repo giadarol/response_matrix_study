@@ -48,7 +48,7 @@ sim_param_file = '../../../reference_simulation/Simulation_parameters.py'
 sim_param_amend_files = ['../../../Simulation_parameters_amend.py',
                     'Simulation_parameters_amend_for_matrixsim.py']
 
-include_response_matrix = True
+include_response_matrix = False
 response_data_file = '../../../001_sin_response_scan/response_data.mat'
 
 include_non_linear_map = True
