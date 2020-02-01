@@ -21,10 +21,51 @@ from scipy.constants import c as ccc
 
 # Test
 labels = [f'test', 'reference']
-folders_compare = ['./', '../reference_simulation/']
+folders_compare = ['../004_instability_simulation', '../reference_simulation/']
 fname = None
 i_start_list = None
-n_turns = 5*[2000]
+n_turns = [1000000]
+cmap = None
+
+# Comparison against full study
+VRF_MV = 6
+labels = [f'test_12', 'test_200', 'reference']
+folders_compare = [
+    f'../005a_voltage_scan_matrix_map/simulations/V_RF_{VRF_MV:.1e}',
+    f'../005g_voltage_scan_all_harmonics_matrix_map/simulations/V_RF_{VRF_MV:.1e}',
+    ('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_017/'
+        'inj_arcQuad_drift_sey_1.4_intensity_1.2e11ppb_sigmaz_97mm_VRF_3_8MV_yes_no_initial_kick/'
+         'simulations_PyPARIS/'
+         f'ArcQuad_no_initial_kick_T0_x_slices_500_segments_8_MPslice_2500_eMPs_5e5_length_07_sey_1.4_intensity_1.2e11ppb_VRF_{VRF_MV:d}MV')
+    ]
+fname = None
+i_start_list = None
+n_turns = 6*[10000000]
+cmap = None
+
+# # Comparison v
+# V_list = np.arange(3, 8.1, 1)
+# labels = [f'{vv:.1f}_MV' for vv in V_list]
+# folders_compare = [
+# #    f'../005a_voltage_scan_matrix_map/simulations/V_RF_{vv:.1e}' for vv in V_list]
+# #    f'../005c_voltage_scan_map_only/simulations/V_RF_{vv:.1e}' for vv in V_list]
+#     f'../005b_voltage_scan_matrix_only/simulations/V_RF_{vv:.1e}' for vv in V_list]
+# fname = None
+# i_start_list = None
+# n_turns = 12*[10000000]
+# cmap = None
+
+# Comparison v
+strength_list = np.arange(0.1, 2.1, 0.1)
+labels = [f'strength {ss:.1f}' for ss in strength_list]
+folders_compare = [
+#     f'../005d_strength_scan_6MV_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
+#     f'../005e_strength_scan_6MV_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
+     f'../005f_strength_scan_6MV_map_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
+fft2mod = 'log'
+fname = None
+i_start_list = None
+n_turns = 30*[10000000]
 cmap = None
 #######################################################################
 
@@ -172,9 +213,12 @@ for ifol, folder in enumerate(folders_compare):
     # I try a double fft
     fft2 = np.fft.fft(ffts, axis=1)
     q_axis_fft2 = np.arange(0, 1., 1./wx.shape[1])
+    if fft2mod=='log':
+        matplot = np.log(np.abs(fft2))
+    else:
+        matplot = np.abs(fft2)
     axfft2.pcolormesh(q_axis_fft2,
-            n_osc_axis, (np.abs(fft2)))
-            #n_osc_axis, np.log(np.abs(fft2)))
+            n_osc_axis, matplot) 
     axfft2.set_ylabel('N. oscillations\nin 4 sigmaz')
     axfft2.set_ylim(0, 5)
     axfft2.set_xlim(0.25, .30)

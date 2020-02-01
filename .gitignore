@@ -1,0 +1,11 @@
+*.h5
+__pycache__
+*.txt
+*.pyc
+*.pkl
+*.mat
+*.sta
+*.png
+simulations
+reference_simulation
+met_stop_condition
