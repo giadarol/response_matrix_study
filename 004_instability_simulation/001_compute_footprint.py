@@ -26,8 +26,8 @@ sim_param_amend_files = ['../Simulation_parameters_amend.py',
 include_non_linear_map = True
 field_map_file = '../003_generate_field_map/field_map.mat'
 
-N_turns_footprint = 200
-N_particles_footprint = 500
+N_turns_footprint = 1024
+N_particles_footprint = 5000
 # end-settings-section
 
 

@@ -23,26 +23,27 @@ from scipy.constants import c as ccc
 labels = [f'test', 'reference']
 folders_compare = ['../004_instability_simulation', '../reference_simulation/']
 fname = None
-i_start_list = None
-n_turns = [1000000]
-cmap = None
-
-# Comparison against full study
-VRF_MV = 8
-labels = [f'test_12', 'test_200', 'reference']
-folders_compare = [
-    f'../005a_voltage_scan_matrix_map/simulations/V_RF_{VRF_MV:.1e}',
-    f'../005g_voltage_scan_all_harmonics_matrix_map/simulations/V_RF_{VRF_MV:.1e}',
-    ('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_017/'
-        'inj_arcQuad_drift_sey_1.4_intensity_1.2e11ppb_sigmaz_97mm_VRF_3_8MV_yes_no_initial_kick/'
-         'simulations_PyPARIS/'
-         f'ArcQuad_no_initial_kick_T0_x_slices_500_segments_8_MPslice_2500_eMPs_5e5_length_07_sey_1.4_intensity_1.2e11ppb_VRF_{VRF_MV:d}MV')
-    ]
-fname = None
 fft2mod = 'lin'
 i_start_list = None
-n_turns = 6*[10000000]
+n_turns = 20*[1000000]
 cmap = None
+
+# # Comparison against full study
+# VRF_MV = 8
+# labels = [f'test_12', 'test_200', 'reference']
+# folders_compare = [
+#     f'../005a_voltage_scan_matrix_map/simulations/V_RF_{VRF_MV:.1e}',
+#     f'../005g_voltage_scan_all_harmonics_matrix_map/simulations/V_RF_{VRF_MV:.1e}',
+#     ('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_017/'
+#         'inj_arcQuad_drift_sey_1.4_intensity_1.2e11ppb_sigmaz_97mm_VRF_3_8MV_yes_no_initial_kick/'
+#          'simulations_PyPARIS/'
+#          f'ArcQuad_no_initial_kick_T0_x_slices_500_segments_8_MPslice_2500_eMPs_5e5_length_07_sey_1.4_intensity_1.2e11ppb_VRF_{VRF_MV:d}MV')
+#     ]
+# fname = None
+# fft2mod = 'lin'
+# i_start_list = None
+# n_turns = 6*[10000000]
+# cmap = None
 
 # # Comparison v
 # V_list = np.arange(3, 8.1, 1)
