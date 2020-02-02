@@ -6,6 +6,7 @@ import numpy as np
 import PyECLOUD.myfilemanager as mfm
 from PyPARIS_sim_class import Simulation as sim_mod
 import PyPARIS.util as pu
+import PyPARIS_sim_class.frequency_analysis as fa
 
 # Import response_matrix
 import sys
@@ -120,4 +121,8 @@ for i_turn in range(N_turns_footprint):
         ))
     recorded_particles.dump(bunch)
     machine.track(bunch)
+
+# Compute tunes
+fa.get_tunes(recorded_particles,
+        filename_output='footprint.h5')
 
