@@ -24,6 +24,9 @@ sim_param_amend_files = ['../Simulation_parameters_amend.py',
 
 include_non_linear_map = True
 field_map_file = '../003_generate_field_map/field_map.mat'
+
+N_turns_footprint = 200
+N_particles_footprint = 500
 # end-settings-section
 
 
@@ -34,12 +37,12 @@ sim_content = sim_mod.Simulation(param_file=sim_param_file)
 for ff in sim_param_amend_files:
     sim_content.pp.update(param_file=ff)
 
-# Remove RF and switch off damper
-
-
 # Disable real e-clouds
 sim_content.pp.enable_arc_dip = False
 sim_content.pp.enable_arc_quad = False
+
+# Switch off damper for footprint
+sim_content.pp.enable_transverse_damper = False
 
 # Add ring of CPU information
 ring_cpu = pu.get_serial_CPUring(sim_content,
@@ -48,6 +51,10 @@ assert(sim_content.ring_of_CPUs.I_am_the_master)
 
 # Initialize machine elements
 sim_content.init_all()
+
+# Remove longitudinal map for footprint
+sim_content.machine.one_turn_map.remove(
+        sim_content.machine.longitudinal_map)
 
 # Initialize beam, slicer, monitors, multijob mode
 if os.path.exists('simulation_status.sta'):
@@ -62,7 +69,7 @@ machine = sim_content.machine
 # Generate bunch for footprint
 pp = sim_content.pp
 bunch = sim_content.machine.generate_6D_Gaussian_bunch_matched(
-    n_macroparticles=pp.n_macroparticles_for_footprint_track,
+    n_macroparticles=N_particles_footprint,
     intensity=pp.intensity,
     epsn_x=pp.epsn_x,
     epsn_y=pp.epsn_y,
@@ -103,8 +110,11 @@ if include_non_linear_map:
 
 # Simulate
 slice_x_list = []
-for i_turn in range(sim_content.N_turns):
-    print('%s Turn %d' % (time.strftime("%d/%m/%Y %H:%M:%S", time.localtime()), i_turn))
+for i_turn in range(N_turns_footprint):
+    print('%s Turn %d/%d' % (
+        time.strftime("%d/%m/%Y %H:%M:%S",time.localtime()),
+        i_turn, N_turns_footprint
+        ))
 
     machine.track(bunch)
 
