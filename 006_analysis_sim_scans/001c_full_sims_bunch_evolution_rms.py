@@ -28,7 +28,7 @@ n_turns = [1000000]
 cmap = None
 
 # Comparison against full study
-VRF_MV = 6
+VRF_MV = 8
 labels = [f'test_12', 'test_200', 'reference']
 folders_compare = [
     f'../005a_voltage_scan_matrix_map/simulations/V_RF_{VRF_MV:.1e}',
@@ -39,6 +39,7 @@ folders_compare = [
          f'ArcQuad_no_initial_kick_T0_x_slices_500_segments_8_MPslice_2500_eMPs_5e5_length_07_sey_1.4_intensity_1.2e11ppb_VRF_{VRF_MV:d}MV')
     ]
 fname = None
+fft2mod = 'lin'
 i_start_list = None
 n_turns = 6*[10000000]
 cmap = None
@@ -47,26 +48,27 @@ cmap = None
 # V_list = np.arange(3, 8.1, 1)
 # labels = [f'{vv:.1f}_MV' for vv in V_list]
 # folders_compare = [
-# #    f'../005a_voltage_scan_matrix_map/simulations/V_RF_{vv:.1e}' for vv in V_list]
+#     f'../005a_voltage_scan_matrix_map/simulations/V_RF_{vv:.1e}' for vv in V_list]
 # #    f'../005c_voltage_scan_map_only/simulations/V_RF_{vv:.1e}' for vv in V_list]
-#     f'../005b_voltage_scan_matrix_only/simulations/V_RF_{vv:.1e}' for vv in V_list]
+# #    f'../005b_voltage_scan_matrix_only/simulations/V_RF_{vv:.1e}' for vv in V_list]
 # fname = None
+# fft2mod = 'lin'
 # i_start_list = None
 # n_turns = 12*[10000000]
 # cmap = None
 
-# Comparison v
-strength_list = np.arange(0.1, 2.1, 0.1)
-labels = [f'strength {ss:.1f}' for ss in strength_list]
-folders_compare = [
-#     f'../005d_strength_scan_6MV_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
-#     f'../005e_strength_scan_6MV_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
-     f'../005f_strength_scan_6MV_map_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
-fft2mod = 'log'
-fname = None
-i_start_list = None
-n_turns = 30*[10000000]
-cmap = None
+# # Comparison strength
+# strength_list = np.arange(0.1, 2.1, 0.1)
+# labels = [f'strength {ss:.1f}' for ss in strength_list]
+# folders_compare = [
+#      f'../005d_strength_scan_6MV_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
+# #     f'../005e_strength_scan_6MV_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
+# #     f'../005f_strength_scan_6MV_map_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
+# fft2mod = 'log'
+# fname = None
+# i_start_list = None
+# n_turns = 30*[10000000]
+# cmap = None
 #######################################################################
 
 flag_naff = False
