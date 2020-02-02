@@ -107,6 +107,9 @@ if include_non_linear_map:
         slice_by_slice_mode=False)
     machine.install_after_each_transverse_segment(fmap)
 
+# Prepare to save turn-by-turn data
+recorded_particles = sim_mod.ParticleTrajectories(
+                N_particles_footprint, N_turns_footprint)
 
 # Simulate
 slice_x_list = []
@@ -115,6 +118,6 @@ for i_turn in range(N_turns_footprint):
         time.strftime("%d/%m/%Y %H:%M:%S",time.localtime()),
         i_turn, N_turns_footprint
         ))
-
+    recorded_particles.dump(bunch)
     machine.track(bunch)
 
