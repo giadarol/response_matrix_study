@@ -88,6 +88,8 @@ if recenter_all_slices and sim_content.SimSt.first_run:
         if len(ix) > 0:
             bunch.x[ix] -= np.mean(bunch.x[ix])
             bunch.xp[ix] -= np.mean(bunch.xp[ix])
+            bunch.y[ix] -= np.mean(bunch.y[ix])
+            bunch.yp[ix] -= np.mean(bunch.yp[ix])
 
 # Introduce non-linear field map
 if include_non_linear_map:

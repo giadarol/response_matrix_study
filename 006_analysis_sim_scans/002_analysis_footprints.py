@@ -129,6 +129,26 @@ for ifol, folder in enumerate(folders):
             right=0.965,
             hspace=0.2,
             wspace=0.2)
+
+    fig3 = plt.figure(3000+ifol)
+    ax3 = fig3.add_subplot(111)
+    mpbl = ax3.scatter(ob.z_init*1e2,
+            np.abs(ob.qy_i)-frac_qy, c =Jy,
+            marker='.', edgecolors='none', vmin=0, vmax=8e-9)
+    cb = plt.colorbar(mpbl)
+    cb.ax.set_ylabel('Transverse action')
+    ax3.set_xlim(-30, 30)
+    ax3.set_ylim(-0.0, 3e-2)
+    ax3.set_xlabel('z [cm]')
+    ax3.set_ylabel('$\Delta$Qy', labelpad=5)
+    ax3.grid(True, linestyle='--', alpha=0.5)
+    fig3.subplots_adjust(
+            top=0.88,
+            bottom=0.11,
+            left=0.155,
+            right=0.965,
+            hspace=0.2,
+            wspace=0.2)
     # sigma_x = np.sqrt(pars['epsn_x']*betax/machine.betagamma)
     # sigma_y = np.sqrt(pars['epsn_y']*betay/machine.betagamma)
     # mask_small_amplitude = np.sqrt(
