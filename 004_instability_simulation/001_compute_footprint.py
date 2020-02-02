@@ -15,7 +15,7 @@ import response_matrix.response_matrix as rm
 
 
 # start-settings-section
-recenter_all_slices = True # Cancels initial kick from input
+recenter_all_slices = False # Cancels initial kick from input
 
 ecloud_strength_scale = 1.
 
@@ -104,7 +104,7 @@ if include_non_linear_map:
         L_interaction=1./sim_content.n_segments*ecloud_strength_scale,
         slicer=slicer,
         flag_clean_slices=False,
-        wrt_slice_centroid=True,
+        wrt_slice_centroid=False, # Only for footprint
         x_beam_offset=0.,
         y_beam_offset=0.,
         slice_by_slice_mode=False)

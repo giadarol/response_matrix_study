@@ -13,11 +13,10 @@ import PyECLOUD.myfilemanager as mfm
 
 from PyPARIS_sim_class import LHC_custom
 
-fname_root = 'fp'
-# fname_root = None
+fname_root = None
 folders = ['../004_instability_simulation']
 leg_labels = None
-labels = ['teemp']
+labels = ['temp']
 cmap = plt.cm.rainbow
 
 
