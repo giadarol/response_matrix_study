@@ -18,7 +18,6 @@ import PyECLOUD.mystyle as ms
 
 from scipy.constants import c as ccc
 
-
 # Test
 labels = [f'test', 'reference']
 folders_compare = ['../004_instability_simulation', '../reference_simulation/']
@@ -28,22 +27,22 @@ i_start_list = None
 n_turns = 20*[1000000]
 cmap = None
 
-# # Comparison against full study
-# VRF_MV = 8
-# labels = [f'test_12', 'test_200', 'reference']
-# folders_compare = [
-#     f'../005a_voltage_scan_matrix_map/simulations/V_RF_{VRF_MV:.1e}',
-#     f'../005g_voltage_scan_all_harmonics_matrix_map/simulations/V_RF_{VRF_MV:.1e}',
-#     ('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_017/'
-#         'inj_arcQuad_drift_sey_1.4_intensity_1.2e11ppb_sigmaz_97mm_VRF_3_8MV_yes_no_initial_kick/'
-#          'simulations_PyPARIS/'
-#          f'ArcQuad_no_initial_kick_T0_x_slices_500_segments_8_MPslice_2500_eMPs_5e5_length_07_sey_1.4_intensity_1.2e11ppb_VRF_{VRF_MV:d}MV')
-#     ]
-# fname = None
-# fft2mod = 'lin'
-# i_start_list = None
-# n_turns = 6*[10000000]
-# cmap = None
+# Comparison against full study
+VRF_MV = 8
+labels = [f'test_12', 'test_200', 'reference']
+folders_compare = [
+    f'../005a_voltage_scan_matrix_map/simulations/V_RF_{VRF_MV:.1e}',
+    f'../005g_voltage_scan_all_harmonics_matrix_map/simulations/V_RF_{VRF_MV:.1e}',
+    ('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_017/'
+        'inj_arcQuad_drift_sey_1.4_intensity_1.2e11ppb_sigmaz_97mm_VRF_3_8MV_yes_no_initial_kick/'
+         'simulations_PyPARIS/'
+         f'ArcQuad_no_initial_kick_T0_x_slices_500_segments_8_MPslice_2500_eMPs_5e5_length_07_sey_1.4_intensity_1.2e11ppb_VRF_{VRF_MV:d}MV')
+    ]
+fname = None
+fft2mod = 'lin'
+i_start_list = None
+n_turns = 6*[10000000]
+cmap = None
 
 # # Comparison v
 # V_list = np.arange(3, 8.1, 1)
@@ -109,9 +108,17 @@ for ifol, folder in enumerate(folders_compare):
     # sim_curr_list_slice_ev = [folder_curr_sim+'/slice_evolution.h5']
     ob_slice = mfm.monitorh5list_to_obj(sim_curr_list_slice_ev, key='Slices', flag_transpose=True)
 
-    # pars = extract_info_from_sim_param(folder+'/Simulation_parameters.py')
-    # TEMPORARY!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    pars = extract_info_from_sim_param('../reference_simulation/Simulation_parameters.py')
+    try:
+        import pickle
+        with open(folder+'/sim_param.pkl', 'rb') as fid:
+            pars = pickle.load(fid)
+    except IOError:
+        config_module_file = folder+'/Simulation_parameters.py'
+        print('Config pickle not found, loading from module:')
+        print(config_module_file)
+        pars = mfm.obj_from_dict(
+                extract_info_from_sim_param(config_module_file))
+
 
     w_slices = ob_slice.n_macroparticles_per_slice
     wx = ob_slice.mean_x * w_slices / np.mean(w_slices)
@@ -279,13 +286,13 @@ for ifol, folder in enumerate(folders_compare):
     # Get Qx Qs
     machine = LHC_custom.LHC(
               n_segments=1,
-              machine_configuration=pars['machine_configuration'],
-              beta_x=pars['beta_x'], beta_y=pars['beta_y'],
-              accQ_x=pars['Q_x'], accQ_y=pars['Q_y'],
-              Qp_x=pars['Qp_x'], Qp_y=pars['Qp_y'],
-              octupole_knob=pars['octupole_knob'],
+              machine_configuration=pars.machine_configuration,
+              beta_x=pars.beta_x, beta_y=pars.beta_y,
+              accQ_x=pars.Q_x, accQ_y=pars.Q_y,
+              Qp_x=pars.Qp_x, Qp_y=pars.Qp_y,
+              octupole_knob=pars.octupole_knob,
               optics_dict=None,
-              V_RF=pars['V_RF']
+              V_RF=pars.V_RF
               )
     Qs = machine.longitudinal_map.Q_s
     Qx = machine.transverse_map.accQ_x
@@ -293,7 +300,7 @@ for ifol, folder in enumerate(folders_compare):
 
     axtext.text(0.5, 0.5,
             'Tune machine: %.4f'%frac_qx +\
-            '\nSynchrotron tune: %.3fe-3 (V_RF: %.1f MV)'%(Qs*1e3, pars['V_RF']*1e-6) +\
+            '\nSynchrotron tune: %.3fe-3 (V_RF: %.1f MV)'%(Qs*1e3, pars.V_RF*1e-6) +\
         '\nTune centroid: %.4f (%.2fe-3)\n'%(tune_centroid, 1e3*tune_centroid-frac_qx*1e3)+\
         'Tune mode (cos): %.4f (%.2fe-3)\n'%(tune_1mode_re, 1e3*tune_1mode_re-1e3*frac_qx) +\
         'Tune mode (sin): %.4f (%.2fe-3)'%(tune_1mode_im, 1e3*tune_1mode_im-1e3*frac_qx),
