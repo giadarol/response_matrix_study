@@ -51,19 +51,27 @@ axglob = figglob.add_subplot(111)
 axdistrlist = []
 figfplist = []
 for ifol, folder in enumerate(folders):
-    # pars = extract_info_from_sim_param(folder+'/Simulation_parameters.py')
-    # TEMPORARY!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    pars = extract_info_from_sim_param('../reference_simulation/Simulation_parameters.py')
+    try:
+        import pickle
+        with open(folder+'/sim_param.pkl', 'rb') as fid:
+            pars = pickle.load(fid)
+    except IOError:
+        config_module_file = folder+'/Simulation_parameters.py'
+        print('Config pickle not found, loading from module:')
+        print(config_module_file)
+        pars = mfm.obj_from_dict(
+                extract_info_from_sim_param(config_module_file))
+
     machine = LHC_custom.LHC(
-          n_segments=1,
-          machine_configuration=pars['machine_configuration'],
-          beta_x=pars['beta_x'], beta_y=pars['beta_y'],
-          accQ_x=pars['Q_x'], accQ_y=pars['Q_y'],
-          Qp_x=pars['Qp_x'], Qp_y=pars['Qp_y'],
-          octupole_knob=pars['octupole_knob'],
-          optics_dict=None,
-          V_RF=pars['V_RF']
-          )
+              n_segments=1,
+              machine_configuration=pars.machine_configuration,
+              beta_x=pars.beta_x, beta_y=pars.beta_y,
+              accQ_x=pars.Q_x, accQ_y=pars.Q_y,
+              Qp_x=pars.Qp_x, Qp_y=pars.Qp_y,
+              octupole_knob=pars.octupole_knob,
+              optics_dict=None,
+              V_RF=pars.V_RF
+              )
     Qs = machine.longitudinal_map.Q_s
     Qx = machine.transverse_map.accQ_x
     Qy = machine.transverse_map.accQ_y
