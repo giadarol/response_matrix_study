@@ -1,5 +1,5 @@
 force_interp_at_substeps_interacting_slices = True
-Dt_ref = 10e-12
+Dt_ref = 1.
 
 pyecl_input_folder = '!folder_of_this_file!/reference_simulation/pyecloud_config'
 
