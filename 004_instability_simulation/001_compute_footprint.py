@@ -8,11 +8,6 @@ from PyPARIS_sim_class import Simulation as sim_mod
 import PyPARIS.util as pu
 import PyPARIS_sim_class.frequency_analysis as fa
 
-# Import response_matrix
-import sys
-sys.path.append('../')
-import response_matrix.response_matrix as rm
-
 
 # start-settings-section
 recenter_all_slices = False # Cancels initial kick from input
