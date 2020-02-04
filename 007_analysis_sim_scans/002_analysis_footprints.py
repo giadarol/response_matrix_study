@@ -21,7 +21,7 @@ cmap = plt.cm.rainbow
 
 
 fname_root = None
-strength_scan = np.arange(0.1, 2.1, 0.1)
+strength_scan = np.arange(0.1, 1.1, 0.1)
 folders = [f'../006a_footprints_strength_scan/simulations/strength_{ss:.2e}' for ss in strength_scan]
 labels = [f'{ss:.1f}' for ss in strength_scan]
 leg_labels = labels

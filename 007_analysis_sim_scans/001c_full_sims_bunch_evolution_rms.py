@@ -58,7 +58,7 @@ from scipy.constants import c as ccc
 # cmap = None
 
 # Comparison strength
-strength_list = np.arange(0.1, 2.1, 0.1)[::2]
+strength_list = np.arange(0.1, 1.1, 0.1)[::-1][:5]
 labels = [f'strength {ss:.1f}' for ss in strength_list]
 folders_compare = [
      f'../005d_strength_scan_6MV_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
@@ -67,8 +67,9 @@ folders_compare = [
 fft2mod = 'log'
 fname = None
 i_start_list = None
-n_turns = 30*[10000000]
-cmap = None
+n_turns = 30*[2000]
+cmap = plt.cm.rainbow
+i_force_line = None
 #######################################################################
 
 flag_naff = False
@@ -241,14 +242,19 @@ for ifol, folder in enumerate(folders_compare):
     axcentroid.ticklabel_format(style='sci', scilimits=(0, 0), axis='y')
 
     # Plot time evolution of most unstable "mode"
-    i_mode = np.argmax(
+    if i_force_line is None:
+        i_mode = np.argmax(
             np.max(np.abs(ffts[:ffts.shape[0]//2, mask_zero][:, :-50]), axis=1)\
           - np.max(np.abs(ffts[:ffts.shape[0]//2, mask_zero][:, :50]), axis=1))
+        forced = False
+    else:
+        i_mode = i_force_line
+        forced = True
     ax1mode.plot(np.real(ffts[i_mode, :][mask_zero]), label = 'cos comp.')
     ax1mode.plot(np.imag(ffts[i_mode, :][mask_zero]), alpha=0.5, label='sin comp.')
     ax1mode.legend(loc='best', prop={'size':12})
     ax1mode.set_xlabel('Turn')
-    ax1mode.set_ylabel('Most unstable mode')
+    ax1mode.set_ylabel(f'Line with {n_osc_axis[i_mode]} osc.')
     ax1mode.grid(True, linestyle='--', alpha=0.5)
     ax1mode.ticklabel_format(style='sci', scilimits=(0, 0), axis='y')
     ax1mode.set_xlim(0, np.sum(mask_zero))
@@ -302,6 +308,8 @@ for ifol, folder in enumerate(folders_compare):
             'Tune machine: %.4f'%frac_qx +\
             '\nSynchrotron tune: %.3fe-3 (V_RF: %.1f MV)'%(Qs*1e3, pars.V_RF*1e-6) +\
         '\nTune centroid: %.4f (%.2fe-3)\n'%(tune_centroid, 1e3*tune_centroid-frac_qx*1e3)+\
+        f'Mode {i_mode}, {n_osc_axis[i_mode]:.2f} oscillations ' +\
+        {False: "(most unstable)", True: "(forced)"}[forced] + '\n'+\
         'Tune mode (cos): %.4f (%.2fe-3)\n'%(tune_1mode_re, 1e3*tune_1mode_re-1e3*frac_qx) +\
         'Tune mode (sin): %.4f (%.2fe-3)'%(tune_1mode_im, 1e3*tune_1mode_im-1e3*frac_qx),
         size=12, ha='center', va='center')

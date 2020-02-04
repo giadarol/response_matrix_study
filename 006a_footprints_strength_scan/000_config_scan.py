@@ -10,7 +10,7 @@ PYTHONPATH=$PYTHONPATH:{os.path.abspath('../')}
 '''
 # Last one is to get response matrix path
 
-strength_scan = np.arange(0.1, 2.1, 0.1)
+strength_scan = np.arange(0.1, 1.1, 0.1)
 
 files_to_be_copied = [
         '../004_instability_simulation/001_compute_footprint.py']
