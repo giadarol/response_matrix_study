@@ -9,6 +9,7 @@ import matplotlib.gridspec as gridspec
 import glob
 
 from scipy.signal import savgol_filter
+import scipy.io as sio
 
 from PyPARIS_sim_class import LHC_custom
 from PyPARIS_sim_class import propsort as ps
@@ -28,10 +29,9 @@ from scipy.constants import c as ccc
 # cmap = None
 
 # # Comparison against full study
-# VRF_MV = 8
-# labels = [f'test_12', 'test_200', 'reference']
+# VRF_MV = 6
+# labels = ['test_200', 'reference']
 # folders_compare = [
-#     f'../005a_voltage_scan_matrix_map/simulations/V_RF_{VRF_MV:.1e}',
 #     f'../005g_voltage_scan_all_harmonics_matrix_map/simulations/V_RF_{VRF_MV:.1e}',
 #     ('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_017/'
 #         'inj_arcQuad_drift_sey_1.4_intensity_1.2e11ppb_sigmaz_97mm_VRF_3_8MV_yes_no_initial_kick/'
@@ -43,32 +43,44 @@ from scipy.constants import c as ccc
 # i_start_list = None
 # n_turns = 6*[10000000]
 # cmap = None
+# i_force_line = 2
+# fit_cut = 2000
 
-# # Comparison v
-# V_list = np.arange(3, 8.1, 1)
-# labels = [f'{vv:.1f}_MV' for vv in V_list]
-# folders_compare = [
-# #    f'../005a_voltage_scan_matrix_map/simulations/V_RF_{vv:.1e}' for vv in V_list]
-# #    f'../005c_voltage_scan_map_only/simulations/V_RF_{vv:.1e}' for vv in V_list]
-#     f'../005b_voltage_scan_matrix_only/simulations/V_RF_{vv:.1e}' for vv in V_list]
-# fname = None
-# fft2mod = 'lin'
-# i_start_list = None
-# n_turns = 12*[10000000]
-# cmap = None
 
-# Comparison strength
-strength_list = np.arange(0.1, 2.1, 0.1)[::2]
-labels = [f'strength {ss:.1f}' for ss in strength_list]
+# Comparison v
+V_list = np.arange(3, 8.1, 1)
+labels = [f'{vv:.1f}_MV' for vv in V_list]
 folders_compare = [
-     f'../005d_strength_scan_6MV_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
-#     f'../005e_strength_scan_6MV_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
-#     f'../005f_strength_scan_6MV_map_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
-fft2mod = 'log'
-fname = None
+#    f'../005a_voltage_scan_matrix_map/simulations/V_RF_{vv:.1e}' for vv in V_list]
+#    f'../005c_voltage_scan_map_only/simulations/V_RF_{vv:.1e}' for vv in V_list]
+#    f'../005b_voltage_scan_matrix_only/simulations/V_RF_{vv:.1e}' for vv in V_list]
+    f'../005g_voltage_scan_all_harmonics_matrix_map/simulations/V_RF_{vv:.1e}' for vv in V_list]
+#      ('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_017/'
+#          'inj_arcQuad_drift_sey_1.4_intensity_1.2e11ppb_sigmaz_97mm_VRF_3_8MV_yes_no_initial_kick/'
+#           'simulations_PyPARIS/'
+#      f'ArcQuad_no_initial_kick_T0_x_slices_500_segments_8_MPslice_2500_eMPs_5e5_length_07_sey_1.4_intensity_1.2e11ppb_VRF_{vv:d}MV') for vv in np.int_(V_list)]
+fname = 'forced_vscan_matrix_200harm'
+#fname = 'forced_vscan_sim'
+fft2mod = 'lin'
 i_start_list = None
-n_turns = 30*[10000000]
-cmap = None
+n_turns = 12*[10000000]
+cmap = plt.cm.rainbow
+i_force_line = 2
+fit_cut = 2000
+
+# # Comparison strength
+# strength_list = np.arange(0.1, 2.1, 0.1)[::2]
+# labels = [f'strength {ss:.1f}' for ss in strength_list]
+# folders_compare = [
+#      f'../005d_strength_scan_6MV_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
+# #     f'../005e_strength_scan_6MV_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
+# #     f'../005f_strength_scan_6MV_map_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
+# fft2mod = 'log'
+# fname = None
+# i_start_list = None
+# n_turns = 30*[10000000]
+# cmap = plt.cm.rainbow
+# i_force_line = 2
 #######################################################################
 
 flag_naff = False
@@ -95,6 +107,7 @@ ax11 = fig1.add_subplot(3,1,1)
 ax12 = fig1.add_subplot(3,1,2, sharex=ax11)
 ax13 = fig1.add_subplot(3,1,3, sharex=ax11)
 
+p_list = []
 for ifol, folder in enumerate(folders_compare):
 
     print('Folder %d/%d'%(ifol, len(folders_compare)))
@@ -134,7 +147,7 @@ for ifol, folder in enumerate(folders_compare):
     ax11.plot(ob.mean_x[mask_zero]*1e3, label=labels[ifol], **kwargs)
     ax12.plot(ob.epsn_x[mask_zero]*1e6, **kwargs)
     intrabunch_activity = savgol_filter(rms_x[mask_zero], 21, 3)
-    ax13.plot(intrabunch_activity, **kwargs)
+    # ax13.plot(intrabunch_activity, **kwargs)
 
     import sys
     sys.path.append('./NAFFlib')
@@ -228,7 +241,7 @@ for ifol, folder in enumerate(folders_compare):
     else:
         matplot = np.abs(fft2)
     axfft2.pcolormesh(q_axis_fft2,
-            n_osc_axis, matplot) 
+            n_osc_axis, matplot)
     axfft2.set_ylabel('N. oscillations\nin 4 sigmaz')
     axfft2.set_ylim(0, 5)
     axfft2.set_xlim(0.25, .30)
@@ -241,17 +254,32 @@ for ifol, folder in enumerate(folders_compare):
     axcentroid.ticklabel_format(style='sci', scilimits=(0, 0), axis='y')
 
     # Plot time evolution of most unstable "mode"
-    i_mode = np.argmax(
+    if i_force_line is None:
+        i_mode = np.argmax(
             np.max(np.abs(ffts[:ffts.shape[0]//2, mask_zero][:, :-50]), axis=1)\
           - np.max(np.abs(ffts[:ffts.shape[0]//2, mask_zero][:, :50]), axis=1))
+        forced = False
+    else:
+        i_mode = i_force_line
+        forced = True
     ax1mode.plot(np.real(ffts[i_mode, :][mask_zero]), label = 'cos comp.')
     ax1mode.plot(np.imag(ffts[i_mode, :][mask_zero]), alpha=0.5, label='sin comp.')
     ax1mode.legend(loc='best', prop={'size':12})
     ax1mode.set_xlabel('Turn')
-    ax1mode.set_ylabel('Most unstable mode')
+    ax1mode.set_ylabel(f'Line with {n_osc_axis[i_mode]:.2f} osc.')
     ax1mode.grid(True, linestyle='--', alpha=0.5)
     ax1mode.ticklabel_format(style='sci', scilimits=(0, 0), axis='y')
     ax1mode.set_xlim(0, np.sum(mask_zero))
+
+    activity_mode = savgol_filter(np.abs(ffts[i_mode, :][mask_zero]), 21, 3)
+    x_fit = np.arange(len(activity_mode), dtype=np.float)
+    p_fit = np.polyfit(x_fit[20:fit_cut], np.log(activity_mode)[20:fit_cut], deg = 1)
+    y_fit = np.polyval(p_fit, x_fit)
+    p_list.append(p_fit)
+    tau = 1./p_fit[0]
+
+    ax13.plot(np.log(activity_mode), **kwargs)
+    ax13.plot(y_fit, **kwargs)
 
     for ax in [axcentroid, ax1mode]:
         ax.set_ylim(np.array([-1, 1])*np.max(np.abs(np.array(ax.get_ylim()))))
@@ -262,12 +290,16 @@ for ifol, folder in enumerate(folders_compare):
 
     N_traces = 15
     max_intr = np.max(intrabunch_activity)
-    try:
-        i_start = np.where(intrabunch_activity<0.3*max_intr)[0][-1] - N_traces
-    except IndexError:
-        i_start = 0
-    # i_start = np.sum(mask_zero) - 2*N_traces
-    for i_trace in range(i_start, i_start+15):
+    if i_start_list is None:
+        try:
+            #i_start = np.where(intrabunch_activity<0.3*max_intr)[0][-1] - N_traces
+            i_start = int(np.round(3. * tau))
+        except IndexError:
+            i_start = 0
+        # i_start = np.sum(mask_zero) - 2*N_traces
+    else:
+        i_start = i_start_list[ifol]
+    for i_trace in range(i_start, i_start+N_traces):
         wx_trace_filtered = savgol_filter(wx[:,i_trace], 31, 3)
         mask_filled = ob_slice.n_macroparticles_per_slice[:,i_trace]>0
         axtraces.plot(ob_slice.mean_z[mask_filled, i_trace],
@@ -281,7 +313,12 @@ for ifol, folder in enumerate(folders_compare):
                 i_start+N_traces-1),
             transform=axtraces.transAxes, ha='left', va='bottom')
 
-    plt.suptitle(labels[ifol])
+    if fname is not None:
+        titlestr = fname + ' '
+    else:
+        titlestr = ''
+    titlestr += labels[ifol]
+    plt.suptitle(titlestr)
 
     # Get Qx Qs
     machine = LHC_custom.LHC(
@@ -302,8 +339,11 @@ for ifol, folder in enumerate(folders_compare):
             'Tune machine: %.4f'%frac_qx +\
             '\nSynchrotron tune: %.3fe-3 (V_RF: %.1f MV)'%(Qs*1e3, pars.V_RF*1e-6) +\
         '\nTune centroid: %.4f (%.2fe-3)\n'%(tune_centroid, 1e3*tune_centroid-frac_qx*1e3)+\
+        f'Mode {i_mode}, {n_osc_axis[i_mode]:.2f} oscillations ' +\
+        {False: "(most unstable)", True: "(forced)"}[forced] + '\n'+\
         'Tune mode (cos): %.4f (%.2fe-3)\n'%(tune_1mode_re, 1e3*tune_1mode_re-1e3*frac_qx) +\
-        'Tune mode (sin): %.4f (%.2fe-3)'%(tune_1mode_im, 1e3*tune_1mode_im-1e3*frac_qx),
+        'Tune mode (sin): %.4f (%.2fe-3)\n'%(tune_1mode_im, 1e3*tune_1mode_im-1e3*frac_qx) +\
+        f'Tau mode: {tau:.0f} turns',
         size=12, ha='center', va='center')
     axtext.axis('off')
     # These are the sin and cos components
@@ -335,5 +375,6 @@ leg = ax11.legend(prop={'size':10})
 legfft = axfft.legend(prop={'size':10})
 if fname is not None:
     fig1.savefig(fname+'.png', dpi=200)
-
+    sio.savemat(fname+'_fit.mat', {
+        'p_coeff': np.array(p_list)[:, 0]})
 plt.show()
