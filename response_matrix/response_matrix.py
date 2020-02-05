@@ -65,6 +65,11 @@ class ResponseMatrix(Element):
     def response_to_slice_array(self, arr):
         return np.dot(self.WW, arr.T)*self.kick_factor
 
+    def decompose_trace(self, arr):
+        a_coeff = np.dot(np.dot(self.RR_inv, np.dot(self.FF.T, self.CC_tails)), arr.T)
+        x_reconstr= np.dot(self.FF, np.dot(self.CC, a_coeff.T))
+        return a_coeff, x_reconstr
+
     def track(self, bunch):
         slices = bunch.get_slices(
                 self.slicer, statistics=['mean_'+ self.coord])

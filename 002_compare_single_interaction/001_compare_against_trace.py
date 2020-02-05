@@ -82,36 +82,50 @@ respmat.track(bunch)
 bunch.clean_slices()
 slices_test = bunch.get_slices(slicer, statistics=['mean_x', 'mean_xp'])
 
+# Get x_reconstr
+a_coeff, x_reconstr = respmat.decompose_trace(x_test)
+
 # Plots
 import matplotlib.pyplot as plt
+import PyECLOUD.mystyle as ms
 plt.close('all')
+ms.mystyle(fontsz=14, traditional_look=False)
+
 z_resp = respmat.z_resp
 
-fig2 = plt.figure(2)
-ax2 = fig2.add_subplot(111)
-ax2.plot(z_resp, x_test)
-ax2.plot(slices_test.z_centers, slices_test.mean_x, '.')
+fig2 = plt.figure(2, figsize=(6.4, 4.8*1.5))
+ax2 = fig2.add_subplot(3,1,2)
+ax2.plot(z_resp, 1e3*x_test, label='Test trace')
+ax2.plot(z_resp, 1e3*x_reconstr, label=f'Reconstructed (n={n_terms_to_be_kept})')
+ax2.set_ylim(1e3*np.nanmax(np.abs(x_test))*np.array([-1, 1]))
+ax2.set_ylabel('x [mm]')
+ax2.legend(prop={'size':12}, loc='lower right', ncol=2)
 
-fig3 = plt.figure(3)
-ax3 = fig3.add_subplot(111)
-ax3.plot(z_resp, obsim.dpx_slices, label='sim')
-ax3.plot(z_resp, respmat.response_to_slice_array(x_test), label='lin2')
-ax3.plot(slices_test.z_centers, slices_test.mean_xp, label='from matrix')
-ax3.legend()
+ax3 = fig2.add_subplot(3,1,3, sharex=ax2)
+ax3.plot(z_resp, 1e6*obsim.dpx_slices, label='Simulation')
+ax3.plot(slices_test.z_centers, 1e6*slices_test.mean_xp, label=f'Harm. response (n={n_terms_to_be_kept})')
+ax3.set_ylim(1e6*np.nanmax(np.abs(obsim.dpx_slices))*np.array([-1.5, 1.1]))
+ax3.set_ylabel('Dpx [urad]')
+ax3.set_xlabel('z [m]')
+ax3.legend(prop={'size':12}, loc='lower right', ncol=2)
+
+
+for aa in [ax2, ax3]:
+    aa.grid(linestyle=':', alpha=.9)
 
 xg = obsim.xg
 yg = obsim.yg
 i_yzero = np.argmin(np.abs(xg))
 
-fig20 = plt.figure(20)
-ax21 = fig20.add_subplot(2,1,1)
-ax22 = fig20.add_subplot(2,1,2, sharex=ax21)
+ax21 = fig2.add_subplot(3,1,1, sharex=ax2)
 
-ax21.pcolormesh(obsim.z_slices, xg, obsim.rho_cut.T)
-ax21.plot(obsim.z_slices, obsim.x_slices, 'k', lw=2)
-ax22.plot(obsim.z_slices, obsim.dpx_slices)
-ax22.set_ylim(np.nanmax(np.abs(obsim.dpx_slices))*np.array([-1, 1]))
-ax22.grid(True)
+ax21.pcolormesh(obsim.z_slices, 1e3*xg, obsim.rho_cut.T)
+ax21.plot(obsim.z_slices, 1e3*obsim.x_slices, 'k', lw=2)
+ax21.set_ylim(-2.5, 2.5)
+ax21.set_ylabel('x [mm]')
+ax21.set_title('Electron density', fontsize=14)
 
+fig2.subplots_adjust(hspace=.22, left=.18,
+        bottom=0.09, top=.93)
 
 plt.show()
