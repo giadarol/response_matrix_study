@@ -115,7 +115,7 @@ for aa in [ax2, ax3]:
 
 xg = obsim.xg
 yg = obsim.yg
-i_yzero = np.argmin(np.abs(xg))
+i_yzero = np.argmin(np.abs(yg))
 
 ax21 = fig2.add_subplot(3,1,1, sharex=ax2)
 

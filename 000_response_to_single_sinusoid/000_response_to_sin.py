@@ -104,7 +104,7 @@ first_ecloud = sim_content.parent_eclouds[0]
 xg = first_ecloud.cloudsim.spacech_ele.xg
 yg = first_ecloud.cloudsim.spacech_ele.yg
 
-i_yzero = np.argmin(np.abs(xg))
+i_yzero = np.argmin(np.abs(yg))
 rho_cut = rho_slices[:, :, i_yzero]
 
 

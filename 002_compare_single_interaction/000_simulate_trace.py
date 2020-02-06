@@ -98,7 +98,7 @@ first_ecloud = sim_content.parent_eclouds[0]
 xg = first_ecloud.cloudsim.spacech_ele.xg
 yg = first_ecloud.cloudsim.spacech_ele.yg
 
-i_yzero = np.argmin(np.abs(xg))
+i_yzero = np.argmin(np.abs(yg))
 rho_cut = rho_slices[:, :, i_yzero]
 
 sio.savemat(fname_out,{
@@ -123,10 +123,6 @@ fig3 = plt.figure(3)
 ax3 = fig3.add_subplot(111)
 ax3.plot(z_slices, dpx_slices)
 
-xg = first_ecloud.cloudsim.spacech_ele.xg
-yg = first_ecloud.cloudsim.spacech_ele.yg
-
-i_yzero = np.argmin(np.abs(xg))
 
 fig20 = plt.figure(20)
 ax21 = fig20.add_subplot(2,1,1)
