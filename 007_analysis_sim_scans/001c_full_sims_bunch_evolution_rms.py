@@ -47,46 +47,46 @@ from scipy.constants import c as ccc
 # fit_cut = 2000
 
 
-# Comparison v
-V_list = np.arange(3, 8.1, 1)
-labels = [f'{vv:.1f}_MV' for vv in V_list]
-folders_compare = [
-#    f'../005a_voltage_scan_matrix_map/simulations/V_RF_{vv:.1e}' for vv in V_list]
-#    f'../005c_voltage_scan_map_only/simulations/V_RF_{vv:.1e}' for vv in V_list]
-#    f'../005b_voltage_scan_matrix_only/simulations/V_RF_{vv:.1e}' for vv in V_list]
-#    f'../005g_voltage_scan_all_harmonics_matrix_map/simulations/V_RF_{vv:.1e}' for vv in V_list]
-#    f'../005k_voltage_scan_all_harmonics_damper_off_matrix_map/simulations/V_RF_{vv:.1e}' for vv in V_list]
-#    f'../005l_voltage_scan_all_harmonics_damper_off_matrix_only/simulations/V_RF_{vv:.1e}' for vv in V_list]
-      ('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_017/'
-          'inj_arcQuad_drift_sey_1.4_intensity_1.2e11ppb_sigmaz_97mm_VRF_3_8MV_yes_no_initial_kick/'
-           'simulations_PyPARIS/'
-      f'ArcQuad_yes_initial_kick_T0_x_slices_500_segments_8_MPslice_2500_eMPs_5e5_length_07_sey_1.4_intensity_1.2e11ppb_VRF_{vv:d}MV') for vv in np.int_(V_list)]
-#fname = 'forced_vscan_matrix_200harm_nodamper'
-fname = 'forced_vscan_sim_kick'
-#fname = None
-fft2mod = 'lin'
-i_start_list = None
-n_turns = 12*[10000000]
-cmap = plt.cm.rainbow
-i_force_line = 2
-fit_cut = 5000
-
-# # Comparison strength
-# strength_list = np.arange(0.1, 2.1, 0.1)
-# labels = [f'strength {ss:.1f}' for ss in strength_list]
+# # Comparison v
+# V_list = np.arange(3, 8.1, 1)
+# labels = [f'{vv:.1f}_MV' for vv in V_list]
 # folders_compare = [
-# #     f'../005d_strength_scan_6MV_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
-# #     f'../005e_strength_scan_6MV_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
-# #     f'../005f_strength_scan_6MV_map_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
-#      f'../005i_strength_scan_6MV_all_harmonics_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
-# fft2mod = 'log'
-# fname = 'forced_strength_scan_12harm'
-# fname = None
+# #    f'../005a_voltage_scan_matrix_map/simulations/V_RF_{vv:.1e}' for vv in V_list]
+#     f'../005c_voltage_scan_map_only/simulations/V_RF_{vv:.1e}' for vv in V_list]
+# #    f'../005b_voltage_scan_matrix_only/simulations/V_RF_{vv:.1e}' for vv in V_list]
+# #    f'../005g_voltage_scan_all_harmonics_matrix_map/simulations/V_RF_{vv:.1e}' for vv in V_list]
+# #    f'../005k_voltage_scan_all_harmonics_damper_off_matrix_map/simulations/V_RF_{vv:.1e}' for vv in V_list]
+# #    f'../005l_voltage_scan_all_harmonics_damper_off_matrix_only/simulations/V_RF_{vv:.1e}' for vv in V_list]
+# #      ('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_017/'
+# #          'inj_arcQuad_drift_sey_1.4_intensity_1.2e11ppb_sigmaz_97mm_VRF_3_8MV_yes_no_initial_kick/'
+# #           'simulations_PyPARIS/'
+# #      f'ArcQuad_yes_initial_kick_T0_x_slices_500_segments_8_MPslice_2500_eMPs_5e5_length_07_sey_1.4_intensity_1.2e11ppb_VRF_{vv:d}MV') for vv in np.int_(V_list)]
+# fname = 'forced_vscan_matrix_200harm_nodamper_map_only'
+# #fname = 'forced_vscan_sim_kick'
+# #fname = None
+# fft2mod = 'lin'
 # i_start_list = None
-# n_turns = 30*[10000000]
+# n_turns = 12*[10000000]
 # cmap = plt.cm.rainbow
 # i_force_line = 2
 # fit_cut = 5000
+
+# Comparison strength
+strength_list = np.arange(0.1, 2.1, 0.1)
+labels = [f'strength {ss:.1f}' for ss in strength_list]
+folders_compare = [
+#     f'../005d_strength_scan_6MV_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
+#     f'../005e_strength_scan_6MV_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
+#     f'../005f_strength_scan_6MV_map_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
+     f'../005i_strength_scan_6MV_all_harmonics_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
+fft2mod = 'lin'
+fname = 'forced_strength_scan_200harm'
+#fname = None
+i_start_list = None
+n_turns = 30*[10000000]
+cmap = plt.cm.rainbow
+i_force_line = 2
+fit_cut = 5000
 #######################################################################
 
 flag_naff = False
