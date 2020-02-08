@@ -72,7 +72,7 @@ from scipy.constants import c as ccc
 # fit_cut = 5000
 
 # Comparison strength
-strength_list = np.arange(0.1, 2.1, 0.1)
+strength_list = [1.0]# np.arange(0.1, 2.1, 0.1)
 labels = [f'strength {ss:.1f}' for ss in strength_list]
 folders_compare = [
 #     f'../005d_strength_scan_6MV_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
@@ -81,12 +81,13 @@ folders_compare = [
      f'../005i_strength_scan_6MV_all_harmonics_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
 fft2mod = 'lin'
 fname = 'forced_strength_scan_200harm'
-#fname = None
+fname = None
 i_start_list = None
 n_turns = 30*[10000000]
 cmap = plt.cm.rainbow
 i_force_line = 2
 fit_cut = 5000
+flag_compact = True
 #######################################################################
 
 flag_naff = False
@@ -174,12 +175,12 @@ for ifol, folder in enumerate(folders_compare):
     pos_row3 = 0.07
     height_row3 = 0.22
 
-    axffts = figffts.add_axes((pos_col1, pos_row1, axwidth, height_row1))
-    axfft2 = figffts.add_axes((pos_col2, pos_row1, axwidth, height_row1), sharey=axffts)
-    axcentroid = figffts.add_axes((pos_col1, pos_row2, axwidth, height_row2),
-            sharex=axffts)
-    ax1mode = figffts.add_axes((pos_col2, pos_row2, axwidth, height_row2),
-            sharex=axcentroid)
+    axffts = figffts.add_axes((pos_col2, pos_row1, axwidth, height_row1))
+    axfft2 = figffts.add_axes((pos_col1, pos_row1, axwidth, height_row1), sharey=axffts)
+    axcentroid = figffts.add_axes((pos_col2, pos_row2, axwidth, height_row2),
+        sharex=axffts)
+    ax1mode = figffts.add_axes((pos_col1, pos_row2, axwidth, height_row2),
+        sharex=axcentroid)
     axtraces = figffts.add_axes((pos_col1, pos_row3, axwidth, height_row3))
     axtext = figffts.add_axes((pos_col2, pos_row3, axwidth, height_row3))
 
@@ -270,7 +271,7 @@ for ifol, folder in enumerate(folders_compare):
         forced = True
     ax1mode.plot(np.real(ffts[i_mode, :][mask_zero]), label = 'cos comp.')
     ax1mode.plot(np.imag(ffts[i_mode, :][mask_zero]), alpha=0.5, label='sin comp.')
-    ax1mode.legend(loc='best', prop={'size':12})
+    ax1mode.legend(loc='upper left', prop={'size':11})
     ax1mode.set_xlabel('Turn')
     ax1mode.set_ylabel(f'Line with {n_osc_axis[i_mode]:.2f} osc.')
     ax1mode.grid(True, linestyle='--', alpha=0.5)
@@ -293,6 +294,13 @@ for ifol, folder in enumerate(folders_compare):
     tune_centroid = nl.get_tune(ob.mean_x[mask_zero])
     tune_1mode_re = nl.get_tune(np.real(ffts[i_mode, :]))
     tune_1mode_im = nl.get_tune(np.imag(ffts[i_mode, :]))
+
+    if flag_compact:
+        ax1mode.text(0.02, 0.02,
+            (f'Tau: {tau:.0f} turns\n'
+             f'Tunes: {tune_1mode_re:.4f}/{tune_1mode_im:.4f}'),
+            transform=ax1mode.transAxes,
+            ha='left', va='bottom', fontsize=11)
 
     N_traces = 15
     max_intr = np.max(intrabunch_activity)
@@ -322,14 +330,20 @@ for ifol, folder in enumerate(folders_compare):
     axtraces.set_ylabel("P.U. signal")
     axtraces.text(0.02, 0.02, 'Turns:\n%d - %d'%(i_start,
                 i_start+N_traces-1),
-            transform=axtraces.transAxes, ha='left', va='bottom')
+            transform=axtraces.transAxes, ha='left', va='bottom',
+            fontsize=10)
 
     if fname is not None:
         titlestr = fname + ' '
     else:
         titlestr = ''
     titlestr += labels[ifol]
-    plt.suptitle(titlestr)
+    if flag_compact:
+        plt.suptitle(titlestr,
+            x=0.1,
+            horizontalalignment='left')
+    else:
+        plt.suptitle(titlestr)
 
     # Get Qx Qs
     machine = LHC_custom.LHC(
