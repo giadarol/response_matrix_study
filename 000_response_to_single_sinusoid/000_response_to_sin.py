@@ -3,6 +3,8 @@ import numpy as np
 import scipy.io as sio
 import time
 
+from scipy.constants import e as qe
+
 from PyPARIS_sim_class import Simulation as sim_mod
 import PyPARIS.util as pu
 
@@ -41,22 +43,29 @@ sim_content.init_all()
 # Initialize master to get the beam
 if os.path.exists('simulation_status.sta'):
     os.remove('simulation_status.sta')
-slices = sim_content.init_master()
-N_slices = len(slices)
+sim_content.init_master()
 
-# Re-center all slices
-for ss in slices:
-    if ss.macroparticlenumber:
-        ss.x -= ss.mean_x()
-        ss.xp -= ss.mean_xp()
+
+# Get bunch and slicer
+bunch = sim_content.bunch
+slicer = sim_content.slicer
+
+
+# Recenter all slices
+slices_set = bunch.get_slices(slicer, statistics=True)
+for ii in range(slices_set.n_slices):
+    ix = slices_set.particle_indices_of_slice(ii)
+    if len(ix) > 0:
+        bunch.x[ix] -= np.mean(bunch.x[ix])
+        bunch.xp[ix] -= np.mean(bunch.xp[ix])
 
 # Optionally remove charge from bunch
 if flag_no_bunch_charge:
-    for ss in slices:
-        ss.particlenumber_per_mp = 1e-10
+    bunch.particlenumber_per_mp = 1e-10
 
 # Get slice centers
-z_slices = np.array([ss.slice_info['z_bin_center'] for ss in slices])
+z_slices = slices_set.z_centers
+N_slices = len(z_slices)
 
 # Get z_step beween slices and define z_range
 z_step = z_slices[1] - z_slices[0]
@@ -67,21 +76,28 @@ x_ideal = (sin_amplitude * np.sin(2*np.pi*N_oscillations*z_slices/z_range)
          + cos_amplitude * np.cos(2*np.pi*N_oscillations*z_slices/z_range))
 
 # Add sinusoidal distortion to particles
-for ss in slices:
-    if ss.macroparticlenumber>0:
-        #if ss.mean_z() < 0:
-        ss.x += sin_amplitude * np.sin(2*np.pi*N_oscillations*ss.z/z_range)
-        ss.x += cos_amplitude * np.cos(2*np.pi*N_oscillations*ss.z/z_range)
+bunch.x += sin_amplitude * np.sin(2*np.pi*N_oscillations*bunch.z/z_range)
+bunch.x += cos_amplitude * np.cos(2*np.pi*N_oscillations*bunch.z/z_range)
 
 # Measure
-x_slices = np.array([ss.mean_x() for ss in slices])
-int_slices = np.array([ss.intensity for ss in slices])
+bunch.clean_slices()
+slices_set = bunch.get_slices(slicer, statistics=True)
+x_slices = slices_set.mean_x
+int_slices = slices_set.lambda_bins()/qe
+
+# Apply impedance
+for imp in sim_content.impedances:
+    imp.track(bunch)
+
+# Extract slice objects
+slices = bunch.extract_slices(slicer)
 
 # Simulate e-cloud interactions
 t_start = time.mktime(time.localtime())
 dpx_slices = []
 rho_slices = []
 for i_ss, ss in enumerate(slices[::-1]):
+    temp_rho = 0.
     if np.mod(i_ss, 20)==0:
         print(("%d / %d"%(i_ss, N_slices)))
     for i_ee, ee in enumerate(sim_content.parent_eclouds):
@@ -100,12 +116,18 @@ print(('Ecloud sim time %.2f s' % (t_end - t_start)))
 dpx_slices_all_clouds = dpx_slices * sim_content.n_segments
 
 # Savings and plots
-first_ecloud = sim_content.parent_eclouds[0]
-xg = first_ecloud.cloudsim.spacech_ele.xg
-yg = first_ecloud.cloudsim.spacech_ele.yg
+if len(sim_content.parent_eclouds) > 0:
+    first_ecloud = sim_content.parent_eclouds[0]
+    xg = first_ecloud.cloudsim.spacech_ele.xg
+    yg = first_ecloud.cloudsim.spacech_ele.yg
 
-i_yzero = np.argmin(np.abs(yg))
-rho_cut = rho_slices[:, :, i_yzero]
+    i_yzero = np.argmin(np.abs(yg))
+    rho_cut = rho_slices[:, :, i_yzero]
+else:
+    xg = 0.
+    yg = 0.
+    rho_cut = 0.
+    i_yzero = None
 
 
 sio.savemat('response.mat',{
@@ -138,7 +160,8 @@ if flag_plots:
     ax21 = fig2.add_subplot(2,1,1)
     ax22 = fig2.add_subplot(2,1,2, sharex=ax21)
 
-    ax21.pcolormesh(z_slices, xg, rho_slices[:, :, i_yzero].T)
+    if i_yzero is not None:
+        ax21.pcolormesh(z_slices, xg, rho_slices[:, :, i_yzero].T)
     ax21.plot(z_slices, x_slices, 'k', lw=2)
     ax22.plot(z_slices, dpx_slices)
     ax22.set_ylim(np.nanmax(np.abs(dpx_slices))*np.array([-1, 1]))
