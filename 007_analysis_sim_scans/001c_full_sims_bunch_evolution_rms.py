@@ -29,22 +29,25 @@ from scipy.constants import c as ccc
 # cmap = None
 
 # # Comparison against full study
-# VRF_MV = 6
-# labels = ['test_200', 'reference']
+# VRF_MV = 8
+# labels = ['matrix_map', 'matrix_only', 'map_only', 'simulation']
 # folders_compare = [
-#     f'../005g_voltage_scan_all_harmonics_matrix_map/simulations/V_RF_{VRF_MV:.1e}',
+#     f'../005k_voltage_scan_all_harmonics_damper_off_matrix_map/simulations/V_RF_{VRF_MV:.1e}',
+#     f'../005l_voltage_scan_all_harmonics_damper_off_matrix_only/simulations/V_RF_{VRF_MV:.1e}',
+#     f'../005c_voltage_scan_map_only/simulations/V_RF_{VRF_MV:.1e}',
 #     ('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_017/'
 #         'inj_arcQuad_drift_sey_1.4_intensity_1.2e11ppb_sigmaz_97mm_VRF_3_8MV_yes_no_initial_kick/'
 #          'simulations_PyPARIS/'
 #          f'ArcQuad_no_initial_kick_T0_x_slices_500_segments_8_MPslice_2500_eMPs_5e5_length_07_sey_1.4_intensity_1.2e11ppb_VRF_{VRF_MV:d}MV')
 #     ]
-# fname = None
-# fft2mod = 'lin'
-# i_start_list = None
-# n_turns = 6*[10000000]
+# fname = f'comparison_Vrf{VRF_MV:.1f}_MV'
+# fft2mod = 'log'
+# i_start_list = [3000, 3000, 3000, 2000]
+# n_turns = 6*[3500]
 # cmap = None
 # i_force_line = 2
 # fit_cut = 2000
+# flag_compact = True
 
 
 # # Comparison v
@@ -52,17 +55,17 @@ from scipy.constants import c as ccc
 # labels = [f'{vv:.1f}_MV' for vv in V_list]
 # folders_compare = [
 # #    f'../005a_voltage_scan_matrix_map/simulations/V_RF_{vv:.1e}' for vv in V_list]
-#     f'../005c_voltage_scan_map_only/simulations/V_RF_{vv:.1e}' for vv in V_list]
+# #    f'../005c_voltage_scan_map_only/simulations/V_RF_{vv:.1e}' for vv in V_list]
 # #    f'../005b_voltage_scan_matrix_only/simulations/V_RF_{vv:.1e}' for vv in V_list]
 # #    f'../005g_voltage_scan_all_harmonics_matrix_map/simulations/V_RF_{vv:.1e}' for vv in V_list]
-# #    f'../005k_voltage_scan_all_harmonics_damper_off_matrix_map/simulations/V_RF_{vv:.1e}' for vv in V_list]
+#     f'../005k_voltage_scan_all_harmonics_damper_off_matrix_map/simulations/V_RF_{vv:.1e}' for vv in V_list]
 # #    f'../005l_voltage_scan_all_harmonics_damper_off_matrix_only/simulations/V_RF_{vv:.1e}' for vv in V_list]
 # #      ('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_017/'
 # #          'inj_arcQuad_drift_sey_1.4_intensity_1.2e11ppb_sigmaz_97mm_VRF_3_8MV_yes_no_initial_kick/'
 # #           'simulations_PyPARIS/'
 # #      f'ArcQuad_yes_initial_kick_T0_x_slices_500_segments_8_MPslice_2500_eMPs_5e5_length_07_sey_1.4_intensity_1.2e11ppb_VRF_{vv:d}MV') for vv in np.int_(V_list)]
-# fname = 'forced_vscan_matrix_200harm_nodamper_map_only'
-# #fname = 'forced_vscan_sim_kick'
+# fname = 'compact_forced_vscan_matrix_200harm_nodamper_mat_map'
+# #fname = 'compact_forced_vscan_sim_kick'
 # #fname = None
 # fft2mod = 'lin'
 # i_start_list = None
@@ -70,18 +73,25 @@ from scipy.constants import c as ccc
 # cmap = plt.cm.rainbow
 # i_force_line = 2
 # fit_cut = 5000
+# flag_compact = True
 
 # Comparison strength
-strength_list = [1.0]# np.arange(0.1, 2.1, 0.1)
+strength_list = np.arange(0.1, 2.1, 0.1)
 labels = [f'strength {ss:.1f}' for ss in strength_list]
 folders_compare = [
 #     f'../005d_strength_scan_6MV_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005e_strength_scan_6MV_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005f_strength_scan_6MV_map_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
-     f'../005i_strength_scan_6MV_all_harmonics_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
+#     f'../005i_strength_scan_6MV_all_harmonics_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
+#     f'../005j_strength_scan_6MV_all_harmonics_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
+     ('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_019/'
+      'inj_arcQuad_no_initial_kick_no_damper_recenter_slice_sey_1.4'
+      '_intensity_1.2e11ppb_VRF_6MV_scan_length_factor_0.1_2.0/'
+      'simulations_PyPARIS/'
+      f'initial_kick_no_damper_no_recenter_slices_length_factor_{ss:.1f}') for ss in strength_list]
 fft2mod = 'lin'
-fname = 'forced_strength_scan_200harm'
-fname = None
+fname = 'compact_forced_strength_scan_sim'
+# fname = None
 i_start_list = None
 n_turns = 30*[10000000]
 cmap = plt.cm.rainbow
@@ -333,11 +343,10 @@ for ifol, folder in enumerate(folders_compare):
             transform=axtraces.transAxes, ha='left', va='bottom',
             fontsize=10)
 
+    titlestr = labels[ifol]
     if fname is not None:
-        titlestr = fname + ' '
-    else:
-        titlestr = ''
-    titlestr += labels[ifol]
+        titlestr += (' - ' + fname)
+
     if flag_compact:
         plt.suptitle(titlestr,
             x=0.1,
