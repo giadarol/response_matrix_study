@@ -16,7 +16,7 @@ import response_matrix.response_matrix as rm
 # start-settings-section
 n_terms_to_be_kept = 200
 n_tail_cut = 10
-recenter_all_slices = True # Cancels initial kick from input
+recenter_all_slices = False # Cancels initial kick from input
 
 ecloud_strength_scale = 1.
 
