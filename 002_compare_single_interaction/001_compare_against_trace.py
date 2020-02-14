@@ -11,7 +11,7 @@ import sys
 sys.path.append('../')
 import response_matrix.response_matrix as rm
 
-test_data_file = './refsim_turn302.mat'
+test_data_file = './refsim_turn303.mat'
 n_terms_list = range(1, 201, 2)
 n_tail_cut = 10
 response_data_file = '../001_sin_response_scan/response_data.mat'
@@ -121,7 +121,11 @@ for n_terms_to_be_kept in n_terms_list:
 
     ax21 = fig2.add_subplot(3,1,1, sharex=ax2)
 
-    ax21.pcolormesh(obsim.z_slices, 1e3*xg, obsim.rho_cut.T)
+    try:
+        ax21.pcolormesh(obsim.z_slices, 1e3*xg, obsim.rho_cut.T)
+    except:
+        pass
+
     ax21.plot(obsim.z_slices, 1e3*obsim.x_slices, 'k', lw=2)
     ax21.set_ylim(-2.5, 2.5)
     ax21.set_ylabel('x [mm]')
