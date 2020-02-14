@@ -20,8 +20,9 @@ import PyECLOUD.mystyle as ms
 from scipy.constants import c as ccc
 
 # Test
-labels = ['reference']
-folders_compare = ['../reference_simulation/']
+labels = ['reference', 'test']
+folders_compare = ['../reference_simulation/',
+        '../004_instability_simulation']
 fname = None
 fft2mod = 'lin'
 i_start_list = None

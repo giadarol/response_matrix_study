@@ -14,7 +14,7 @@ import response_matrix.response_matrix as rm
 
 
 # start-settings-section
-n_terms_to_be_kept = 12
+n_terms_to_be_kept = 200
 n_tail_cut = 10
 recenter_all_slices = True # Cancels initial kick from input
 
@@ -27,7 +27,7 @@ sim_param_amend_files = ['../Simulation_parameters_amend.py',
 include_response_matrix = True
 response_data_file = '../001_sin_response_scan/response_data.mat'
 
-include_non_linear_map = True
+include_non_linear_map = False
 field_map_file = '../003_generate_field_map/field_map.mat'
 # end-settings-section
 
@@ -39,9 +39,10 @@ sim_content = sim_mod.Simulation(param_file=sim_param_file)
 for ff in sim_param_amend_files:
     sim_content.pp.update(param_file=ff)
 
-# Disable real e-clouds
+# Disable real e-clouds and impedance
 sim_content.pp.enable_arc_dip = False
 sim_content.pp.enable_arc_quad = False
+sim_content.pp.enable_impedance = False
 
 # Add ring of CPU information
 ring_cpu = pu.get_serial_CPUring(sim_content,
