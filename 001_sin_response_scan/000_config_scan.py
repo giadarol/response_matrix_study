@@ -1,7 +1,7 @@
 import os
 import numpy as np
 
-scan_folder_rel = 'simulations_2'
+scan_folder_rel = 'simulations'
 
 environment_preparation = '''
 source /afs/cern.ch/work/g/giadarol/sim_workspace_mpi_py3/venvs/py3/bin/activate
@@ -96,5 +96,5 @@ python {settings_to_be_replaced_in}
 import PyPARIS_sim_class.htcondor_config as htcc
 htcc.htcondor_config(
         scan_folder_abs,
-        time_requirement_days=120./(24*60.), # 120 minutes
+        time_requirement_days=15./(24*60.), # 120 minutes
         htcondor_files_in=scan_folder_abs)
