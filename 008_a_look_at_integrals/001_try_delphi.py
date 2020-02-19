@@ -18,18 +18,60 @@ imp_mod, _ = imp_model_resonator(
                 listcomp=['Zxdip'])
 
 from DELPHI import compute_impedance_matrix, computes_coef
+from DELPHI import eigenmodesDELPHI
+
+lmax = 5
+nmax = 5
 nx = 0 # Coupled-bunch mode
 M = 1 # Number of bunches
 omegaksi = 0. # Chromatic shift
 omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
 Q_frac = .31
+Q_full = 62.31
 tau_b = 1e-9/4
+a_coeff = 8/tau_b**2
+b_coeff = a_coeff
+g_0 = a_coeff/(np.pi)
+gamma = 470.
+omega_s = 0.001909*2*np.pi
 
-b_coef = a_coeff
+MM = compute_impedance_matrix(
+        lmax, nmax, nx, M, omegaksi, omega0, Q_frac,
+        a_coeff, b_coeff, tau_b, np.array([g_0]),
+        Z=imp_mod[0].func, freqZ=imp_mod[0].var,
+        flag_trapz=1, abseps=1e-4,
+        lmaxold=-1, nmaxold=-1, couplold=None)
 
+Nb_vect = np.arange(0.5, 5.1, 0.1)*1e11
+eigenval_list = []
+
+for Nb in Nb_vect:
+    kdammp, kimp = computes_coef(
+            f0=omega0/2/np.pi, dmax=0,
+            b=a_coeff,g0=g_0,
+            dnormfactor=1,
+            taub=tau_b,
+            dphase=1,M=M,
+            Nb=Nb,
+            gamma=gamma,
+            Q=Q_full,
+            particle='proton')
+    print('k_imp=',kimp)
+    eigenval, _ = eigenmodesDELPHI(
+        lmax,nmax,matdamper=0*MM,matZ=MM,
+        coefdamper=0,coefZ=kimp,
+        omegas=omega_s,flageigenvect=False)
+
+    eigenval_list.append(eigenval)
 plt.close('all')
-plt.figure()
+plt.figure(1)
 plt.semilogx(imp_mod[0].var, imp_mod[0].func[:,0], '.-', label='Re')
 plt.semilogx(imp_mod[0].var, imp_mod[0].func[:,1], '.-', label='Im')
 plt.legend()
+
+eigval_mat = np.array(eigenval_list)
+
+plt.figure(2)
+plt.plot(Nb_vect, np.real(eigval_mat), '.b')
+
 plt.show()
