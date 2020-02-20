@@ -97,6 +97,8 @@ t_start = time.mktime(time.localtime())
 dpx_slices = []
 rho_slices = []
 for i_ss, ss in enumerate(slices[::-1]):
+    if ss.slice_info == 'unsliced':
+        continue
     temp_rho = 0.
     if np.mod(i_ss, 20)==0:
         print(("%d / %d"%(i_ss, N_slices)))

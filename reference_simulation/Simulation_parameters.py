@@ -1,4 +1,6 @@
-from scipy.constants import c
+from numpy import pi
+from scipy.constants import c, m_p
+from scipy.constants import e as qe
 
 
 write_buffer_every = 20
@@ -8,31 +10,39 @@ write_buffer_every = 20
 # Machine Settings #
 ####################
 
-machine_configuration = 'LHC-collision'
 
-# # Use this part for optics from file
-# # n_segments needs to be None if optics_pickle_file is specified
-# optics_pickle_file = 'lhc2018_25cm_only_triplets_IR15_b1_optics.pkl'
-# n_segments = None
-# beta_x =  None
-# beta_y =  None
-# Q_x = None
-# Q_y = None
-
-# # Use this part for smooth machine
-optics_pickle_file = None
+machine_class = 'Synchrotron'
+optics_mode = 'smooth'
+charge = qe
+mass = m_p
+p0 = 6500e9 * qe / c
+circumference = 27000
 n_segments = 1
-Q_x = 62.27
-Q_y = 60.295
-beta_x = Q_x/27000.
-beta_y = Q_y/27000.
-
+name = None
+s = None
+accQ_x = 62.31
+accQ_y = 60.32
+alpha_x = 0.
+beta_x = 27000/2/pi/accQ_x
+D_x = 0.
+alpha_y = 0
+beta_y = 27000/2/pi/accQ_y
+D_y = 0.
 Qp_x = 0.
 Qp_y = 0.
-
-octupole_knob = 0.
-
-V_RF = 12e6
+app_x = 0.
+app_y = 0.
+app_xy = 0.
+longitudinal_mode = 'linear'
+Q_s = 0.001909
+alpha_mom_compaction = 3.225e-04
+h_RF = None
+V_RF = None
+dphi_RF = None
+p_increment = None
+RF_at = 'end_of_transverse' # needs to be at the end to be compatible with PyPARIS parallelization
+wrap_z = False
+other_detuners = []
 
 
 # Transverse Damper Settings
@@ -47,12 +57,12 @@ dampingrate_y = 100.
 
 bunch_from_file = None
 
-intensity = 2e+11
+intensity = 6e+11
 
 epsn_x = 2.5e-6
 epsn_y = 2.5e-6
 
-sigma_z = 1.2e-9/4*c
+sigma_z = 1.e-9/4*c
 
 x_kick_in_sigmas = 0.1
 y_kick_in_sigmas = 0.1

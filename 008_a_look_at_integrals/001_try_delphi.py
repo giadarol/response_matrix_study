@@ -46,7 +46,7 @@ MM = compute_impedance_matrix(
         flag_trapz=1, abseps=1,
         lmaxold=-1, nmaxold=-1, couplold=None)
 
-Nb_vect = np.arange(0, 10e11, 0.1e11) 
+Nb_vect = np.arange(0, 10e11, 0.1e11)
 eigenval_list = []
 
 for Nb in Nb_vect:
@@ -79,5 +79,5 @@ plt.figure(2)
 plt.plot(Nb_vect, np.real(eigval_mat)/omega_s, '.b')
 
 plt.figure(3)
-plt.plot(Nb_vect, np.imag(eigval_mat)/omega_s, '.b')
+plt.plot(Nb_vect, np.imag(eigval_mat), '.b')
 plt.show()
