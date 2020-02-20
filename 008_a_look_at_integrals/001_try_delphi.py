@@ -19,30 +19,34 @@ imp_mod, _ = imp_model_resonator(
 
 from DELPHI import compute_impedance_matrix, computes_coef
 from DELPHI import eigenmodesDELPHI
+from DELPHI import longdistribution_decomp
 
-lmax = 5
-nmax = 5
+lmax = 3
+nmax = 3
 nx = 0 # Coupled-bunch mode
 M = 1 # Number of bunches
 omegaksi = 0. # Chromatic shift
 omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
 Q_frac = .31
 Q_full = 62.31
-tau_b = 1e-9/4
-a_coeff = 8/tau_b**2
+tau_b = 1e-9
+a_coeff = 8.
 b_coeff = a_coeff
-g_0 = a_coeff/(np.pi)
-gamma = 470.
-omega_s = 0.001909*2*np.pi
+g_0 = a_coeff/np.pi/tau_b**2
+gamma = 6927.62871617
+omega_s = 0.001909*omega0
+
+g,a,b = longdistribution_decomp(tau_b, typelong='Gaussian')
+
 
 MM = compute_impedance_matrix(
         lmax, nmax, nx, M, omegaksi, omega0, Q_frac,
         a_coeff, b_coeff, tau_b, np.array([g_0]),
         Z=imp_mod[0].func, freqZ=imp_mod[0].var,
-        flag_trapz=1, abseps=1e-4,
+        flag_trapz=1, abseps=1,
         lmaxold=-1, nmaxold=-1, couplold=None)
 
-Nb_vect = np.arange(0.5, 5.1, 0.1)*1e11
+Nb_vect = np.arange(0, 10e11, 0.1e11) 
 eigenval_list = []
 
 for Nb in Nb_vect:
@@ -72,6 +76,8 @@ plt.legend()
 eigval_mat = np.array(eigenval_list)
 
 plt.figure(2)
-plt.plot(Nb_vect, np.real(eigval_mat), '.b')
+plt.plot(Nb_vect, np.real(eigval_mat)/omega_s, '.b')
 
+plt.figure(3)
+plt.plot(Nb_vect, np.imag(eigval_mat)/omega_s, '.b')
 plt.show()
