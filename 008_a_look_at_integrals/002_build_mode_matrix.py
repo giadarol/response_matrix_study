@@ -51,7 +51,8 @@ for i_l, ll in enumerate(l_vect):
     e_L_PHI_mat[i_l, :] = np.exp(1j*ll*phi_vect)
 
 # Remember that Ks and Hs do not have the last point at 360 deg
-# Compute R integrals
+# Compute R_tilde integrals
+print('Compute R_tilde_lmn ...')
 R_tilde_lmn = np.zeros((n_l, n_m, n_n), dtype=np.complex)
 for i_l, ll in enumerate(l_vect):
 
@@ -81,6 +82,7 @@ for i_l, ll in enumerate(l_vect):
                     int_dphi_l_n_R_vect)
 
 # Compute R integrals
+print('Compute R_lmn ...')
 R_lmn = np.zeros((n_l, n_m, n_n), dtype=np.complex)
 for i_l, ll in enumerate(l_vect):
 
@@ -107,3 +109,11 @@ for i_l, ll in enumerate(l_vect):
                     r_part_l_M_R_mat[i_m, :]*
                     int_dphi_l_n_R_vect)
 
+print('Compute final matrix')
+M_l_m_lp_mp = np.zeros((n_l, n_m, n_l, n_m), dtype=np.complex)
+for i_l in range(n_l):
+    for i_m in range(n_m):
+        for i_lp in range(n_l):
+            for i_mp in range(n_m):
+                M_l_m_lp_mp[i_l, i_m, i_lp, i_mp] = np.sum(
+                        R_tilde_lmn[i_lp, i_mp, :] * R_lmn[i_l, i_m, :])
