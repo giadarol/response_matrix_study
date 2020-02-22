@@ -14,7 +14,7 @@ import PyECLOUD.myfilemanager as mfm
 
 flag_trace_from_simulation = True
 folder_curr_sim = '../reference_simulation'
-i_sim_trace = 302+1
+i_sim_trace = 1200 
 fname_out = f'refsim_turn{i_sim_trace}.mat'
 
 

@@ -11,7 +11,7 @@ import sys
 sys.path.append('../')
 import response_matrix.response_matrix as rm
 
-test_data_file = './refsim_turn303.mat'
+test_data_file = './refsim_turn1200.mat'
 n_terms_list = range(1, 201, 2)
 n_tail_cut = 10
 response_data_file = '../001_sin_response_scan/response_data.mat'
