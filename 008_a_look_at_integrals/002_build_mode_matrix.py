@@ -7,8 +7,8 @@ import PyECLOUD.myfilemanager as mfm
 l_min = -3
 l_max = 3
 m_max = 1
-n_phi = 360
-n_r = 200
+n_phi = 1000
+n_r = 1000
 N_max = 199
 
 Q_full = 62.31
@@ -55,7 +55,7 @@ for i_l, ll in enumerate(l_vect):
 print('Compute R_tilde_lmn ...')
 R_tilde_lmn = np.zeros((n_l, n_m, n_n), dtype=np.complex)
 for i_l, ll in enumerate(l_vect):
-
+    print('{i_l}/{n_l}')
     r_part_l_M_R_mat = np.zeros((n_m, n_r))
     for i_m, mm in  enumerate(m_vect):
         lag_l_m_R_vect =assoc_laguerre(
@@ -85,7 +85,7 @@ for i_l, ll in enumerate(l_vect):
 print('Compute R_lmn ...')
 R_lmn = np.zeros((n_l, n_m, n_n), dtype=np.complex)
 for i_l, ll in enumerate(l_vect):
-
+    print('{i_l}/{n_l}')
     r_part_l_M_R_mat = np.zeros((n_m, n_r))
     for i_m, mm in  enumerate(m_vect):
         lag_l_m_R_vect =assoc_laguerre(
@@ -131,11 +131,11 @@ MM = coeff*no_coeff_M_l_m_lp_mp
 obdelphi = mfm.myloadmat_to_obj('./matrix_delphi.mat')
 MM_delphi = obdelphi.MM *obdelphi.kimp
 
-m=1; mp=0;
+m=0; mp=1;
 ratio = [np.mean(np.real(MM[l,m,:,mp])/np.real(MM_delphi[l,m,:,mp])) for l in range(n_l)]
 import matplotlib.pyplot as plt
 plt.close('all')
-l=1;
+l=3;
 fig1 = plt.figure(1)
 ax1 = fig1.add_subplot(2,1,1)
 ax2 = fig1.add_subplot(2,1,2)
