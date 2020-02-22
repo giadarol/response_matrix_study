@@ -21,6 +21,7 @@ r_b = 4*sigma_b
 a_param = 8./r_b**2
 
 ob = mfm.myloadmat_to_obj('../001_sin_response_scan/response_data.mat')
+Nb_ref = 6e11
 
 r_max = np.max(np.abs(ob.z_slices))
 dz = ob.z_slices[1] - ob.z_slices[0]
@@ -132,25 +133,20 @@ coeff = -clight*a_param/(4*np.pi**2*np.sqrt(2*np.pi)*Q_full*sigma_b)
 MM = coeff*no_coeff_M_l_m_lp_mp
 
 
-obdelphi = mfm.myloadmat_to_obj('./matrix_delphi.mat')
-MM_delphi = obdelphi.MM *obdelphi.kimp
-
 # Mode coupling test
-Nb_ref = 6e11
-Nb_array = np.arange(0, 10.5e11, 1e11)
+Nb_array = np.arange(0, 10.5e11, 0.1e11)
 Omega_mat = []
 for ii, Nb in enumerate(Nb_array):
 
-    MM_m_l_omegas = MM_delphi.copy()
+    MM_m_l_omegas = MM.copy()
     MM_m_l_omegas *= (Nb/Nb_ref)
 
     for i_l, ll in enumerate(l_vect):
         for i_m, mm in enumerate(m_vect):
             for i_lp in range(n_l):
                 for i_mp in range(n_m):
-                    if i_l == i_lp:
-                        MM_m_l_omegas += ll*omega_s
-    # Check against DELPHI
+                    if i_l == i_lp and i_m == i_mp:
+                        MM_m_l_omegas[i_l, i_m, i_lp, i_mp] += ll*omega_s
     mat_to_diag = MM_m_l_omegas.reshape((n_l*n_m,n_l*n_m))
     Omegas=eigvals(mat_to_diag)
     Omega_mat.append(Omegas)
@@ -164,6 +160,12 @@ plt.plot(Nb_array, np.real(Omega_mat)/omega_s, '.b')
 plt.figure(201)
 plt.plot(Nb_array, np.imag(Omega_mat)/omega_s, '.b')
 
+
+# Check against DELPHI
+obdelphi = mfm.myloadmat_to_obj('./matrix_delphi.mat')
+i_delphi = np.where(np.abs(obdelphi.Nb_vect - Nb_ref)/Nb_ref<1e-3)[0]
+kimp_delphi = obdelphi.kimp_vect[i_delphi]
+MM_delphi = obdelphi.MM * kimp_delphi
 
 m=0; mp=1;
 ratio = [np.mean(np.real(MM[l,m,:,mp])/np.real(MM_delphi[l,m,:,mp])) for l in range(n_l)]

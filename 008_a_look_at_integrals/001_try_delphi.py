@@ -11,7 +11,7 @@ Rt = 25e6 # shunt impedance in MOhm/m
 fr = 2e9 # cutoff frequency in Hz
 Q = 1 # quality factor
 
-Nb_vect = [6e11] # np.arange(0, 10e11, 0.1e11)
+Nb_vect = np.arange(0, 10e11, 0.1e11)
 
 imp_mod, _ = imp_model_resonator(
         Rlist=Rt, frlist=fr, Qlist=Q,beta=beta,
@@ -24,8 +24,8 @@ from DELPHI import compute_impedance_matrix, computes_coef
 from DELPHI import eigenmodesDELPHI
 from DELPHI import longdistribution_decomp
 
-lmax = 4
-nmax = 4
+lmax = 3
+nmax = 3
 nx = 0 # Coupled-bunch mode
 M = 1 # Number of bunches
 omegaksi = 0. # Chromatic shift
@@ -50,7 +50,7 @@ MM = compute_impedance_matrix(
         lmaxold=-1, nmaxold=-1, couplold=None)
 
 eigenval_list = []
-
+kimp_list = []
 for Nb in Nb_vect:
     kdammp, kimp = computes_coef(
             f0=omega0/2/np.pi, dmax=0,
@@ -69,12 +69,13 @@ for Nb in Nb_vect:
         omegas=omega_s,flageigenvect=False)
 
     eigenval_list.append(eigenval)
+    kimp_list.append(kimp)
 
 import scipy.io as sio
 sio.savemat('matrix_delphi.mat', {
     'MM': MM,
-    'Nb': Nb,
-    'kimp': kimp})
+    'Nb_vect': Nb_vect,
+    'kimp_vect': np.array(kimp_list)})
 
 plt.close('all')
 plt.figure(1)
