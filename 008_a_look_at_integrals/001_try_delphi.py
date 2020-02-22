@@ -10,6 +10,9 @@ beta = 1.
 Rt = 25e6 # shunt impedance in MOhm/m
 fr = 2e9 # cutoff frequency in Hz
 Q = 1 # quality factor
+
+Nb_vect = [6e11] # np.arange(0, 10e11, 0.1e11)
+
 imp_mod, _ = imp_model_resonator(
         Rlist=Rt, frlist=fr, Qlist=Q,beta=beta,
         fpar=freq_param(fmin=10,fmax=1e13,ftypescan=2,
@@ -21,8 +24,8 @@ from DELPHI import compute_impedance_matrix, computes_coef
 from DELPHI import eigenmodesDELPHI
 from DELPHI import longdistribution_decomp
 
-lmax = 3
-nmax = 3
+lmax = 2
+nmax = 0
 nx = 0 # Coupled-bunch mode
 M = 1 # Number of bunches
 omegaksi = 0. # Chromatic shift
@@ -46,7 +49,6 @@ MM = compute_impedance_matrix(
         flag_trapz=1, abseps=1,
         lmaxold=-1, nmaxold=-1, couplold=None)
 
-Nb_vect = np.arange(0, 10e11, 0.1e11)
 eigenval_list = []
 
 for Nb in Nb_vect:

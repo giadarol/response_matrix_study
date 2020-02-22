@@ -5,13 +5,14 @@ from scipy.constants import c as clight
 import PyECLOUD.myfilemanager as mfm
 
 l_min = 0
-l_max = 3
+l_max = 2
 m_min = 0
-m_max = 4
+m_max = 0
 n_phi = 360
 n_r = 200
-N_max = 6
+N_max = 199
 
+Q_full = 62.31
 sigma_b = 1e-9/4*clight
 r_b = 4*sigma_b
 
@@ -57,7 +58,7 @@ R_tilde_lmn = np.zeros((n_l, n_m, n_n), dtype=np.complex)
 for i_l, ll in enumerate(l_vect):
 
     r_part_l_M_R_mat = np.zeros((n_m, n_r))
-    for i_m, mm in  enumerate(l_vect):
+    for i_m, mm in  enumerate(m_vect):
         lag_l_m_R_vect =assoc_laguerre(
                 a_param * r_vect*r_vect, n=mm, k=np.abs(ll))
         r_part_l_M_R_mat[i_m, :]  = (
@@ -87,7 +88,7 @@ R_lmn = np.zeros((n_l, n_m, n_n), dtype=np.complex)
 for i_l, ll in enumerate(l_vect):
 
     r_part_l_M_R_mat = np.zeros((n_m, n_r))
-    for i_m, mm in  enumerate(l_vect):
+    for i_m, mm in  enumerate(m_vect):
         lag_l_m_R_vect =assoc_laguerre(
                 a_param * r_vect*r_vect, n=mm, k=np.abs(ll))
         r_part_l_M_R_mat[i_m, :]  = (
@@ -110,7 +111,7 @@ for i_l, ll in enumerate(l_vect):
                     int_dphi_l_n_R_vect)
 
 print('Compute final matrix')
-M_l_m_lp_mp = np.zeros((n_l, n_m, n_l, n_m), dtype=np.complex)
+no_coeff_M_l_m_lp_mp = np.zeros((n_l, n_m, n_l, n_m), dtype=np.complex)
 for i_l, ll in enumerate(l_vect):
     for i_m, mm in enumerate(m_vect):
         for i_lp in range(n_l):
@@ -121,6 +122,9 @@ for i_l, ll in enumerate(l_vect):
                 assert(not(np.isnan(temp)))
                 assert(not(np.isinf(temp)))
 
-                M_l_m_lp_mp[i_l, i_m, i_lp, i_mp] = (
+                no_coeff_M_l_m_lp_mp[i_l, i_m, i_lp, i_mp] = (
                         temp * np.sum(R_tilde_lmn[i_lp, i_mp, :]
                             * R_lmn[i_l, i_m, :]))
+
+coeff = -clight*a_param/(4*np.pi**2*np.sqrt(2*np.pi)*Q_full*sigma_b)
+MM = coeff*no_coeff_M_l_m_lp_mp
