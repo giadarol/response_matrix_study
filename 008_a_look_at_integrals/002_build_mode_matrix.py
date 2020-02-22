@@ -1,13 +1,13 @@
 import numpy as np
-from scipy.special import assoc_laguerre
+from scipy.special import assoc_laguerre, gamma
 from scipy.constants import c as clight
 
 import PyECLOUD.myfilemanager as mfm
 
-l_min = -1
+l_min = 0
 l_max = 3
-m_min = -2
-m_max = 3
+m_min = 0
+m_max = 4
 n_phi = 360
 n_r = 200
 N_max = 6
@@ -111,9 +111,16 @@ for i_l, ll in enumerate(l_vect):
 
 print('Compute final matrix')
 M_l_m_lp_mp = np.zeros((n_l, n_m, n_l, n_m), dtype=np.complex)
-for i_l in range(n_l):
-    for i_m in range(n_m):
+for i_l, ll in enumerate(l_vect):
+    for i_m, mm in enumerate(m_vect):
         for i_lp in range(n_l):
             for i_mp in range(n_m):
-                M_l_m_lp_mp[i_l, i_m, i_lp, i_mp] = np.sum(
-                        R_tilde_lmn[i_lp, i_mp, :] * R_lmn[i_l, i_m, :])
+                temp = gamma(mm + 1) / gamma(np.abs(ll) + mm + 1)
+
+                # To be handled:
+                assert(not(np.isnan(temp)))
+                assert(not(np.isinf(temp)))
+
+                M_l_m_lp_mp[i_l, i_m, i_lp, i_mp] = (
+                        temp * np.sum(R_tilde_lmn[i_lp, i_mp, :]
+                            * R_lmn[i_l, i_m, :]))
