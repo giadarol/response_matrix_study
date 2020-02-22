@@ -4,8 +4,8 @@ from scipy.constants import c as clight
 
 import PyECLOUD.myfilemanager as mfm
 
-l_min = -5
-l_max = 5
+l_min = -3
+l_max = 3
 m_max = 1
 n_phi = 360
 n_r = 200
@@ -92,7 +92,7 @@ for i_l, ll in enumerate(l_vect):
                 a_param * r_vect*r_vect, n=mm, k=np.abs(ll))
         r_part_l_M_R_mat[i_m, :]  = (
                   dr * r_vect
-                * (a_param/r_b*r_vect)**np.abs(ll)
+                * (a_param*r_b*r_vect)**np.abs(ll)
                 * lag_l_m_R_vect
                 * np.exp(-r_vect**2 / (2*sigma_b**2))
                 )
