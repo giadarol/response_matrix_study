@@ -28,6 +28,26 @@ from scipy.constants import c as ccc
 # n_turns = 20*[1000000]
 # cmap = None
 
+# # Detuning investigation 
+# labels = [f'full', 'lin', 'nonlin', 'mat_only', 'lin_ave', 'lin2ave',
+#         'lin1.75ave']
+# folders_compare = ['../004a_instability_investigate_detuning_full',
+#         '../004b_instability_investigate_detuning_limap',
+#         '../004c_instability_investigate_detuning_nonlinmap',
+#         '../004d_instability_investigate_detuning_matrix_only',
+#         '../004e_instability_investigate_detuning_limap_ave',
+#         '../004f_instability_investigate_detuning_limap_2ave',
+#         '../004g_instability_investigate_detuning_limap_1.75ave',
+#         ]
+# fname = None
+# fft2mod = 'lin'
+# i_start_list = None
+# n_turns = 20*[1000000]
+# cmap = None
+# i_force_line = None
+# fit_cut = 2000
+# flag_compact = True
+
 # # Comparison against full study
 # VRF_MV = 8
 # labels = ['matrix_map', 'matrix_only', 'map_only', 'simulation']
@@ -49,6 +69,22 @@ from scipy.constants import c as ccc
 # fit_cut = 2000
 # flag_compact = True
 
+## Comparison with Luca
+#V_RF=3
+#labels = ['new no recenter', 'new recenter', 'old']
+#folders_compare = [
+#        f'/afs/cern.ch/project/spsecloud/Sim_PyPARIS_019/inj_arcQuad_no_initial_kick_no_damper_sey_1.4_intensity_1.2e11ppb_sigmaz_97mm_scan_VRF_3_8MV_recenter_slice_yes_no/simulations_PyPARIS/initial_kick_no_damper_no_recenter_slices_False_VRF_{V_RF:.0f}MV',
+#    f'/afs/cern.ch/project/spsecloud/Sim_PyPARIS_019/inj_arcQuad_no_initial_kick_no_damper_sey_1.4_intensity_1.2e11ppb_sigmaz_97mm_scan_VRF_3_8MV_recenter_slice_yes_no/simulations_PyPARIS/initial_kick_no_damper_no_recenter_slices_True_VRF_{V_RF:.0f}MV',
+#    f'/afs/cern.ch/project/spsecloud/Sim_PyPARIS_017/inj_arcQuad_drift_sey_1.4_intensity_1.2e11ppb_sigmaz_97mm_VRF_3_8MV_yes_no_initial_kick/simulations_PyPARIS/ArcQuad_no_initial_kick_T0_x_slices_500_segments_8_MPslice_2500_eMPs_5e5_length_07_sey_1.4_intensity_1.2e11ppb_VRF_{V_RF:.0f}MV'
+#    ]
+#fname = None
+#fft2mod = 'lin'
+#i_start_list = None
+#n_turns = 6*[10000]
+#cmap = plt.cm.rainbow
+#i_force_line = 2
+#fit_cut = 2000
+#flag_compact = True
 
 # # Comparison v
 # V_list = np.arange(3, 8.1, 1)
@@ -84,13 +120,14 @@ folders_compare = [
 #     f'../005f_strength_scan_6MV_map_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005i_strength_scan_6MV_all_harmonics_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005j_strength_scan_6MV_all_harmonics_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
-     ('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_019/'
-      'inj_arcQuad_no_initial_kick_no_damper_recenter_slice_sey_1.4'
-      '_intensity_1.2e11ppb_VRF_6MV_scan_length_factor_0.1_2.0/'
-      'simulations_PyPARIS/'
-      f'initial_kick_no_damper_no_recenter_slices_length_factor_{ss:.1f}') for ss in strength_list]
+     f'../005m_strength_scan_6MV_all_harmonics_matrix_linmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
+#     ('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_019/'
+#      'inj_arcQuad_no_initial_kick_no_damper_recenter_slice_sey_1.4'
+#      '_intensity_1.2e11ppb_VRF_6MV_scan_length_factor_0.1_2.0/'
+#      'simulations_PyPARIS/'
+#      f'initial_kick_no_damper_no_recenter_slices_length_factor_{ss:.1f}') for ss in strength_list]
 fft2mod = 'lin'
-fname = 'compact_forced_strength_scan_sim'
+fname = 'compact_forced_strength_scan_maplin'
 # fname = None
 i_start_list = None
 n_turns = 30*[10000000]
@@ -288,7 +325,7 @@ for ifol, folder in enumerate(folders_compare):
     ax1mode.ticklabel_format(style='sci', scilimits=(0, 0), axis='y')
     ax1mode.set_xlim(0, np.sum(mask_zero))
 
-    activity_mode = savgol_filter(np.abs(ffts[i_mode, :][mask_zero]), 21, 3)
+    activity_mode = savgol_filter(np.abs(ffts[i_mode, :][mask_zero]), 41, 3)
     x_fit = np.arange(len(activity_mode), dtype=np.float)
     p_fit = np.polyfit(x_fit[20:fit_cut], np.log(activity_mode)[20:fit_cut], deg = 1)
     y_fit = np.polyval(p_fit, x_fit)
@@ -312,7 +349,7 @@ for ifol, folder in enumerate(folders_compare):
             transform=ax1mode.transAxes,
             ha='left', va='bottom', fontsize=11)
 
-    N_traces = 15
+    N_traces =15 
     max_intr = np.max(intrabunch_activity)
     if i_start_list is None:
         try:

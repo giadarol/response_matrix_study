@@ -59,6 +59,9 @@ for ee in sim_content.parent_eclouds:
 sio.savemat('field_map.mat', {
     'xg': ee.efieldmap.pic.xg,
     'yg': ee.efieldmap.pic.yg,
+    'zg': [ss.slice_info['z_bin_center'] for ss in slices_list_for_map],
     'Ex_L_map': Ex_L_map,
     'Ey_L_map': Ey_L_map,
+    'sigma_x': bunch_for_map.sigma_x(),
+    'sigma_y': bunch_for_map.sigma_y()
     })
