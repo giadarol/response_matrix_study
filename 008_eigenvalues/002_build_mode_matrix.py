@@ -7,9 +7,9 @@ from mode_coupling_matrix import CouplingMatrix
 
 # Remember to rescale the beta!!!!
 
-l_min = -5
-l_max = 5
-m_max = 10
+l_min = -7
+l_max = 7
+m_max = 7
 n_phi = 360
 n_r = 200
 N_max = 50 #199
@@ -33,7 +33,7 @@ MM_obj = CouplingMatrix(z_slices, HH, KK, l_min,
         a_param)
 
 # Mode coupling test
-strength_scan = np.arange(0, 1.4, 0.02)
+strength_scan = np.arange(0, 3.4, 0.02)
 Omega_mat = MM_obj.compute_mode_complex_freq(omega_s, rescale_by=strength_scan)
 
 import matplotlib.pyplot as plt
@@ -62,6 +62,15 @@ plt.plot(strength_scan, np.imag(Omega_mat_mode), '.g')
 plt.figure(300)
 plt.plot(np.imag(Omega_mat).flatten(),
         np.real(Omega_mat).flatten()/omega_s, '.b')
+
+plt.figure(400)
+for ii in range(len(strength_scan)):
+    plt.scatter(x=strength_scan[ii]+0*np.imag(Omega_mat[ii, :]),
+            y=np.imag(Omega_mat[ii, :]),
+            c = np.real(Omega_mat[ii, :])/omega_s,
+            vmin=-2, vmax=2, cmap=plt.cm.seismic)
+plt.colorbar()
+
 
 plt.show()
 
