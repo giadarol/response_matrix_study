@@ -4,10 +4,9 @@ from scipy.constants import c as clight
 
 import PyECLOUD.myfilemanager as mfm
 
-l_min = 0
-l_max = 2
-m_min = 0
-m_max = 0
+l_min = -5
+l_max = 5
+m_max = 1
 n_phi = 360
 n_r = 200
 N_max = 199
@@ -16,7 +15,7 @@ Q_full = 62.31
 sigma_b = 1e-9/4*clight
 r_b = 4*sigma_b
 
-a_param = 8/r_b**2
+a_param = 8./r_b**2
 
 ob = mfm.myloadmat_to_obj('../001_sin_response_scan/response_data.mat')
 
@@ -30,7 +29,7 @@ dphi = phi_vect[1] - phi_vect[0]
 dr = r_vect[1] - r_vect[0]
 
 l_vect = np.array(range(l_min, l_max+1))
-m_vect = np.array(range(m_min, m_max+1))
+m_vect = np.array(range(0, m_max+1))
 
 n_l = len(l_vect)
 n_m = len(m_vect)
@@ -118,9 +117,9 @@ for i_l, ll in enumerate(l_vect):
             for i_mp in range(n_m):
                 temp = gamma(mm + 1) / gamma(np.abs(ll) + mm + 1)
 
-                # To be handled:
-                assert(not(np.isnan(temp)))
-                assert(not(np.isinf(temp)))
+#                # To be handled:
+#                assert(not(np.isnan(temp)))
+#                assert(not(np.isinf(temp)))
 
                 no_coeff_M_l_m_lp_mp[i_l, i_m, i_lp, i_mp] = (
                         temp * np.sum(R_tilde_lmn[i_lp, i_mp, :]
@@ -128,3 +127,25 @@ for i_l, ll in enumerate(l_vect):
 
 coeff = -clight*a_param/(4*np.pi**2*np.sqrt(2*np.pi)*Q_full*sigma_b)
 MM = coeff*no_coeff_M_l_m_lp_mp
+
+obdelphi = mfm.myloadmat_to_obj('./matrix_delphi.mat')
+MM_delphi = obdelphi.MM *obdelphi.kimp
+
+m=1; mp=0;
+ratio = [np.mean(np.real(MM[l,m,:,mp])/np.real(MM_delphi[l,m,:,mp])) for l in range(n_l)]
+import matplotlib.pyplot as plt
+plt.close('all')
+l=1;
+fig1 = plt.figure(1)
+ax1 = fig1.add_subplot(2,1,1)
+ax2 = fig1.add_subplot(2,1,2)
+ax1.plot(np.real(MM[l,m,:,mp]))
+ax1.plot(np.real(MM_delphi[l,m,:,mp]))
+ax2.plot(np.real(MM[l,m,:,mp])/np.real(MM_delphi[l,m,:,mp]))
+ax2.set_ylim(bottom=0.)
+
+fig2 = plt.figure(2)
+plt.plot(l_vect, np.log(ratio)/l_vect, '.')
+plt.show()
+
+

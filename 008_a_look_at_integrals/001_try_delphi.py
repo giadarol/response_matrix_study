@@ -24,8 +24,8 @@ from DELPHI import compute_impedance_matrix, computes_coef
 from DELPHI import eigenmodesDELPHI
 from DELPHI import longdistribution_decomp
 
-lmax = 2
-nmax = 0
+lmax = 5
+nmax = 1
 nx = 0 # Coupled-bunch mode
 M = 1 # Number of bunches
 omegaksi = 0. # Chromatic shift
@@ -35,12 +35,12 @@ Q_full = 62.31
 tau_b = 1e-9
 a_coeff = 8.
 b_coeff = a_coeff
-g_0 = a_coeff/np.pi/tau_b**2
+#g_0 = a_coeff/np.pi/tau_b**2
 gamma = 6927.62871617
 omega_s = 0.001909*omega0
 
 g,a,b = longdistribution_decomp(tau_b, typelong='Gaussian')
-
+g_0 = g[0]
 
 MM = compute_impedance_matrix(
         lmax, nmax, nx, M, omegaksi, omega0, Q_frac,
@@ -69,6 +69,13 @@ for Nb in Nb_vect:
         omegas=omega_s,flageigenvect=False)
 
     eigenval_list.append(eigenval)
+
+import scipy.io as sio
+sio.savemat('matrix_delphi.mat', {
+    'MM': MM,
+    'Nb': Nb,
+    'kimp': kimp})
+
 plt.close('all')
 plt.figure(1)
 plt.semilogx(imp_mod[0].var, imp_mod[0].func[:,0], '.-', label='Re')
