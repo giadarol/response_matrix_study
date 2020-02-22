@@ -24,8 +24,8 @@ from DELPHI import compute_impedance_matrix, computes_coef
 from DELPHI import eigenmodesDELPHI
 from DELPHI import longdistribution_decomp
 
-lmax = 3
-nmax = 1
+lmax = 4
+nmax = 4
 nx = 0 # Coupled-bunch mode
 M = 1 # Number of bunches
 omegaksi = 0. # Chromatic shift

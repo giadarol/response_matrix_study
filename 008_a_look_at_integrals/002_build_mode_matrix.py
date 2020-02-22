@@ -1,16 +1,19 @@
 import numpy as np
 from scipy.special import assoc_laguerre, gamma
 from scipy.constants import c as clight
+from numpy.linalg import eigvals
 
 import PyECLOUD.myfilemanager as mfm
 
 l_min = -3
 l_max = 3
-m_max = 1
-n_phi = 1000
-n_r = 1000
+m_max = 3
+n_phi = 360
+n_r = 200
 N_max = 199
 
+omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
+omega_s = 0.001909*omega0
 Q_full = 62.31
 sigma_b = 1e-9/4*clight
 r_b = 4*sigma_b
@@ -55,7 +58,7 @@ for i_l, ll in enumerate(l_vect):
 print('Compute R_tilde_lmn ...')
 R_tilde_lmn = np.zeros((n_l, n_m, n_n), dtype=np.complex)
 for i_l, ll in enumerate(l_vect):
-    print('{i_l}/{n_l}')
+    print(f'{i_l}/{n_l}')
     r_part_l_M_R_mat = np.zeros((n_m, n_r))
     for i_m, mm in  enumerate(m_vect):
         lag_l_m_R_vect =assoc_laguerre(
@@ -85,7 +88,7 @@ for i_l, ll in enumerate(l_vect):
 print('Compute R_lmn ...')
 R_lmn = np.zeros((n_l, n_m, n_n), dtype=np.complex)
 for i_l, ll in enumerate(l_vect):
-    print('{i_l}/{n_l}')
+    print(f'{i_l}/{n_l}')
     r_part_l_M_R_mat = np.zeros((n_m, n_r))
     for i_m, mm in  enumerate(m_vect):
         lag_l_m_R_vect =assoc_laguerre(
@@ -128,13 +131,42 @@ for i_l, ll in enumerate(l_vect):
 coeff = -clight*a_param/(4*np.pi**2*np.sqrt(2*np.pi)*Q_full*sigma_b)
 MM = coeff*no_coeff_M_l_m_lp_mp
 
+
 obdelphi = mfm.myloadmat_to_obj('./matrix_delphi.mat')
 MM_delphi = obdelphi.MM *obdelphi.kimp
 
-m=0; mp=1;
-ratio = [np.mean(np.real(MM[l,m,:,mp])/np.real(MM_delphi[l,m,:,mp])) for l in range(n_l)]
+# Mode coupling test
+Nb_ref = 6e11
+Nb_array = np.arange(0, 10.5e11, 1e11)
+Omega_mat = []
+for ii, Nb in enumerate(Nb_array):
+
+    MM_m_l_omegas = MM_delphi.copy()
+    MM_m_l_omegas *= (Nb/Nb_ref)
+
+    for i_l, ll in enumerate(l_vect):
+        for i_m, mm in enumerate(m_vect):
+            for i_lp in range(n_l):
+                for i_mp in range(n_m):
+                    if i_l == i_lp:
+                        MM_m_l_omegas += ll*omega_s
+    # Check against DELPHI
+    mat_to_diag = MM_m_l_omegas.reshape((n_l*n_m,n_l*n_m))
+    Omegas=eigvals(mat_to_diag)
+    Omega_mat.append(Omegas)
+
 import matplotlib.pyplot as plt
 plt.close('all')
+
+plt.figure(200)
+plt.plot(Nb_array, np.real(Omega_mat)/omega_s, '.b')
+
+plt.figure(201)
+plt.plot(Nb_array, np.imag(Omega_mat)/omega_s, '.b')
+
+
+m=0; mp=1;
+ratio = [np.mean(np.real(MM[l,m,:,mp])/np.real(MM_delphi[l,m,:,mp])) for l in range(n_l)]
 l=3;
 fig1 = plt.figure(1)
 ax1 = fig1.add_subplot(2,1,1)
