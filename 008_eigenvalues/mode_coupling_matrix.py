@@ -131,7 +131,7 @@ class CouplingMatrix(object):
         n_m = len(self.m_vect)
 
         if N_max_cut is not None:
-            assert(N_max_cut < self.N_max)
+            assert(N_max_cut <= self.N_max)
             n_cut = N_max_cut
         else:
             n_cut = self.N_max
@@ -157,7 +157,7 @@ class CouplingMatrix(object):
 
         assert(l_min >= self.l_min)
         assert(l_max <= self.l_max)
-        assert(m_max <= self.l_max)
+        assert(m_max <= self.m_max)
 
         mask_m_keep = self.m_vect<=m_max
         mask_l_keep = (self.l_vect<=l_max) & (self.l_vect>=l_min)

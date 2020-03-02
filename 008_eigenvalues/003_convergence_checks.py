@@ -5,20 +5,21 @@ from scipy.constants import c as clight
 
 pkl_fname = 'mode_coupling_matrix.pkl'
 
-l_min = -3
-l_max = 3
-m_max = 3
+l_min = -10
+l_max = 10
+m_max = 30
+N_max =50
 
 with open(pkl_fname, 'rb') as fid:
     MM_orig = pickle.load(fid)
 
-MM_obj = MM_orig.get_sub_matrix(l_min, l_max, m_max)
+MM_obj = MM_orig.get_sub_matrix(l_min, l_max, m_max, N_max)
 
 omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
 omega_s = 4.9e-3*omega0
 
 # Mode coupling test
-strength_scan = np.arange(0, 3.4, 0.02)
+strength_scan = np.arange(0, 1.5, 0.02)
 Omega_mat = MM_obj.compute_mode_complex_freq(omega_s, rescale_by=strength_scan)
 
 import matplotlib.pyplot as plt
@@ -26,7 +27,7 @@ plt.close('all')
 
 mask_unstable = np.imag(Omega_mat) > 1e-1
 Omega_mat_unstable = Omega_mat.copy()
-Omega_mat_unstable[~mask_unstable] = np.nan
+Omega_mat_unstable[~mask_unstable] = np.nan+1j*np.nan
 
 i_mode = -1
 mask_mode = np.abs(np.real(Omega_mat)/omega_s - i_mode)<0.5
@@ -53,7 +54,7 @@ for ii in range(len(strength_scan)):
     plt.scatter(x=strength_scan[ii]+0*np.imag(Omega_mat[ii, :]),
             y=np.imag(Omega_mat[ii, :]),
             c = np.real(Omega_mat[ii, :])/omega_s,
-            vmin=-2, vmax=2, cmap=plt.cm.seismic)
+            cmap=plt.cm.seismic)
 plt.colorbar()
 
 
