@@ -7,7 +7,7 @@ class CouplingMatrix(object):
 
     def __init__(self, z_slices, HH, KK, l_min,
             l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_b, r_b,
-            a_param, MM = None):
+            a_param, R_tilde_lmn=None, R_lmn=None, MM = None):
 
         self.z_slices = z_slices
         self.HH       = HH
@@ -25,6 +25,9 @@ class CouplingMatrix(object):
 
         l_vect = np.array(range(l_min, l_max+1))
         m_vect = np.array(range(0, m_max+1))
+
+        self.l_vect = l_vect
+        self.m_vect = m_vect
 
         if MM is None:
             r_max = np.max(np.abs(z_slices))
@@ -114,13 +117,13 @@ class CouplingMatrix(object):
                                 int_dphi_l_n_R_vect)
 
 
-        self.R_tilde_lmn = R_tilde_lmn
-        self.R_lmn = R_lmn
-
-        self.l_vect = l_vect
-        self.m_vect = m_vect
-        self.MM = self.compute_final_matrix()
-
+            self.R_tilde_lmn = R_tilde_lmn
+            self.R_lmn = R_lmn
+            self.MM = self.compute_final_matrix()
+        else:
+            self.R_tilde_lmn = R_tilde_lmn
+            self.R_lmn = R_lmn
+            self.MM = MM
 
     def compute_final_matrix(self, N_max_cut=None):
 

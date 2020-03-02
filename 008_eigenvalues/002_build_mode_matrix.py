@@ -18,14 +18,15 @@ n_r = 3*200
 N_max = 50 #199
 save_pkl_fname = 'mode_coupling_matrix.pkl'
 
-# # Test
-# l_min = -3
-# l_max = 3
-# m_max = 3
-# n_phi = 3*360
-# n_r = 3*200
-# N_max = 12
-# save_pkl_fname = None
+# Test
+l_min = -3
+l_max = 3
+m_max = 3
+n_phi = 3*360
+n_r = 3*200
+N_max = 12
+save_pkl_fname = 'mode_coupling_matrix.pkl'
+save_pkl_fname = None
 
 omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
 omega_s = 4.9e-3*omega0
