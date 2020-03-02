@@ -28,25 +28,26 @@ from scipy.constants import c as ccc
 # n_turns = 20*[1000000]
 # cmap = None
 
-# # Detuning investigation 
-# labels = [f'full', 'lin', 'nonlin', 'mat_only', 'lin_ave', 'lin2ave',
-#         'lin1.75ave']
-# folders_compare = ['../004a_instability_investigate_detuning_full',
-#         '../004b_instability_investigate_detuning_limap',
-#         '../004c_instability_investigate_detuning_nonlinmap',
-#         '../004d_instability_investigate_detuning_matrix_only',
-#         '../004e_instability_investigate_detuning_limap_ave',
-#         '../004f_instability_investigate_detuning_limap_2ave',
-#         '../004g_instability_investigate_detuning_limap_1.75ave',
-#         ]
-# fname = None
-# fft2mod = 'lin'
-# i_start_list = None
-# n_turns = 20*[1000000]
-# cmap = None
-# i_force_line = None
-# fit_cut = 2000
-# flag_compact = True
+# Detuning investigation 
+labels = [f'full', 'lin', 'nonlin', 'mat_only', 'lin_ave', 'lin2ave',
+        'lin1.75ave', 'lin_no_ave']
+folders_compare = ['../004a_instability_investigate_detuning_full',
+        '../004b_instability_investigate_detuning_limap',
+        '../004c_instability_investigate_detuning_nonlinmap',
+        '../004d_instability_investigate_detuning_matrix_only',
+        '../004e_instability_investigate_detuning_limap_ave',
+        '../004f_instability_investigate_detuning_limap_2ave',
+        '../004g_instability_investigate_detuning_limap_1.75ave',
+        '../004h_instability_investigate_detuning_limap_noave',
+        ]
+fname = 'compact_comparison'
+fft2mod = 'lin'
+i_start_list = None
+n_turns = 20*[1000000]
+cmap = plt.cm.rainbow
+i_force_line = None
+fit_cut = 2000
+flag_compact = True
 
 # # Comparison against full study
 # VRF_MV = 8
@@ -111,31 +112,31 @@ from scipy.constants import c as ccc
 # fit_cut = 5000
 # flag_compact = True
 
-# Comparison strength
-strength_list = np.arange(0.1, 2.1, 0.1)
-labels = [f'strength {ss:.1f}' for ss in strength_list]
-folders_compare = [
-#     f'../005d_strength_scan_6MV_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
-#     f'../005e_strength_scan_6MV_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
-#     f'../005f_strength_scan_6MV_map_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
-#     f'../005i_strength_scan_6MV_all_harmonics_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
-#     f'../005j_strength_scan_6MV_all_harmonics_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
-     f'../005m_strength_scan_6MV_all_harmonics_matrix_linmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
-#     ('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_019/'
-#      'inj_arcQuad_no_initial_kick_no_damper_recenter_slice_sey_1.4'
-#      '_intensity_1.2e11ppb_VRF_6MV_scan_length_factor_0.1_2.0/'
-#      'simulations_PyPARIS/'
-#      f'initial_kick_no_damper_no_recenter_slices_length_factor_{ss:.1f}') for ss in strength_list]
-fft2mod = 'lin'
-fname = 'compact_forced_strength_scan_maplin'
-# fname = None
-i_start_list = None
-n_turns = 30*[10000000]
-cmap = plt.cm.rainbow
-i_force_line = 2
-fit_cut = 5000
-flag_compact = True
-#######################################################################
+# # Comparison strength
+# strength_list = np.arange(0.1, 2.1, 0.1)
+# labels = [f'strength {ss:.1f}' for ss in strength_list]
+# folders_compare = [
+# #     f'../005d_strength_scan_6MV_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
+# #     f'../005e_strength_scan_6MV_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
+# #     f'../005f_strength_scan_6MV_map_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
+# #     f'../005i_strength_scan_6MV_all_harmonics_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
+# #     f'../005j_strength_scan_6MV_all_harmonics_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
+#      f'../005m_strength_scan_6MV_all_harmonics_matrix_linmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
+# #     ('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_019/'
+# #      'inj_arcQuad_no_initial_kick_no_damper_recenter_slice_sey_1.4'
+# #      '_intensity_1.2e11ppb_VRF_6MV_scan_length_factor_0.1_2.0/'
+# #      'simulations_PyPARIS/'
+# #      f'initial_kick_no_damper_no_recenter_slices_length_factor_{ss:.1f}') for ss in strength_list]
+# fft2mod = 'lin'
+# fname = 'compact_forced_strength_scan_maplin'
+# # fname = None
+# i_start_list = None
+# n_turns = 30*[10000000]
+# cmap = plt.cm.rainbow
+# i_force_line = 2
+# fit_cut = 5000
+# flag_compact = True
+# #######################################################################
 
 flag_naff = False
 

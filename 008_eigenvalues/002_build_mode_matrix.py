@@ -1,3 +1,5 @@
+import pickle
+
 import numpy as np
 from scipy.constants import c as clight
 
@@ -7,12 +9,23 @@ from mode_coupling_matrix import CouplingMatrix
 
 # Remember to rescale the beta!!!!
 
+# Reference
 l_min = -10
 l_max = 10
 m_max = 10
 n_phi = 3*360
 n_r = 3*200
 N_max = 50 #199
+save_pkl_fname = 'mode_coupling_matrix.pkl'
+
+# # Test
+# l_min = -3
+# l_max = 3
+# m_max = 3
+# n_phi = 3*360
+# n_r = 3*200
+# N_max = 12
+# save_pkl_fname = None
 
 omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
 omega_s = 4.9e-3*omega0
@@ -27,10 +40,14 @@ HH = ob.x_mat
 KK = ob.dpx_mat
 z_slices = ob.z_slices
 
-
 MM_obj = CouplingMatrix(z_slices, HH, KK, l_min,
         l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_b, r_b,
         a_param)
+
+if save_pkl_fname is not None:
+    with open(save_pkl_fname, 'wb') as fid:
+        pickle.dump(MM_obj, fid)
+
 
 # Mode coupling test
 strength_scan = np.arange(0, 3.4, 0.02)

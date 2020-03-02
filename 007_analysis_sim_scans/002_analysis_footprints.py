@@ -20,10 +20,11 @@ folders = ['../004a_instability_investigate_detuning_full',
            '../004c_instability_investigate_detuning_nonlinmap',
            '../004e_instability_investigate_detuning_limap_ave',
            '../004f_instability_investigate_detuning_limap_2ave',
-           '../004g_instability_investigate_detuning_limap_1.5ave'
+           '../004g_instability_investigate_detuning_limap_1.75ave',
+           '../004h_instability_investigate_detuning_limap_noave'
            ]
 leg_labels = None
-labels = ['full', 'lin', 'nonlin', 'linave', 'lin2ave', 'lin1.5ave']
+labels = ['full', 'lin', 'nonlin', 'linave', 'lin2ave', 'lin1.5ave', 'lin_no_ave']
 cmap = plt.cm.rainbow
 
 
