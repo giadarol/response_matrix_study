@@ -83,10 +83,10 @@ kimp_delphi = obdelphi.kimp_vect[i_delphi]
 MM_delphi = obdelphi.MM * kimp_delphi
 
 MM = MM_obj.MM
-
+n_l = len(MM_obj.l_vect)
 m=0; mp=1;
 ratio = [np.mean(np.real(MM[l,m,:,mp])/np.real(MM_delphi[l,m,:,mp]))
-            for l in range(MM_obj.n_l)]
+            for l in range(n_l)]
 l=3;
 fig1 = plt.figure(1)
 ax1 = fig1.add_subplot(2,1,1)
