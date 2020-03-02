@@ -11,7 +11,7 @@ Rt = 25e6 # shunt impedance in MOhm/m
 fr = 2e9 # cutoff frequency in Hz
 Q = 1 # quality factor
 
-Nb_vect = np.arange(0, 10e11, 0.1e11)
+Nb_vect = np.arange(0, 10.5e11, 0.1e11)
 
 imp_mod, _ = imp_model_resonator(
         Rlist=Rt, frlist=fr, Qlist=Q,beta=beta,
@@ -78,16 +78,36 @@ sio.savemat('matrix_delphi.mat', {
     'kimp_vect': np.array(kimp_list)})
 
 plt.close('all')
+from matplotlib import rc
+rc('font', size=14)
 plt.figure(1)
 plt.semilogx(imp_mod[0].var, imp_mod[0].func[:,0], '.-', label='Re')
 plt.semilogx(imp_mod[0].var, imp_mod[0].func[:,1], '.-', label='Im')
 plt.legend()
 
-eigval_mat = np.array(eigenval_list)
+Omega_mat = np.array(eigenval_list)
 
-plt.figure(2)
-plt.plot(Nb_vect, np.real(eigval_mat)/omega_s, '.b')
+mask_unstable = np.imag(Omega_mat) > 0.1
+Omega_mat_unstable = Omega_mat.copy()
+Omega_mat_unstable[~mask_unstable] = np.nan +1j*np.nan
 
-plt.figure(3)
-plt.plot(Nb_vect, np.imag(eigval_mat), '.b')
+fig1 = plt.figure(2)
+plt.plot(Nb_vect, np.real(Omega_mat)/omega_s, '.b')
+plt.plot(Nb_vect, np.real(Omega_mat_unstable)/omega_s, '.r')
+plt.grid(True, linestyle=':', alpha=.8)
+plt.subplots_adjust(bottom=.12)
+plt.suptitle('DELPHI')
+plt.xlabel('Bunch intensity [p]')
+plt.ylabel(r'Re($\Omega$)/$\omega_s$')
+fig1.savefig('delphi_real.png', dpi=200)
+
+fig2 = plt.figure(3)
+plt.plot(Nb_vect, np.imag(Omega_mat), '.b')
+plt.plot(Nb_vect, np.imag(Omega_mat_unstable), '.r')
+plt.grid(True, linestyle=':', alpha=.8)
+plt.subplots_adjust(bottom=.12)
+plt.suptitle('DELPHI')
+plt.xlabel('Bunch intensity [p]')
+plt.ylabel(r'Im($\Omega$)')
+fig2.savefig('delphi_imag.png', dpi=200)
 plt.show()

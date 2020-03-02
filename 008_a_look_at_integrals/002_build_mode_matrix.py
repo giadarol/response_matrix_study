@@ -37,12 +37,43 @@ Omega_mat = MM_obj.compute_mode_complex_freq(omega_s, rescale_by=Nb_array/Nb_ref
 
 import matplotlib.pyplot as plt
 plt.close('all')
+from matplotlib import rc
+rc('font', size=14)
 
-plt.figure(200)
+mask_unstable = np.imag(Omega_mat) > 0.1
+Omega_mat_unstable = Omega_mat.copy()
+Omega_mat_unstable[~mask_unstable] = np.nan +1j*np.nan
+
+i_mode = -1
+
+fig1 = plt.figure(200)
 plt.plot(Nb_array, np.real(Omega_mat)/omega_s, '.b')
+plt.plot(Nb_array, np.real(Omega_mat_unstable)/omega_s, '.r')
+plt.grid(True, linestyle=':', alpha=.8)
+plt.subplots_adjust(bottom=.12)
+plt.suptitle('Response matrix')
+plt.xlabel('Bunch intensity [p]')
+plt.ylabel(r'Re($\Omega$)/$\omega_s$')
+fig1.savefig('response_real.png', dpi=200)
 
-plt.figure(201)
-plt.plot(Nb_array, np.imag(Omega_mat)/omega_s, '.b')
+
+fig2 = plt.figure(201)
+plt.plot(Nb_array, np.imag(Omega_mat), '.b')
+plt.plot(Nb_array, np.imag(Omega_mat_unstable), '.r')
+plt.grid(True, linestyle=':', alpha=.8)
+plt.subplots_adjust(bottom=.12)
+plt.suptitle('Response matrix')
+plt.xlabel('Bunch intensity [p]')
+plt.ylabel(r'Im($\Omega$)')
+fig2.savefig('response_imag.png', dpi=200)
+
+plt.figure(400)
+for ii in range(len(Nb_array)):
+    plt.scatter(x=Nb_array[ii]+0*np.imag(Omega_mat[ii, :]),
+            y=np.imag(Omega_mat[ii, :]),
+            c = np.real(Omega_mat[ii, :])/omega_s,
+            cmap=plt.cm.seismic)
+plt.colorbar()
 
 
 # Check against DELPHI
