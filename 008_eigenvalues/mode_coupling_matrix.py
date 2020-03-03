@@ -69,6 +69,7 @@ class CouplingMatrix(object):
                 if ll < 0:
                     continue
                 r_part_l_M_R_mat = np.zeros((n_m, n_r))
+                R_tilde_Lmn = np.zeros((n_m, n_n), dtype=np.complex)
                 for i_m, mm in  enumerate(m_vect):
                     print(f'l={i_l-i_l_zero}/{n_l_pos} m={i_m}/{n_m}')
                     lag_l_m_R_vect =assoc_laguerre(
@@ -90,12 +91,13 @@ class CouplingMatrix(object):
                               * h_n_r_cos_phi/H_N_2_vect[nn]
                               * np.conj(e_L_PHI_mat[i_l, :]))
 
-                        R_tilde_lmn[i_l, i_m, nn] = np.sum(
+                        R_tilde_Lmn[i_m, nn] = np.sum(
                                 r_part_l_M_R_mat[i_m, :]*
                                 int_dphi_l_n_R_vect)
 
-                        i_ml = np.where(l_vect==-ll)[0][0]
-                        R_tilde_lmn[i_ml, i_m, nn] = np.conj(R_tilde_lmn[i_l, i_m, nn])
+                R_tilde_lmn[i_l, :, :] = R_tilde_Lmn
+                i_ml = np.where(l_vect==-ll)[0][0]
+                R_tilde_lmn[i_ml, i_m, nn] = np.conj(R_tilde_lmn[i_l, i_m, nn])
 
             # Compute R integrals
             print('Compute R_lmn ...')
