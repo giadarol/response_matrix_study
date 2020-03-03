@@ -11,6 +11,7 @@ m_max = 3
 n_phi = 360
 n_r = 200
 N_max = 20#199
+n_pool = 4
 
 omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
 omega_s = 0.001909*omega0
@@ -29,7 +30,7 @@ z_slices = ob.z_slices
 
 MM_obj = CouplingMatrix(z_slices, HH, KK, l_min,
         l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_b, r_b,
-        a_param)
+        a_param, pool_size=n_pool)
 
 # Mode coupling test
 Nb_array = np.arange(0, 10.5e11, 0.1e11)
