@@ -47,6 +47,9 @@ class CouplingMatrix(object):
             n_m = len(m_vect)
             n_n = N_max + 1
 
+            n_l_pos = np.sum(np.int_(l_vect>=0))
+            i_l_zero = np.where(l_vect==0)[0][0]
+
             KK[np.isnan(KK)] = 0
 
             H_N_2_vect = dz * np.sum(HH**2, axis=1)
@@ -67,7 +70,7 @@ class CouplingMatrix(object):
                     continue
                 r_part_l_M_R_mat = np.zeros((n_m, n_r))
                 for i_m, mm in  enumerate(m_vect):
-                    print(f'l={i_l}/{n_l} m={i_m}/{n_m}')
+                    print(f'l={i_l-i_l_zero}/{n_l_pos} m={i_m}/{n_m}')
                     lag_l_m_R_vect =assoc_laguerre(
                             a_param * r_vect*r_vect, n=mm, k=np.abs(ll))
                     r_part_l_M_R_mat[i_m, :]  = (
