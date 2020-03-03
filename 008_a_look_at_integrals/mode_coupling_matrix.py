@@ -2,6 +2,7 @@ import numpy as np
 from scipy.special import assoc_laguerre, gamma
 from scipy.constants import c as clight
 from numpy.linalg import eigvals
+from multiprocessing import Pool
 
 def compute_R_tilde_for_one_l(
         i_l, ll, n_m, n_r, n_n, m_vect, i_l_zero, n_l_pos,
@@ -38,11 +39,15 @@ def compute_R_tilde_for_one_l(
 
     return R_tilde_Lmn
 
+def f_for_pool(args):
+    return  compute_R_tilde_for_one_l(*args)
+
 class CouplingMatrix(object):
 
     def __init__(self, z_slices, HH, KK, l_min,
             l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_b, r_b,
-            a_param, R_tilde_lmn=None, R_lmn=None, MM = None):
+            a_param, R_tilde_lmn=None, R_lmn=None, MM = None,
+            pool_size=4):
 
         self.z_slices = z_slices
         self.HH       = HH
@@ -100,17 +105,37 @@ class CouplingMatrix(object):
             # Compute R_tilde integrals
             print('Compute R_tilde_lmn ...')
             R_tilde_lmn = np.zeros((n_l, n_m, n_n), dtype=np.complex)
-            for i_l, ll in enumerate(l_vect):
+            #for i_l, ll in enumerate(l_vect):
+
+            n_pools = len(l_vect)/pool_size
+            if pool_size>1:
+                pool = Pool(processes=pool_size)
+
+            i_l = 0
+            other_args= [n_m, n_r, n_n, m_vect, i_l_zero, n_l_pos,
+                e_L_PHI_mat, r_vect, phi_vect,
+                r_b, sigma_b, a_param, dr, dphi,
+                cos_phi, cos2_phi, z_slices, HH, H_N_2_vect]
+            while (i_l<n_l):
+                ll = l_vect[i_l]
                 if ll < 0:
+                    i_l +=1
                     continue
-                R_tilde_Lmn = compute_R_tilde_for_one_l(
-                        i_l, ll, n_m, n_r, n_n, m_vect, i_l_zero, n_l_pos,
-                        e_L_PHI_mat, r_vect, phi_vect,
-                        r_b, sigma_b, a_param, dr, dphi,
-                        cos_phi, cos2_phi, z_slices, HH, H_N_2_vect)
-                R_tilde_lmn[i_l, :, :] = R_tilde_Lmn
-                i_ml = np.where(l_vect==-ll)[0][0]
-                R_tilde_lmn[i_ml, :, :] = np.conj(R_tilde_Lmn)
+#                import pdb; pdb.set_trace()
+                i_l_pool = [iii for iii in range(i_l, i_l+pool_size) if iii<n_l]
+                args_pool = [[iii, l_vect[iii]]+other_args
+                        for iii in i_l_pool if iii<n_l]
+                if pool_size>1:
+                    R_pool = pool.map(f_for_pool, args_pool)
+                else:
+                    R_pool = map(f_for_pool, args_pool)
+
+                for ilp, Rp in zip(i_l_pool, R_pool):
+                    llp = l_vect[ilp]
+                    R_tilde_lmn[ilp, :, :] = Rp
+                    i_mlp = np.where(l_vect==-llp)[0][0]
+                    R_tilde_lmn[i_mlp, :, :] = np.conj(Rp)
+                i_l += len(i_l_pool)
 
             # Compute R integrals
             print('Compute R_lmn ...')
