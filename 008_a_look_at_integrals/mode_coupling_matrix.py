@@ -39,9 +39,6 @@ def compute_R_tilde_for_one_l(
 
     return R_curr
 
-def f_R_for_pool(args):
-    return  compute_R_tilde_for_one_l(*args)
-
 def compute_R_for_one_l(
         i_l, ll, n_m, n_r, n_n, m_vect, i_l_zero, n_l_pos,
         e_L_PHI_mat, r_vect, phi_vect,
@@ -74,6 +71,11 @@ def compute_R_for_one_l(
                     int_dphi_l_n_R_vect)
     return R_curr
 
+def f_R_tilde_for_pool(args):
+    return  compute_R_tilde_for_one_l(*args)
+
+def f_R_for_pool(args):
+    return  compute_R_for_one_l(*args)
 
 class CouplingMatrix(object):
 
@@ -135,11 +137,10 @@ class CouplingMatrix(object):
                 e_L_PHI_mat[i_l, :] = np.exp(1j*ll*phi_vect)
 
             # Remember that Ks and Hs do not have the last point at 360 deg
+
             # Compute R_tilde integrals
             print('Compute R_tilde_lmn ...')
             R_tilde_lmn = np.zeros((n_l, n_m, n_n), dtype=np.complex)
-            #for i_l, ll in enumerate(l_vect):
-
             if pool_size == 0:
                 print('Serial implementation')
                 for i_l, ll in enumerate(l_vect):
@@ -168,11 +169,10 @@ class CouplingMatrix(object):
                     if ll < 0:
                         i_l +=1
                         continue
-#                    import pdb; pdb.set_trace()
                     i_l_pool = [iii for iii in range(i_l, i_l+pool_size) if iii<n_l]
                     args_pool = [[iii, l_vect[iii]]+other_args
                             for iii in i_l_pool if iii<n_l]
-                    R_pool = pool.map(f_R_for_pool, args_pool)
+                    R_pool = pool.map(f_R_tilde_for_pool, args_pool)
 
                     for ilp, Rp in zip(i_l_pool, R_pool):
                         llp = l_vect[ilp]
@@ -184,17 +184,44 @@ class CouplingMatrix(object):
             # Compute R integrals
             print('Compute R_lmn ...')
             R_lmn = np.zeros((n_l, n_m, n_n), dtype=np.complex)
-            for i_l, ll in enumerate(l_vect):
-                if ll<0:
-                    continue
-                R_curr = compute_R_for_one_l(
-                    i_l, ll, n_m, n_r, n_n, m_vect, i_l_zero, n_l_pos,
-                    e_L_PHI_mat, r_vect, phi_vect,
-                    r_b, sigma_b, a_param, dr, dphi,
-                    cos_phi, z_slices, KK)
-                R_lmn[i_l, :, :] = R_curr
-                i_ml = np.where(l_vect==-ll)[0][0]
-                R_lmn[i_ml, :, :] = np.conj(R_curr)
+            if pool_size == 0:
+                print('Serial implementation')
+                for i_l, ll in enumerate(l_vect):
+                    if ll<0:
+                        continue
+                    R_curr = compute_R_for_one_l(
+                        i_l, ll, n_m, n_r, n_n, m_vect, i_l_zero, n_l_pos,
+                        e_L_PHI_mat, r_vect, phi_vect,
+                        r_b, sigma_b, a_param, dr, dphi,
+                        cos_phi, z_slices, KK)
+                    R_lmn[i_l, :, :] = R_curr
+                    i_ml = np.where(l_vect==-ll)[0][0]
+                    R_lmn[i_ml, :, :] = np.conj(R_curr)
+            else:
+                print('Parallel implementation')
+                n_pools = len(l_vect)/pool_size
+                if pool_size>1:
+                    pool = Pool(processes=pool_size)
+                other_args= [n_m, n_r, n_n, m_vect, i_l_zero, n_l_pos,
+                        e_L_PHI_mat, r_vect, phi_vect,
+                        r_b, sigma_b, a_param, dr, dphi,
+                        cos_phi, z_slices, KK]
+                i_l = 0
+                while (i_l<n_l):
+                    ll = l_vect[i_l]
+                    if ll < 0:
+                        i_l +=1
+                        continue
+                    i_l_pool = [iii for iii in range(i_l, i_l+pool_size) if iii<n_l]
+                    args_pool = [[iii, l_vect[iii]]+other_args
+                            for iii in i_l_pool if iii<n_l]
+                    R_pool = pool.map(f_R_for_pool, args_pool)
+                    for ilp, Rp in zip(i_l_pool, R_pool):
+                        llp = l_vect[ilp]
+                        R_lmn[ilp, :, :] = Rp
+                        i_mlp = np.where(l_vect==-llp)[0][0]
+                        R_lmn[i_mlp, :, :] = np.conj(Rp)
+                    i_l += len(i_l_pool)
 
             self.R_tilde_lmn = R_tilde_lmn
             self.R_lmn = R_lmn
