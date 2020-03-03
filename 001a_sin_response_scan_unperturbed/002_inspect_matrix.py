@@ -56,12 +56,12 @@ ax41.matshow(np.abs(WW_filtered))
 
 fig50 = plt.figure(50)
 ax51 = fig50.add_subplot(111)
-for ii in range(0, 200, 2):
+for ii in range(0, 200, 1):
     ax51.plot(z_resp, WW[:, ii])
 
 fig60 = plt.figure(60)
 ax61 = fig60.add_subplot(111)
-for ii in range(0, 200, 10):
+for ii in range(0, 200, 1):
     ax61.plot(z_resp-z_resp[ii], WW[:, ii], '-')
 
 fig70 = plt.figure(70)
