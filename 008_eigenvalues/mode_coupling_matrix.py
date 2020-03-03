@@ -30,6 +30,7 @@ class CouplingMatrix(object):
         self.m_vect = m_vect
 
         if MM is None:
+            assert(l_min == -l_max)
             r_max = np.max(np.abs(z_slices))
             dz = z_slices[1] - z_slices[0]
 
@@ -62,9 +63,11 @@ class CouplingMatrix(object):
             print('Compute R_tilde_lmn ...')
             R_tilde_lmn = np.zeros((n_l, n_m, n_n), dtype=np.complex)
             for i_l, ll in enumerate(l_vect):
-                print(f'{i_l}/{n_l}')
+                if ll < 0:
+                    continue
                 r_part_l_M_R_mat = np.zeros((n_m, n_r))
                 for i_m, mm in  enumerate(m_vect):
+                    print(f'l={i_l}/{n_l} m={i_m}/{n_m}')
                     lag_l_m_R_vect =assoc_laguerre(
                             a_param * r_vect*r_vect, n=mm, k=np.abs(ll))
                     r_part_l_M_R_mat[i_m, :]  = (
@@ -87,6 +90,9 @@ class CouplingMatrix(object):
                         R_tilde_lmn[i_l, i_m, nn] = np.sum(
                                 r_part_l_M_R_mat[i_m, :]*
                                 int_dphi_l_n_R_vect)
+
+                        i_ml = np.where(l_vect==-ll)[0][0]
+                        R_tilde_lmn[i_ml, i_m, nn] = np.conj(R_tilde_lmn[i_l, i_m, nn])
 
             # Compute R integrals
             print('Compute R_lmn ...')

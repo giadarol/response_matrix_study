@@ -10,9 +10,9 @@ from mode_coupling_matrix import CouplingMatrix
 # Remember to rescale the beta!!!!
 
 # Reference
-l_min = -10
-l_max = 10
-m_max = 40
+l_min = -7
+l_max = 7
+m_max = 60
 n_phi = 3*360
 n_r = 3*200
 N_max = 199
