@@ -97,7 +97,7 @@ class CouplingMatrix(object):
 
                 R_tilde_lmn[i_l, :, :] = R_tilde_Lmn
                 i_ml = np.where(l_vect==-ll)[0][0]
-                R_tilde_lmn[i_ml, i_m, nn] = np.conj(R_tilde_lmn[i_l, i_m, nn])
+                R_tilde_lmn[i_ml, :, :] = np.conj(R_tilde_Lmn)
 
             # Compute R integrals
             print('Compute R_lmn ...')
