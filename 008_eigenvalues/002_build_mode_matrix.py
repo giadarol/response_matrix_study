@@ -15,8 +15,9 @@ l_max = 7
 m_max = 60
 n_phi = 3*360
 n_r = 3*200
-N_max = 199
+N_max = 50#199
 save_pkl_fname = 'mode_coupling_matrix.pkl'
+pool_size = 0
 
 # # Test
 # l_min = -3
@@ -42,7 +43,7 @@ z_slices = ob.z_slices
 
 MM_obj = CouplingMatrix(z_slices, HH, KK, l_min,
         l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_b, r_b,
-        a_param)
+        a_param, pool_size=pool_size)
 
 if save_pkl_fname is not None:
     with open(save_pkl_fname, 'wb') as fid:
