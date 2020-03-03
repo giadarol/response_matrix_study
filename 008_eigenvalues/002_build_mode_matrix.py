@@ -12,7 +12,7 @@ from mode_coupling_matrix import CouplingMatrix
 # Reference
 l_min = -7
 l_max = 7
-m_max = 60
+m_max = 80
 n_phi = 3*360
 n_r = 3*200
 N_max = 199
