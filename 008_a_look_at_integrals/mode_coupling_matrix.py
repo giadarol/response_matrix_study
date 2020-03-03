@@ -30,6 +30,7 @@ class CouplingMatrix(object):
         self.m_vect = m_vect
 
         if MM is None:
+            assert(l_min == -l_max)
             r_max = np.max(np.abs(z_slices))
             dz = z_slices[1] - z_slices[0]
 
@@ -62,9 +63,11 @@ class CouplingMatrix(object):
             print('Compute R_tilde_lmn ...')
             R_tilde_lmn = np.zeros((n_l, n_m, n_n), dtype=np.complex)
             for i_l, ll in enumerate(l_vect):
-                print(f'{i_l}/{n_l}')
+                if ll < 0:
+                    continue
                 r_part_l_M_R_mat = np.zeros((n_m, n_r))
                 for i_m, mm in  enumerate(m_vect):
+                    print(f'l={i_l}/{n_l} m={i_m}/{n_m}')
                     lag_l_m_R_vect =assoc_laguerre(
                             a_param * r_vect*r_vect, n=mm, k=np.abs(ll))
                     r_part_l_M_R_mat[i_m, :]  = (
@@ -87,6 +90,9 @@ class CouplingMatrix(object):
                         R_tilde_lmn[i_l, i_m, nn] = np.sum(
                                 r_part_l_M_R_mat[i_m, :]*
                                 int_dphi_l_n_R_vect)
+
+                        i_ml = np.where(l_vect==-ll)[0][0]
+                        R_tilde_lmn[i_ml, i_m, nn] = np.conj(R_tilde_lmn[i_l, i_m, nn])
 
             # Compute R integrals
             print('Compute R_lmn ...')
@@ -131,7 +137,7 @@ class CouplingMatrix(object):
         n_m = len(self.m_vect)
 
         if N_max_cut is not None:
-            assert(N_max_cut < self.N_max)
+            assert(N_max_cut <= self.N_max)
             n_cut = N_max_cut
         else:
             n_cut = self.N_max
@@ -157,7 +163,7 @@ class CouplingMatrix(object):
 
         assert(l_min >= self.l_min)
         assert(l_max <= self.l_max)
-        assert(m_max <= self.l_max)
+        assert(m_max <= self.m_max)
 
         mask_m_keep = self.m_vect<=m_max
         mask_l_keep = (self.l_vect<=l_max) & (self.l_vect>=l_min)
@@ -193,7 +199,7 @@ class CouplingMatrix(object):
         n_l = len(self.l_vect)
         n_m = len(self.m_vect)
         for ii, rr in enumerate(rescale_by):
-
+            print(f'{ii}/{len(rescale_by)}')
             MM_m_l_omegas = self.MM.copy()
             MM_m_l_omegas *= rr
 
