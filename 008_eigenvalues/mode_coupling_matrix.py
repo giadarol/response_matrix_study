@@ -193,7 +193,7 @@ class CouplingMatrix(object):
         n_l = len(self.l_vect)
         n_m = len(self.m_vect)
         for ii, rr in enumerate(rescale_by):
-
+            print(f'{ii}/{len(rescale_by)}')
             MM_m_l_omegas = self.MM.copy()
             MM_m_l_omegas *= rr
 

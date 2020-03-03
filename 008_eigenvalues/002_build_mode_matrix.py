@@ -15,7 +15,7 @@ l_max = 10
 m_max = 40
 n_phi = 3*360
 n_r = 3*200
-N_max = 50 #199
+N_max = 199
 save_pkl_fname = 'mode_coupling_matrix.pkl'
 
 # # Test

@@ -5,10 +5,10 @@ from scipy.constants import c as clight
 
 pkl_fname = 'mode_coupling_matrix.pkl'
 
-l_min = -10
-l_max = 10
-m_max = 30
-N_max =50
+l_min = -7
+l_max = 7
+m_max = 38
+N_max = 199
 
 with open(pkl_fname, 'rb') as fid:
     MM_orig = pickle.load(fid)
@@ -36,18 +36,23 @@ plt.plot(strength_scan, np.imag(Omega_mat), '.b')
 Omega_mat_mode = Omega_mat.copy()
 Omega_mat_mode[~mask_mode] = np.nan
 
+title = f'l_min={l_min}, l_max={l_max}, m_max={m_max}, N_max={N_max}'
+
 plt.figure(200)
 plt.plot(strength_scan, np.real(Omega_mat)/omega_s, '.b')
 plt.plot(strength_scan, np.real(Omega_mat_unstable)/omega_s, '.r')
-
+plt.suptitle(title)
 
 plt.figure(201)
 plt.plot(strength_scan, np.imag(Omega_mat), '.b')
 plt.plot(strength_scan, np.imag(Omega_mat_mode), '.g')
+plt.suptitle(title)
 
 plt.figure(300)
 plt.plot(np.imag(Omega_mat).flatten(),
         np.real(Omega_mat).flatten()/omega_s, '.b')
+plt.suptitle(title)
+
 
 plt.figure(400)
 for ii in range(len(strength_scan)):
@@ -55,6 +60,7 @@ for ii in range(len(strength_scan)):
             y=np.imag(Omega_mat[ii, :]),
             c = np.real(Omega_mat[ii, :])/omega_s,
             cmap=plt.cm.seismic)
+plt.suptitle(title)
 plt.colorbar()
 
 
