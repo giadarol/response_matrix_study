@@ -3,6 +3,41 @@ from scipy.special import assoc_laguerre, gamma
 from scipy.constants import c as clight
 from numpy.linalg import eigvals
 
+def compute_R_tilde_for_one_l(
+        i_l, ll, n_m, n_r, n_n, m_vect, i_l_zero, n_l_pos,
+        e_L_PHI_mat, r_vect, phi_vect,
+        r_b, sigma_b, a_param, dr, dphi,
+        cos_phi, cos2_phi, z_slices, HH, H_N_2_vect):
+
+    r_part_l_M_R_mat = np.zeros((n_m, n_r))
+    R_tilde_Lmn = np.zeros((n_m, n_n), dtype=np.complex)
+    for i_m, mm in  enumerate(m_vect):
+        print(f'l={i_l-i_l_zero}/{n_l_pos} m={i_m}/{n_m}')
+        lag_l_m_R_vect =assoc_laguerre(
+                a_param * r_vect*r_vect, n=mm, k=np.abs(ll))
+        r_part_l_M_R_mat[i_m, :]  = (
+                  dr * r_vect
+                * (r_vect/r_b)**np.abs(ll)
+                * lag_l_m_R_vect
+                )
+        for nn in range(n_n):
+            int_dphi_l_n_R_vect = np.zeros(n_r, dtype=np.complex)
+            for i_r, rr in enumerate(r_vect):
+                h_n_r_cos_phi = np.interp(rr*cos_phi,
+                    z_slices, HH[nn, :])
+                exp_c2_r_PHI_vect = np.exp(-a_param*rr*rr
+                        *(1-cos2_phi/(2*a_param*sigma_b**2)))
+                int_dphi_l_n_R_vect[i_r] = dphi * np.sum(
+                    exp_c2_r_PHI_vect
+                  * h_n_r_cos_phi/H_N_2_vect[nn]
+                  * np.conj(e_L_PHI_mat[i_l, :]))
+
+            R_tilde_Lmn[i_m, nn] = np.sum(
+                    r_part_l_M_R_mat[i_m, :]*
+                    int_dphi_l_n_R_vect)
+
+    return R_tilde_Lmn
+
 class CouplingMatrix(object):
 
     def __init__(self, z_slices, HH, KK, l_min,
@@ -68,33 +103,11 @@ class CouplingMatrix(object):
             for i_l, ll in enumerate(l_vect):
                 if ll < 0:
                     continue
-                r_part_l_M_R_mat = np.zeros((n_m, n_r))
-                R_tilde_Lmn = np.zeros((n_m, n_n), dtype=np.complex)
-                for i_m, mm in  enumerate(m_vect):
-                    print(f'l={i_l-i_l_zero}/{n_l_pos} m={i_m}/{n_m}')
-                    lag_l_m_R_vect =assoc_laguerre(
-                            a_param * r_vect*r_vect, n=mm, k=np.abs(ll))
-                    r_part_l_M_R_mat[i_m, :]  = (
-                              dr * r_vect
-                            * (r_vect/r_b)**np.abs(ll)
-                            * lag_l_m_R_vect
-                            )
-                    for nn in range(n_n):
-                        int_dphi_l_n_R_vect = np.zeros(n_r, dtype=np.complex)
-                        for i_r, rr in enumerate(r_vect):
-                            h_n_r_cos_phi = np.interp(rr*cos_phi,
-                                z_slices, HH[nn, :])
-                            exp_c2_r_PHI_vect = np.exp(-a_param*rr*rr
-                                    *(1-cos2_phi/(2*a_param*sigma_b**2)))
-                            int_dphi_l_n_R_vect[i_r] = dphi * np.sum(
-                                exp_c2_r_PHI_vect
-                              * h_n_r_cos_phi/H_N_2_vect[nn]
-                              * np.conj(e_L_PHI_mat[i_l, :]))
-
-                        R_tilde_Lmn[i_m, nn] = np.sum(
-                                r_part_l_M_R_mat[i_m, :]*
-                                int_dphi_l_n_R_vect)
-
+                R_tilde_Lmn = compute_R_tilde_for_one_l(
+                        i_l, ll, n_m, n_r, n_n, m_vect, i_l_zero, n_l_pos,
+                        e_L_PHI_mat, r_vect, phi_vect,
+                        r_b, sigma_b, a_param, dr, dphi,
+                        cos_phi, cos2_phi, z_slices, HH, H_N_2_vect)
                 R_tilde_lmn[i_l, :, :] = R_tilde_Lmn
                 i_ml = np.where(l_vect==-ll)[0][0]
                 R_tilde_lmn[i_ml, :, :] = np.conj(R_tilde_Lmn)
