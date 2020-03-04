@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 import PyECLOUD.myfilemanager as mfm
 
-n_terms_to_be_kept = 12
+n_terms_to_be_kept = 200
 n_tail_cut = 10
 
 # Load response data
@@ -52,20 +52,20 @@ ax311.matshow(WW - np.diag(np.diag(WW)))
 
 fig40 = plt.figure(40)
 ax41 = fig40.add_subplot(111)
-ax41.matshow(np.abs(WW_filtered))
-
-fig50 = plt.figure(50)
-ax51 = fig50.add_subplot(111)
-for ii in range(0, 200, 1):
-    ax51.plot(z_resp, WW[:, ii])
-
-fig60 = plt.figure(60)
-ax61 = fig60.add_subplot(111)
-for ii in range(0, 200, 1):
-    ax61.plot(z_resp-z_resp[ii], WW[:, ii], '-')
-
-fig70 = plt.figure(70)
-ax71 = fig70.add_subplot(111)
-ax71.matshow(np.abs(MM))
-
+ax41.matshow((WW_filtered)-np.diag(np.diag((WW_filtered))))
+#
+#fig50 = plt.figure(50)
+#ax51 = fig50.add_subplot(111)
+#for ii in range(0, 200, 1):
+#    ax51.plot(z_resp, WW[:, ii])
+#
+#fig60 = plt.figure(60)
+#ax61 = fig60.add_subplot(111)
+#for ii in range(0, 200, 1):
+#    ax61.plot(z_resp-z_resp[ii], WW[:, ii], '-')
+#
+#fig70 = plt.figure(70)
+#ax71 = fig70.add_subplot(111)
+#ax71.matshow(np.abs(MM))
+#
 plt.show()

@@ -10,11 +10,18 @@ import PyPARIS.util as pu
 import PyPARIS_sim_class.propsort as ps
 import PyECLOUD.myfilemanager as mfm
 
-flag_trace_from_simulation = True
-folder_curr_sim = '../reference_simulation'
-i_sim_trace = 302+1
-fname_out = f'refsim_turn{i_sim_trace}.mat'
+#flag_trace_from_simulation = True
+#flag_pulse = False
+#folder_curr_sim = '../reference_simulation'
+#i_sim_trace = 302+1
+#fname_out = f'refsim_turn{i_sim_trace}.mat'
 
+flag_trace_from_simulation = False
+flag_pulse = True
+x_pulse = 1e-4
+z_pulse = 0.
+Dz_pulse = 0.00374741
+fname_out = 'test_pulse.mat'
 
 sim_param_file = '../reference_simulation/Simulation_parameters.py'
 sim_param_amend_files = ['../Simulation_parameters_amend.py']
@@ -66,6 +73,12 @@ if flag_trace_from_simulation:
         if ss.macroparticlenumber>0:
             ss.x += np.interp(ss.z, z_trace_masked, x_trace_masked)
 
+if flag_pulse:
+    for ss in slices:
+        if ss.macroparticlenumber>0:
+            mask_pulse = np.abs(ss.z - z_pulse) < Dz_pulse
+            ss.x[mask_pulse] += x_pulse
+
 # Get slice centers
 z_slices = np.array([ss.slice_info['z_bin_center'] for ss in slices])
 
@@ -116,7 +129,8 @@ plt.close('all')
 
 fig2 = plt.figure(2)
 ax2 = fig2.add_subplot(111)
-ax2.plot(z_trace_masked, x_trace_masked)
+if flag_trace_from_simulation:
+    ax2.plot(z_trace_masked, x_trace_masked)
 ax2.plot(z_slices, x_slices)
 
 fig3 = plt.figure(3)

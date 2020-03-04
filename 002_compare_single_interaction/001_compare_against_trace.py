@@ -11,8 +11,13 @@ import sys
 sys.path.append('../')
 import response_matrix.response_matrix as rm
 
-test_data_file = './refsim_turn302.mat'
-n_terms_list = range(1, 201, 2)
+# test_data_file = './refsim_turn302.mat'
+# n_terms_list = range(1, 201, 2)
+# n_tail_cut = 10
+# response_data_file = '../001_sin_response_scan/response_data.mat'
+
+test_data_file = './test_pulse.mat'
+n_terms_list = [200]
 n_tail_cut = 10
 response_data_file = '../001_sin_response_scan/response_data.mat'
 
