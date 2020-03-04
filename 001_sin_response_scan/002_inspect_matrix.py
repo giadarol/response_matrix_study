@@ -56,13 +56,16 @@ ax41.matshow(np.abs(WW_filtered))
 
 fig50 = plt.figure(50)
 ax51 = fig50.add_subplot(111)
-for ii in range(0, 200, 2):
-    ax51.plot(z_resp, WW[:, ii])
+import PyECLOUD.mystyle as ms
+for ii in range(0, 200, 1):
+    colorcurr = ms.colorprog(ii, 200)
+    ax51.plot(z_resp, WW[:, ii], color=colorcurr)
 
 fig60 = plt.figure(60)
 ax61 = fig60.add_subplot(111)
-for ii in range(0, 200, 10):
-    ax61.plot(z_resp-z_resp[ii], WW[:, ii], '-')
+for ii in range(0, 200, 1):
+    colorcurr = ms.colorprog(ii, 200)
+    ax61.plot(z_resp-z_resp[ii], WW[:, ii], '-', color=colorcurr)
 
 fig70 = plt.figure(70)
 ax71 = fig70.add_subplot(111)
