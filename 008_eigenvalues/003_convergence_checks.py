@@ -7,7 +7,7 @@ pkl_fname = 'mode_coupling_matrix.pkl'
 
 l_min = -7
 l_max = 7
-m_max = 60
+m_max = 80
 N_max = 199
 
 with open(pkl_fname, 'rb') as fid:

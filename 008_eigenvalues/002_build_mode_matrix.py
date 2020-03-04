@@ -16,6 +16,7 @@ m_max = 80
 n_phi = 3*360
 n_r = 3*200
 N_max = 199
+n_tail_cut = 20
 save_pkl_fname = 'mode_coupling_matrix.pkl'
 pool_size = 4
 
@@ -39,6 +40,8 @@ a_param = 8./r_b**2
 ob = mfm.myloadmat_to_obj('../001_sin_response_scan/response_data.mat')
 HH = ob.x_mat
 KK = ob.dpx_mat
+KK[:, :n_tail_cut] = 0.
+KK[:, -n_tail_cut:] = 0.
 z_slices = ob.z_slices
 
 MM_obj = CouplingMatrix(z_slices, HH, KK, l_min,
