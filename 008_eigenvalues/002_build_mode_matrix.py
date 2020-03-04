@@ -16,7 +16,7 @@ m_max = 80
 n_phi = 3*360
 n_r = 3*200
 N_max = 199
-n_tail_cut = 20
+n_tail_cut = 0
 save_pkl_fname = 'mode_coupling_matrix.pkl'
 pool_size = 4
 
