@@ -7,8 +7,8 @@ pkl_fname = 'mode_coupling_matrix.pkl'
 
 l_min = -7
 l_max = 7
-m_max = 30
-N_max = 49
+m_max = 20
+N_max = 30
 min_imag_unstab = 1.
 
 with open(pkl_fname, 'rb') as fid:
@@ -64,6 +64,23 @@ for ii in range(len(strength_scan)):
 plt.suptitle(title)
 plt.colorbar()
 
+fig500 = plt.figure(500, figsize=(1.3*6.4, 1.3*4.8))
+ax = fig500.add_subplot(111)
+ax.set_facecolor('grey')
+im_max = 50
+for ii in range(len(strength_scan)):
+    Omega_ii = Omega_mat[ii, :]
+    ind_sorted = np.argsort(np.imag(Omega_ii))
+    re_sorted = np.take(np.real(Omega_ii), ind_sorted)
+    im_sorted = np.take(np.imag(Omega_ii), ind_sorted)
+    plt.scatter(x=strength_scan[ii]+0*np.imag(Omega_mat[ii, :]),
+            y=re_sorted/omega_s,
+            c = im_sorted,
+            cmap=plt.cm.jet,
+            s=np.clip(im_sorted, 5, im_max),
+            vmin=0, vmax=im_max)
+plt.suptitle(title)
+plt.colorbar()
 
 plt.show()
 

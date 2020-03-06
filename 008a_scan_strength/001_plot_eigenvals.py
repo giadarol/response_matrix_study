@@ -3,7 +3,7 @@ import pickle
 import numpy as np
 from scipy.constants import c as clight
 
-strength_scan = np.arange(0., 2., 0.02)[1::2]
+strength_scan = np.arange(0., 2., 0.02)[1::]
 
 omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
 omega_s = 4.9e-3*omega0
@@ -17,7 +17,7 @@ N_max = 30
 min_imag_unstab = 1.
 Omega_mat = []
 for ii in range(0, len(strength_scan)):
-    print(ii)
+    print(f'{ii}/{len(strength_scan)}')
     pkl_fname = simulation_folder+(f'/strength_{strength_scan[ii]:.3f}'
         '/mode_coupling_matrix.pkl')
     with open(pkl_fname, 'rb') as fid:
@@ -61,15 +61,34 @@ plt.plot(np.imag(Omega_mat).flatten(),
 plt.suptitle(title)
 
 
-plt.figure(400)
+fig400 = plt.figure(400)
+ax = fig400.add_subplot(111)
+ax.set_facecolor('grey')
 for ii in range(len(strength_scan)):
     plt.scatter(x=strength_scan[ii]+0*np.imag(Omega_mat[ii, :]),
             y=np.imag(Omega_mat[ii, :]),
             c = np.real(Omega_mat[ii, :])/omega_s,
-            cmap=plt.cm.seismic)
+            cmap=plt.cm.seismic, s=3)
 plt.suptitle(title)
 plt.colorbar()
 
+fig500 = plt.figure(500, figsize=(1.3*6.4, 1.3*4.8))
+ax = fig500.add_subplot(111)
+ax.set_facecolor('grey')
+im_max = 50
+for ii in range(len(strength_scan)):
+    Omega_ii = Omega_mat[ii, :]
+    ind_sorted = np.argsort(np.imag(Omega_ii))
+    re_sorted = np.take(np.real(Omega_ii), ind_sorted)
+    im_sorted = np.take(np.imag(Omega_ii), ind_sorted)
+    plt.scatter(x=strength_scan[ii]+0*np.imag(Omega_mat[ii, :]),
+            y=re_sorted/omega_s,
+            c = im_sorted,
+            cmap=plt.cm.jet,
+            s=np.clip(im_sorted, 5, im_max),
+            vmin=0, vmax=im_max)
+plt.suptitle(title)
+plt.colorbar()
 
 plt.show()
 
