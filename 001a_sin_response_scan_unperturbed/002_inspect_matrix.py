@@ -7,6 +7,7 @@ import PyECLOUD.myfilemanager as mfm
 
 n_terms_to_be_kept = 200
 n_tail_cut = 0
+n_cut_fit = 30
 
 # Load response data
 response_data_file = 'response_data.mat'
@@ -44,6 +45,10 @@ for ii in range(n_tail_cut):
 WW = np.dot(MM, np.dot(RR_inv, FF.T))
 WW_filtered = np.dot(MM, np.dot(CC, np.dot(RR_inv, np.dot(FF.T, CC_tails))))
 
+import scipy.io as sio
+sio.savemat('linear_strength.mat', {
+    'z_slices': z_resp,
+    'k_z_integrated': k_z})
 
 plt.close('all')
 
@@ -77,7 +82,17 @@ fig70 = plt.figure(70)
 ax71 = fig70.add_subplot(111)
 ax71.matshow(np.abs(MM))
 
+fig100 = plt.figure(100)
+ax101 = fig100.add_subplot(111)
+ax101.plot(z_resp, k_z)
 
+mask_fit = np.array(len(z_resp)*[True])
+#if n_cut_fit > 0:
+#    mask_fit[:n_cut_fit] = False
+#    mask_fit[-n_cut_fit:] = False
+
+p = np.polyfit(z_resp[mask_fit], k_z[mask_fit], deg=10)
+ax101.plot(z_resp, np.polyval(p, z_resp))
 ## Temp for debug
 #x_test = np.zeros(200)
 #x_test[150] = 1

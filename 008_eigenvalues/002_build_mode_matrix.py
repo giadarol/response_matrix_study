@@ -12,22 +12,24 @@ from mode_coupling_matrix import CouplingMatrix
 # Reference
 l_min = -7
 l_max = 7
-m_max = 80
+m_max = 30
 n_phi = 3*360
 n_r = 3*200
-N_max = 199
+N_max = 49
 n_tail_cut = 0
 save_pkl_fname = 'mode_coupling_matrix.pkl'
 pool_size = 4
 
 # # Test
-# l_min = -3
-# l_max = 3
-# m_max = 3
+# l_min = -10
+# l_max = 10
+# m_max = 10
 # n_phi = 3*360
 # n_r = 3*200
-# N_max = 12
+# N_max = 199
 # save_pkl_fname = None
+# n_tail_cut = 0
+# pool_size = 4
 
 omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
 omega_s = 4.9e-3*omega0
@@ -37,11 +39,13 @@ r_b = 4*sigma_b
 
 a_param = 8./r_b**2
 
-ob = mfm.myloadmat_to_obj('../001_sin_response_scan/response_data.mat')
+ob = mfm.myloadmat_to_obj('../001_sin_response_scan/response_data_processed.mat')
 HH = ob.x_mat
 KK = ob.dpx_mat
-KK[:, :n_tail_cut] = 0.
-KK[:, -n_tail_cut:] = 0.
+
+if n_tail_cut > 0:
+    KK[:, :n_tail_cut] = 0.
+    KK[:, -n_tail_cut:] = 0.
 z_slices = ob.z_slices
 
 MM_obj = CouplingMatrix(z_slices, HH, KK, l_min,

@@ -7,8 +7,9 @@ pkl_fname = 'mode_coupling_matrix.pkl'
 
 l_min = -7
 l_max = 7
-m_max = 80
-N_max = 199
+m_max = 15
+N_max = 49
+min_imag_unstab = 1.
 
 with open(pkl_fname, 'rb') as fid:
     MM_orig = pickle.load(fid)
@@ -25,7 +26,7 @@ Omega_mat = MM_obj.compute_mode_complex_freq(omega_s, rescale_by=strength_scan)
 import matplotlib.pyplot as plt
 plt.close('all')
 
-mask_unstable = np.imag(Omega_mat) > 1e-1
+mask_unstable = np.imag(Omega_mat) > min_imag_unstab
 Omega_mat_unstable = Omega_mat.copy()
 Omega_mat_unstable[~mask_unstable] = np.nan+1j*np.nan
 

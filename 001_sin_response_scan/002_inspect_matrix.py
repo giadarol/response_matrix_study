@@ -55,6 +55,16 @@ for i_work in range(len(z_resp)):
 
     WW_cleaned[:, i_work] = resp_out
 
+MM_cleaned = np.dot(WW_cleaned, FF)
+WW_check = np.dot(MM_cleaned, np.dot(CC, np.dot(RR_inv, np.dot(FF.T, CC_tails))))
+dpx_save = MM_cleaned.T
+
+import scipy.io as sio
+sio.savemat('response_data_processed.mat', {
+    'dpx_mat': dpx_save,
+    'x_mat': x_resp_mat,
+    'z_slices': z_resp})
+
 plt.close('all')
 
 fig1 = plt.figure(1)
@@ -64,7 +74,8 @@ ax1.plot(z_resp, resp_symm)
 ax1.plot(z_resp, resp_filt)
 ax1.plot(z_resp, resp_out)
 
-WW_plot = WW_cleaned
+WW_plot = WW_check
+MM_plot = MM_cleaned
 
 fig30 = plt.figure(30)
 ax31 = fig30.add_subplot(111)
@@ -87,6 +98,6 @@ for ii in list(range(0, 200, 1))[::-1]:
 
 fig70 = plt.figure(70)
 ax71 = fig70.add_subplot(111)
-ax71.matshow(np.abs(MM))
+ax71.matshow(np.abs(MM_plot))
 
 plt.show()

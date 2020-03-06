@@ -110,7 +110,7 @@ class CouplingMatrix(object):
             dz = z_slices[1] - z_slices[0]
 
             r_vect = np.linspace(0, r_max, n_r)
-            phi_vect = np.linspace(0, 2*np.pi, n_phi)
+            phi_vect = np.linspace(0, 2*np.pi, n_phi+1)[:-1]
 
             dphi = phi_vect[1] - phi_vect[0]
             dr = r_vect[1] - r_vect[0]
