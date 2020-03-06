@@ -9,27 +9,31 @@ from mode_coupling_matrix import CouplingMatrix
 
 # Remember to rescale the beta!!!!
 
-# Reference
-l_min = -7
-l_max = 7
-m_max = 30
-n_phi = 3*360
-n_r = 3*200
-N_max = 49
-n_tail_cut = 0
-save_pkl_fname = 'mode_coupling_matrix.pkl'
-pool_size = 4
-
-# # Test
-# l_min = -10
-# l_max = 10
-# m_max = 10
+# # Reference
+# l_min = -7
+# l_max = 7
+# m_max = 30
 # n_phi = 3*360
 # n_r = 3*200
-# N_max = 199
-# save_pkl_fname = None
+# N_max = 49
 # n_tail_cut = 0
+# save_pkl_fname = 'mode_coupling_matrix.pkl'
+# response_matrix_file = '../001_sin_response_scan/response_data_processed.mat'
+# z_strength_file = '../001a_sin_response_scan_unperturbed/linear_strength.mat'
 # pool_size = 4
+
+# Test
+l_min = -7
+l_max = 7
+m_max = 3 
+n_phi = 3*360
+n_r = 3*200
+N_max = 50
+save_pkl_fname = None
+n_tail_cut = 0
+response_matrix_file = '../001_sin_response_scan/response_data_processed.mat'
+z_strength_file = '../001a_sin_response_scan_unperturbed/linear_strength.mat'
+pool_size = 4
 
 omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
 omega_s = 4.9e-3*omega0
@@ -39,7 +43,9 @@ r_b = 4*sigma_b
 
 a_param = 8./r_b**2
 
-ob = mfm.myloadmat_to_obj('../001_sin_response_scan/response_data_processed.mat')
+
+# Prepare response matrix
+ob = mfm.myloadmat_to_obj(response_matrix_file)
 HH = ob.x_mat
 KK = ob.dpx_mat
 
@@ -48,9 +54,15 @@ if n_tail_cut > 0:
     KK[:, -n_tail_cut:] = 0.
 z_slices = ob.z_slices
 
+# Load detuning with z
+obdet = mfm.myloadmat_to_obj('../001a_sin_response_scan_unperturbed/linear_strength.mat')
+z_slices = obdet.z_slices
+p = np.polyfit(obdet.z_slices, obdet.k_z_integrated, deg=10)
+alpha_N = p[::-1] # Here I fit the strength
+
 MM_obj = CouplingMatrix(z_slices, HH, KK, l_min,
         l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_b, r_b,
-        a_param, pool_size=pool_size)
+        a_param, omega0, omega_s, pool_size=pool_size)
 
 if save_pkl_fname is not None:
     with open(save_pkl_fname, 'wb') as fid:

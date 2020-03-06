@@ -81,7 +81,8 @@ class CouplingMatrix(object):
 
     def __init__(self, z_slices, HH, KK, l_min,
             l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_b, r_b,
-            a_param, R_tilde_lmn=None, R_lmn=None, MM = None,
+            a_param, omega0, omega_s, alpha_p=[],
+            R_tilde_lmn=None, R_lmn=None, MM = None,
             pool_size=0):
 
         self.z_slices = z_slices
@@ -115,6 +116,38 @@ class CouplingMatrix(object):
             dphi = phi_vect[1] - phi_vect[0]
             dr = r_vect[1] - r_vect[0]
 
+            cos_phi = np.cos(phi_vect)
+            cos2_phi = cos_phi*cos_phi
+
+            # Compute phase shift term
+            dPhi_R_PHI = np.zeros((n_r, n_phi))
+            if len(alpha_p) > 0:
+                radius = clight/omega0
+                beta_fun = radius/Q_full
+                A_P = -beta_fun * alpha_p/4/ np.pi
+
+                C_N_PHI = np.zeros((N_terms, n_phi))
+
+                for nn in range(N_terms):
+                    if nn == 0:
+                        C_N_PHI[nn, :] = phi_vect
+                        continue
+                    if nn == 1:
+                        C_N_PHI[nn, :] = sin_phi
+                        continue
+                    C_N_PHI[nn, :] = (cos_phi**(nn-1)*sin_phi/nn
+                            + (nn-1)/nn * C_N_PHI[nn-2, :])
+
+                for nn in range(N_terms):
+                    dPhi_R_PHI += -omega0/omega_s * A_N[nn] * np.dot(
+                            np.atleast_2d(r_vect**nn).T, np.atleast_2d(C_N_PHI[nn, :]))
+
+            exp_j_dPhi_R_PHI = np.exp(1j*dPhi_R_PHI)
+            # For checks:
+            self.d_Q_R_PHI = -omega_s/omega0 * np.diff(dPhi_R_PHI[:, :], axis=1)/dphi
+
+            # End phase shift 
+
             l_vect = np.array(range(l_min, l_max+1))
             m_vect = np.array(range(0, m_max+1))
 
@@ -128,9 +161,6 @@ class CouplingMatrix(object):
             KK[np.isnan(KK)] = 0
 
             H_N_2_vect = dz * np.sum(HH**2, axis=1)
-
-            cos_phi = np.cos(phi_vect)
-            cos2_phi = cos_phi*cos_phi
 
             e_L_PHI_mat = np.zeros((n_l, n_phi), dtype=np.complex)
             for i_l, ll in enumerate(l_vect):
