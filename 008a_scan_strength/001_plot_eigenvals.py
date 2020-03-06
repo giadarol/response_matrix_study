@@ -3,26 +3,32 @@ import pickle
 import numpy as np
 from scipy.constants import c as clight
 
+strength_scan = np.arange(0., 2., 0.02)[1::2]
+
+omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
+omega_s = 4.9e-3*omega0
+simulation_folder = './simulations'
 pkl_fname = 'mode_coupling_matrix.pkl'
 
 l_min = -7
 l_max = 7
-m_max = 30
-N_max = 49
+m_max = 20
+N_max = 30
 min_imag_unstab = 1.
+Omega_mat = []
+for ii in range(0, len(strength_scan)):
+    print(ii)
+    pkl_fname = simulation_folder+(f'/strength_{strength_scan[ii]:.3f}'
+        '/mode_coupling_matrix.pkl')
+    with open(pkl_fname, 'rb') as fid:
+        MM_orig = pickle.load(fid)
 
-with open(pkl_fname, 'rb') as fid:
-    MM_orig = pickle.load(fid)
+    MM_obj = MM_orig.get_sub_matrix(l_min, l_max, m_max, N_max)
 
-MM_obj = MM_orig.get_sub_matrix(l_min, l_max, m_max, N_max)
+    Omega_array = MM_obj.compute_mode_complex_freq(omega_s)
+    Omega_mat.append(Omega_array)
 
-omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
-omega_s = 4.9e-3*omega0
-
-# Mode coupling test
-strength_scan = np.arange(0, 1.5, 0.02)
-Omega_mat = MM_obj.compute_mode_complex_freq(omega_s, rescale_by=strength_scan)
-
+Omega_mat = np.array(Omega_mat)
 import matplotlib.pyplot as plt
 plt.close('all')
 

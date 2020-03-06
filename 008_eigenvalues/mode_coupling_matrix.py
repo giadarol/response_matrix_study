@@ -100,6 +100,9 @@ class CouplingMatrix(object):
         self.sigma_b  = sigma_b
         self.r_b      = r_b
         self.a_param  = a_param
+        self.omega0 = omega0
+        self.omega_s = omega_s
+        self.alpha_p = alpha_p
 
         l_vect = np.array(range(l_min, l_max+1))
         m_vect = np.array(range(0, m_max+1))
@@ -327,6 +330,9 @@ class CouplingMatrix(object):
             sigma_b=self.sigma_b,
             r_b=self.r_b,
             a_param=self.a_param,
+            omega0 = self.omega0,
+            omega_s = self.omega_s,
+            alpha_p = self.alpha_p,
             MM = new_MM)
 
         return new
