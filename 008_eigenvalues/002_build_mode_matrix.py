@@ -25,7 +25,7 @@ from mode_coupling_matrix import CouplingMatrix
 # Test
 l_min = -7
 l_max = 7
-m_max = 3 
+m_max = 3
 n_phi = 3*360
 n_r = 3*200
 N_max = 50
@@ -33,6 +33,7 @@ save_pkl_fname = None
 n_tail_cut = 0
 response_matrix_file = '../001_sin_response_scan/response_data_processed.mat'
 z_strength_file = '../001a_sin_response_scan_unperturbed/linear_strength.mat'
+detuning_fit_order = 0
 pool_size = 4
 
 omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
@@ -55,14 +56,19 @@ if n_tail_cut > 0:
 z_slices = ob.z_slices
 
 # Load detuning with z
-obdet = mfm.myloadmat_to_obj('../001a_sin_response_scan_unperturbed/linear_strength.mat')
-z_slices = obdet.z_slices
-p = np.polyfit(obdet.z_slices, obdet.k_z_integrated, deg=10)
-alpha_N = p[::-1] # Here I fit the strength
+if detuning_fit_order > 0:
+    obdet = mfm.myloadmat_to_obj(z_strength_file)
+    z_slices = obdet.z_slices
+    p = np.polyfit(obdet.z_slices, obdet.k_z_integrated, deg=detuning_fit_order)
+    alpha_N = p[::-1] # Here I fit the strength
+else:
+    alpha_N = []
 
+# Build matrix
 MM_obj = CouplingMatrix(z_slices, HH, KK, l_min,
         l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_b, r_b,
-        a_param, omega0, omega_s, pool_size=pool_size)
+        a_param, omega0, omega_s, alpha_p=alpha_N,
+        pool_size=pool_size)
 
 if save_pkl_fname is not None:
     with open(save_pkl_fname, 'wb') as fid:
