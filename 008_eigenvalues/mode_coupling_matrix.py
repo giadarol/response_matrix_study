@@ -149,7 +149,7 @@ class CouplingMatrix(object):
             exp_j_dPhi_R_PHI = np.exp(1j*dPhi_R_PHI)
             # For checks:
             self.d_Q_R_PHI = -omega_s/omega0 * np.diff(dPhi_R_PHI[:, :], axis=1)/dphi
-
+            self.beta_fun = beta_fun
             # End phase shift 
 
             l_vect = np.array(range(l_min, l_max+1))
@@ -262,6 +262,8 @@ class CouplingMatrix(object):
             self.R_tilde_lmn = R_tilde_lmn
             self.R_lmn = R_lmn
             self.MM = self.compute_final_matrix()
+            self.r_vect = r_vect
+            self.phi_vect = phi_vect
         else:
             self.R_tilde_lmn = R_tilde_lmn
             self.R_lmn = R_lmn

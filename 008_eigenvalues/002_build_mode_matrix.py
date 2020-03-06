@@ -23,8 +23,8 @@ from mode_coupling_matrix import CouplingMatrix
 # pool_size = 4
 
 # Test
-l_min = -7
-l_max = 7
+l_min = -3
+l_max = 3
 m_max = 3
 n_phi = 3*360
 n_r = 3*200
@@ -33,7 +33,7 @@ save_pkl_fname = None
 n_tail_cut = 0
 response_matrix_file = '../001_sin_response_scan/response_data_processed.mat'
 z_strength_file = '../001a_sin_response_scan_unperturbed/linear_strength.mat'
-detuning_fit_order = 0
+detuning_fit_order = 10
 pool_size = 4
 
 omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
@@ -113,6 +113,20 @@ for ii in range(len(strength_scan)):
             c = np.real(Omega_mat[ii, :])/omega_s,
             vmin=-2, vmax=2, cmap=plt.cm.seismic)
 plt.colorbar()
+
+if detuning_fit_order > 0:
+    deltascaled_obs = 3e-2
+    r_obs = np.sqrt(deltascaled_obs**2 + z_slices**2)
+    phi_obs = np.arctan2(deltascaled_obs, z_slices)
+    from scipy.interpolate import interp2d
+    dQ_obs_fun = interp2d(MM_obj.r_vect, MM_obj.phi_vect[:-1], MM_obj.d_Q_R_PHI.T)
+    dQ_obs = np.squeeze(np.array([ dQ_obs_fun(rr, pp) for rr,pp in zip(r_obs, phi_obs)]))
+    k_obs = - dQ_obs*4*np.pi/MM_obj.beta_fun
+    plt.close('all')
+    fig100 = plt.figure(100)
+    ax101 = fig100.add_subplot(111)
+    ax101.plot(ob.z_slices, obdet.k_z_integrated)
+    ax101.plot(ob.z_slices, k_obs)
 
 
 plt.show()
