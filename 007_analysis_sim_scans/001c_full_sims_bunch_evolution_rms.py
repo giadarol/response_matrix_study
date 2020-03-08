@@ -19,32 +19,34 @@ import PyECLOUD.mystyle as ms
 
 from scipy.constants import c as ccc
 
-# # Test
-# labels = [f'test', 'reference']
-# folders_compare = ['../004_instability_simulation', '../reference_simulation/']
-# fname = None
-# fft2mod = 'lin'
-# i_start_list = None
-# n_turns = 20*[1000000]
-# cmap = None
-
-# Detuning investigation 
-labels = [f'full-old', 'full-new', 'lin', 'nomap']
-folders_compare = [
-        '../004a_instab_simulation_6MV_full_mat_nl_map',
-        '../004b_instab_simulation_6MV_dipolar_mat_nl_map',
-        '../004c_instab_simulation_6MV_dipolar_mat_lin_map',
-        '../004d_instab_simulation_6MV_dipolar_mat_no_map'
-        ]
-
-fname = None #'compact_comparison'
+# Test
+labels = [f'test', 'reference']
+folders_compare = ['../004_instability_simulation', '../reference_simulation/']
+fname = None
 fft2mod = 'lin'
 i_start_list = None
 n_turns = 20*[1000000]
-cmap = plt.cm.rainbow
-i_force_line = None
-fit_cut = 2000
+cmap = None
 flag_compact = True
+fit_cut = 2000
+i_force_line = None
+
+# # Detuning investigation 
+# labels = [f'full-old', 'full-new', 'lin', 'nomap']
+# folders_compare = [
+#         '../004a_instab_simulation_6MV_full_mat_nl_map',
+#         '../004b_instab_simulation_6MV_dipolar_mat_nl_map',
+#         '../004c_instab_simulation_6MV_dipolar_mat_lin_map',
+#         '../004d_instab_simulation_6MV_dipolar_mat_no_map'
+#         ]
+# fname = None #'compact_comparison'
+# fft2mod = 'lin'
+# i_start_list = None
+# n_turns = 20*[1000000]
+# cmap = plt.cm.rainbow
+# i_force_line = None
+# fit_cut = 2000
+# flag_compact = True
 
 # # Comparison against full study
 # VRF_MV = 8
