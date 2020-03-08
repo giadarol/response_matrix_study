@@ -28,6 +28,7 @@ include_response_matrix = True
 response_data_file = '../001_sin_response_scan/response_data.mat'
 
 include_non_linear_map = True
+flag_wrt_bunch_centroid = True
 field_map_file = '../003_generate_field_map/field_map.mat'
 # end-settings-section
 
@@ -94,7 +95,7 @@ if include_non_linear_map:
         L_interaction=1./sim_content.n_segments*ecloud_strength_scale,
         slicer=slicer,
         flag_clean_slices=False,
-        wrt_slice_centroid=True,
+        wrt_slice_centroid=flag_wrt_bunch_centroid,
         x_beam_offset=0.,
         y_beam_offset=0.,
         slice_by_slice_mode=False)

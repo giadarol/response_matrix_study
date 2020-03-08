@@ -29,18 +29,15 @@ from scipy.constants import c as ccc
 # cmap = None
 
 # Detuning investigation 
-labels = [f'full', 'lin', 'nonlin', 'mat_only', 'lin_ave', 'lin2ave',
-        'lin1.75ave', 'lin_no_ave']
-folders_compare = ['../004a_instability_investigate_detuning_full',
-        '../004b_instability_investigate_detuning_limap',
-        '../004c_instability_investigate_detuning_nonlinmap',
-        '../004d_instability_investigate_detuning_matrix_only',
-        '../004e_instability_investigate_detuning_limap_ave',
-        '../004f_instability_investigate_detuning_limap_2ave',
-        '../004g_instability_investigate_detuning_limap_1.75ave',
-        '../004h_instability_investigate_detuning_limap_noave',
+labels = [f'full-old', 'full-new', 'lin', 'nomap']
+folders_compare = [
+        '../004a_instab_simulation_6MV_full_mat_nl_map',
+        '../004b_instab_simulation_6MV_dipolar_mat_nl_map',
+        '../004c_instab_simulation_6MV_dipolar_mat_lin_map',
+        '../004d_instab_simulation_6MV_dipolar_mat_no_map'
         ]
-fname = 'compact_comparison'
+
+fname = None #'compact_comparison'
 fft2mod = 'lin'
 i_start_list = None
 n_turns = 20*[1000000]

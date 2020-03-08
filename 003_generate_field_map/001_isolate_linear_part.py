@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 import PyECLOUD.myfilemanager as mfm
 
-n_sigma_ave = 1.5
+n_sigma_ave = 2.5
 
 ob = mfm.myloadmat_to_obj('field_map.mat')
 ix_zero = np.argmin(np.abs(ob.xg))
@@ -64,10 +64,10 @@ dictnonlin['Ex_L_map'] = ob.Ex_L_map - Ex_lin
 dictnonlin['Ey_L_map'] = ob.Ey_L_map - Ey_lin
 
 import scipy.io as sio
-# sio.savemat('field_map_lin.mat', dictlin)
+sio.savemat('field_map_lin.mat', dictlin)
 sio.savemat('field_map_lin_ave.mat', dictlinave)
 sio.savemat('field_map_lin_noave.mat', dictlinnoave)
-# sio.savemat('field_map_nonlin.mat', dictnonlin)
+sio.savemat('field_map_nonlin.mat', dictnonlin)
 
 i_slice = 100
 
