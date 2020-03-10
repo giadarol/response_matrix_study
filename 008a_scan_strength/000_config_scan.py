@@ -1,7 +1,7 @@
 import os
 import numpy as np
 
-scan_folder_rel = 'simulations'
+scan_folder_rel = 'simulations_2'
 
 environment_preparation = f'''
 source /afs/cern.ch/work/g/giadarol/sim_workspace_mpi_py3/venvs/py3/bin/activate
@@ -40,8 +40,8 @@ for ii in range(len(strength_scan)):
     settings_section = f'''# start-settings-section
 
 # Reference
-l_min = -7
-l_max = 7
+l_min = -9
+l_max = 9
 m_max = 30
 n_phi = 3*360
 n_r = 3*200
