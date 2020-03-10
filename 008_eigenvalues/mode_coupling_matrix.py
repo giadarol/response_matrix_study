@@ -83,7 +83,7 @@ class CouplingMatrix(object):
 
     def __init__(self, z_slices, HH, KK, l_min,
             l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_b, r_b,
-            a_param, omega0, omega_s, alpha_p=[],
+            a_param, omega0, omega_s, eta, alpha_p=(), beta_p=(),
             R_tilde_lmn=None, R_lmn=None, MM = None,
             pool_size=0):
 
@@ -102,7 +102,9 @@ class CouplingMatrix(object):
         self.a_param  = a_param
         self.omega0 = omega0
         self.omega_s = omega_s
+        self.eta = eta
         self.alpha_p = alpha_p
+        self.beta_p = beta_p
 
         l_vect = np.array(range(l_min, l_max+1))
         m_vect = np.array(range(0, m_max+1))
@@ -130,12 +132,12 @@ class CouplingMatrix(object):
             # Compute phase shift term
             dPhi_R_PHI = np.zeros((n_r, n_phi))
             if len(alpha_p) > 0:
-                P_terms = len(alpha_p)
+                aP_terms = len(alpha_p)
                 A_P = -beta_fun * alpha_p/4/ np.pi
 
-                C_N_PHI = np.zeros((P_terms, n_phi))
+                C_N_PHI = np.zeros((aP_terms, n_phi))
 
-                for nn in range(P_terms):
+                for nn in range(aP_terms):
                     if nn == 0:
                         C_N_PHI[nn, :] = phi_vect
                         continue
@@ -145,9 +147,27 @@ class CouplingMatrix(object):
                     C_N_PHI[nn, :] = (cos_phi**(nn-1)*sin_phi/nn
                             + (nn-1)/nn * C_N_PHI[nn-2, :])
 
-                for nn in range(P_terms):
+                for nn in range(aP_terms):
                     dPhi_R_PHI += -omega0/omega_s * A_P[nn] * np.dot(
                             np.atleast_2d(r_vect**nn).T, np.atleast_2d(C_N_PHI[nn, :]))
+            if len(beta_p) > 0:
+                bP_terms = len(beta_p)
+                B_P = beta_p
+
+                S_N_PHI = np.zeros((bP_terms, n_phi))
+
+                for nn in range(bP_terms):
+                    if nn == 0:
+                        S_N_PHI[nn, :] = phi_vect
+                        continue
+                    if nn == 1:
+                        S_N_PHI[nn, :] = -cos_phi
+                        continue
+                    S_N_PHI[nn, :] = -((sin_phi**(nn-1)*cos_phi/nn)
+                            + (nn-1)/nn * S_N_PHI[nn-2, :])
+                for nn in range(bP_terms):
+                    dPhi_R_PHI += -omega0/omega_s * B_P[nn] * (omega_s/(clight*eta))**nn * np.dot(
+                            np.atleast_2d(r_vect**nn).T, np.atleast_2d(S_N_PHI[nn, :]))
 
             exp_j_dPhi_R_PHI = np.exp(1j*dPhi_R_PHI)
             # For checks:
@@ -332,7 +352,9 @@ class CouplingMatrix(object):
             a_param=self.a_param,
             omega0 = self.omega0,
             omega_s = self.omega_s,
+            eta=eta,
             alpha_p = self.alpha_p,
+            beta_p = self.beta_p,
             MM = new_MM)
 
         return new
