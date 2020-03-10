@@ -19,17 +19,17 @@ import PyECLOUD.mystyle as ms
 
 from scipy.constants import c as ccc
 
-# Test
-labels = [f'test', 'reference']
-folders_compare = ['../004_instability_simulation', '../reference_simulation/']
-fname = None
-fft2mod = 'lin'
-i_start_list = None
-n_turns = 20*[1000000]
-cmap = None
-flag_compact = True
-fit_cut = 2000
-i_force_line = None
+# # Test
+# labels = [f'test', 'reference']
+# folders_compare = ['../004_instability_simulation', '../reference_simulation/']
+# fname = None
+# fft2mod = 'lin'
+# i_start_list = None
+# n_turns = 20*[1000000]
+# cmap = None
+# flag_compact = True
+# fit_cut = 2000
+# i_force_line = None
 
 # # Detuning investigation 
 # labels = [f'full-old', 'full-new', 'lin', 'nomap']
@@ -39,7 +39,7 @@ i_force_line = None
 #         '../004c_instab_simulation_6MV_dipolar_mat_lin_map',
 #         '../004d_instab_simulation_6MV_dipolar_mat_no_map'
 #         ]
-# fname = None #'compact_comparison'
+# fname = 'compact_comparison_different_models'
 # fft2mod = 'lin'
 # i_start_list = None
 # n_turns = 20*[1000000]
@@ -111,31 +111,34 @@ i_force_line = None
 # fit_cut = 5000
 # flag_compact = True
 
-# # Comparison strength
-# strength_list = np.arange(0.1, 2.1, 0.1)
-# labels = [f'strength {ss:.1f}' for ss in strength_list]
-# folders_compare = [
-# #     f'../005d_strength_scan_6MV_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
-# #     f'../005e_strength_scan_6MV_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
-# #     f'../005f_strength_scan_6MV_map_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
-# #     f'../005i_strength_scan_6MV_all_harmonics_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
-# #     f'../005j_strength_scan_6MV_all_harmonics_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
-#      f'../005m_strength_scan_6MV_all_harmonics_matrix_linmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
-# #     ('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_019/'
-# #      'inj_arcQuad_no_initial_kick_no_damper_recenter_slice_sey_1.4'
-# #      '_intensity_1.2e11ppb_VRF_6MV_scan_length_factor_0.1_2.0/'
-# #      'simulations_PyPARIS/'
-# #      f'initial_kick_no_damper_no_recenter_slices_length_factor_{ss:.1f}') for ss in strength_list]
-# fft2mod = 'lin'
-# fname = 'compact_forced_strength_scan_maplin'
-# # fname = None
-# i_start_list = None
-# n_turns = 30*[10000000]
-# cmap = plt.cm.rainbow
-# i_force_line = 2
-# fit_cut = 5000
-# flag_compact = True
-# #######################################################################
+# Comparison strength
+strength_list = np.arange(0.1, 2.1, 0.1)
+labels = [f'strength {ss:.1f}' for ss in strength_list]
+folders_compare = [
+      f'../005n_strength_scan_6MV_all_harmonics_dip_matrix_fullmap/simulations_2/strength_{ss:.2e}/' for ss in strength_list]
+#      f'../005o_strength_scan_6MV_all_harmonics_dip_matrix_linmap/simulations_2/strength_{ss:.2e}/' for ss in strength_list]
+#      f'../005p_strength_scan_6MV_all_harmonics_dip_matrix_nomap/simulations_2/strength_{ss:.2e}/' for ss in strength_list]
+#     f'../005d_strength_scan_6MV_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
+#     f'../005e_strength_scan_6MV_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
+#     f'../005f_strength_scan_6MV_map_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
+#     f'../005i_strength_scan_6MV_all_harmonics_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
+#     f'../005j_strength_scan_6MV_all_harmonics_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
+#     f'../005m_strength_scan_6MV_all_harmonics_matrix_linmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
+#     ('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_019/'
+#      'inj_arcQuad_no_initial_kick_no_damper_recenter_slice_sey_1.4'
+#      '_intensity_1.2e11ppb_VRF_6MV_scan_length_factor_0.1_2.0/'
+#      'simulations_PyPARIS/'
+#      f'initial_kick_no_damper_no_recenter_slices_length_factor_{ss:.1f}') for ss in strength_list]
+fft2mod = 'lin'
+fname = 'compact_strength_scan_dip_matrix_fullmap'
+# fname = None
+i_start_list = None
+n_turns = 30*[10000000]
+cmap = plt.cm.rainbow
+i_force_line = 2
+fit_cut = 5000
+flag_compact = True
+#######################################################################
 
 flag_naff = False
 

@@ -13,18 +13,13 @@ import PyECLOUD.myfilemanager as mfm
 
 from PyPARIS_sim_class import LHC_custom
 
-fname_root = None
-#folders = ['../004_instability_simulation']
-folders = ['../004a_instability_investigate_detuning_full',
-           '../004b_instability_investigate_detuning_limap',
-#           '../004c_instability_investigate_detuning_nonlinmap',
-#           '../004e_instability_investigate_detuning_limap_ave',
-#           '../004f_instability_investigate_detuning_limap_2ave',
-#           '../004g_instability_investigate_detuning_limap_1.75ave',
-#           '../004h_instability_investigate_detuning_limap_noave'
+fname_root = 'full_vs_lin'
+folders = [
+           '../004a_instab_simulation_6MV_full_mat_nl_map',
+           '../004c_instab_simulation_6MV_dipolar_mat_lin_map',
            ]
-leg_labels = None
-labels = ['full', 'lin', 'nonlin', 'linave', 'lin2ave', 'lin1.5ave', 'lin_no_ave']
+leg_labels = ['full', 'lin']
+labels = ['full', 'lin',]
 cmap = plt.cm.rainbow
 
 
@@ -58,6 +53,8 @@ figglob = plt.figure(1)
 axglob = figglob.add_subplot(111)
 axdistrlist = []
 figfplist = []
+fighlist = []
+figvlist = []
 for ifol, folder in enumerate(folders):
     try:
         import pickle
@@ -152,6 +149,7 @@ for ifol, folder in enumerate(folders):
             right=0.965,
             hspace=0.2,
             wspace=0.2)
+    fighlist.append(fig2)
 
     fig3 = plt.figure(3000+ifol)
     ax3 = fig3.add_subplot(111)
@@ -172,6 +170,7 @@ for ifol, folder in enumerate(folders):
             right=0.965,
             hspace=0.2,
             wspace=0.2)
+    figvlist.append(fig3)
     # sigma_x = np.sqrt(pars['epsn_x']*betax/machine.betagamma)
     # sigma_y = np.sqrt(pars['epsn_y']*betay/machine.betagamma)
     # mask_small_amplitude = np.sqrt(
@@ -201,5 +200,8 @@ if fname_root is not None:
     figglob.savefig(fname_root+'_spreads.png', dpi=200)
     for ff, ll in zip(figfplist, labels):
         ff.savefig(fname_root+'_'+ll.replace(' ', '_').replace('_=', '')+'.png', dpi=200)
-
+    for ff, ll in zip(fighlist, labels):
+        ff.savefig(fname_root+'_h_'+ll.replace(' ', '_').replace('_=', '')+'.png', dpi=200)
+    for ff, ll in zip(fighlist, labels):
+        ff.savefig(fname_root+'_v_'+ll.replace(' ', '_').replace('_=', '')+'.png', dpi=200)
 plt.show()

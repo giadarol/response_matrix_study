@@ -3,7 +3,9 @@ import pickle
 import numpy as np
 from scipy.constants import c as clight
 
-strength_scan = np.arange(0., 2., 0.02)[1::]
+import PyECLOUD.mystyle as ms
+
+strength_scan = np.arange(0., 2.75, 0.02)[1::]
 
 omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
 omega_s = 4.9e-3*omega0
@@ -15,6 +17,9 @@ l_max = 7
 m_max = 20
 N_max = 30
 min_imag_unstab = 1.
+rescale_to_beta_fun = 92.7
+
+
 Omega_mat = []
 for ii in range(0, len(strength_scan)):
     print(f'{ii}/{len(strength_scan)}')
@@ -31,6 +36,7 @@ for ii in range(0, len(strength_scan)):
 Omega_mat = np.array(Omega_mat)
 import matplotlib.pyplot as plt
 plt.close('all')
+ms.mystyle(fontsz=14, traditional_look=False)
 
 mask_unstable = np.imag(Omega_mat) > min_imag_unstab
 Omega_mat_unstable = Omega_mat.copy()
@@ -43,7 +49,7 @@ plt.plot(strength_scan, np.imag(Omega_mat), '.b')
 Omega_mat_mode = Omega_mat.copy()
 Omega_mat_mode[~mask_mode] = np.nan
 
-title = f'l_min={l_min}, l_max={l_max}, m_max={m_max}, N_max={N_max}'
+title = f'l_min={l_min}, l_max={l_max}, m_max={m_max}, N_max={N_max}, beta_x={rescale_to_beta_fun}'
 
 plt.figure(200)
 plt.plot(strength_scan, np.real(Omega_mat)/omega_s, '.b')
@@ -75,21 +81,27 @@ plt.colorbar()
 fig500 = plt.figure(500, figsize=(1.3*6.4, 1.3*4.8))
 ax = fig500.add_subplot(111)
 ax.set_facecolor('grey')
-im_max = 50
+im_min_col = 5
+im_max_col = 200
+im_min_size = 5
+im_max_size = 50
+import matplotlib
 for ii in range(len(strength_scan)):
     Omega_ii = Omega_mat[ii, :]
     ind_sorted = np.argsort(-np.imag(Omega_ii))
     re_sorted = np.take(np.real(Omega_ii), ind_sorted)
     im_sorted = np.take(np.imag(Omega_ii), ind_sorted)
-    plt.scatter(x=strength_scan[ii]+0*np.imag(Omega_mat[ii, :]),
+    plt.scatter(x=MM_orig.beta_fun/rescale_to_beta_fun*strength_scan[ii]+0*np.imag(Omega_mat[ii, :]),
             y=re_sorted/omega_s,
-            c = -im_sorted,
+            c = np.clip(-im_sorted, im_min_col, im_max_col),
             cmap=plt.cm.jet,
-            s=np.clip(-im_sorted, 5, im_max),
-            vmin=0, vmax=im_max)
-# plt.grid(True)
+            s=np.clip(-im_sorted, im_min_size, im_max_size),
+            vmin=im_min_col, vmax=im_max_col,
+            norm=matplotlib.colors.LogNorm())
 plt.suptitle(title)
 plt.colorbar()
+
+
 
 plt.show()
 

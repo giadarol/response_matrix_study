@@ -77,6 +77,9 @@ ax1.plot(z_resp, resp_out)
 WW_plot = WW_check
 MM_plot = MM_cleaned
 
+# WW_plot = WW
+# MM_plot = MM
+
 fig30 = plt.figure(30)
 ax31 = fig30.add_subplot(111)
 ax31.matshow(np.abs(WW_plot))
@@ -91,7 +94,7 @@ ax51 = fig50.add_subplot(111)
 fig60 = plt.figure(60)
 ax61 = fig60.add_subplot(111)
 import PyECLOUD.mystyle as ms
-for ii in list(range(0, 200, 1))[::-1]:
+for ii in list(range(0, 200, 1))[::-10]:
     colorcurr = ms.colorprog(ii, 200)
     ax51.plot(z_resp, WW_plot[:, ii], color=colorcurr)
     ax61.plot(z_resp-z_resp[ii], WW_plot[:, ii], '-', color=colorcurr)
