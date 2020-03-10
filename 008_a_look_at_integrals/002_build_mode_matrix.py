@@ -30,7 +30,8 @@ z_slices = ob.z_slices
 
 MM_obj = CouplingMatrix(z_slices, HH, KK, l_min,
         l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_b, r_b,
-        a_param, pool_size=n_pool)
+        a_param, omega0=omega0, omega_s=omega_s, pool_size=n_pool)
+
 
 # Mode coupling test
 Nb_array = np.arange(0, 10.5e11, 0.1e11)

@@ -8,7 +8,7 @@ def compute_R_tilde_for_one_l(
         i_l, ll, n_m, n_r, n_n, m_vect, i_l_zero, n_l_pos,
         e_L_PHI_mat, r_vect, phi_vect,
         r_b, sigma_b, a_param, dr, dphi,
-        cos_phi, cos2_phi, z_slices, HH, H_N_2_vect):
+        cos_phi, cos2_phi, z_slices, HH, H_N_2_vect, exp_j_dPhi_R_PHI):
 
     r_part_l_M_R_mat = np.zeros((n_m, n_r))
     R_curr = np.zeros((n_m, n_n), dtype=np.complex)
@@ -29,7 +29,8 @@ def compute_R_tilde_for_one_l(
                 exp_c2_r_PHI_vect = np.exp(-a_param*rr*rr
                         *(1-cos2_phi/(2*a_param*sigma_b**2)))
                 int_dphi_l_n_R_vect[i_r] = dphi * np.sum(
-                    exp_c2_r_PHI_vect
+                    np.conj(exp_j_dPhi_R_PHI[i_r, :])
+                  * exp_c2_r_PHI_vect
                   * h_n_r_cos_phi/H_N_2_vect[nn]
                   * np.conj(e_L_PHI_mat[i_l, :]))
 
@@ -43,7 +44,7 @@ def compute_R_for_one_l(
         i_l, ll, n_m, n_r, n_n, m_vect, i_l_zero, n_l_pos,
         e_L_PHI_mat, r_vect, phi_vect,
         r_b, sigma_b, a_param, dr, dphi,
-        cos_phi, z_slices, KK):
+        cos_phi, z_slices, KK, exp_j_dPhi_R_PHI):
 
     r_part_l_M_R_mat = np.zeros((n_m, n_r))
     R_curr = np.zeros((n_m, n_n), dtype=np.complex)
@@ -64,7 +65,8 @@ def compute_R_for_one_l(
                 k_n_r_cos_phi = np.interp(rr*cos_phi,
                     z_slices, KK[nn, :])
                 int_dphi_l_n_R_vect[i_r] = dphi * np.sum(
-                    k_n_r_cos_phi*e_L_PHI_mat[i_l, :])
+                    exp_j_dPhi_R_PHI[i_r, :]
+                    *k_n_r_cos_phi*e_L_PHI_mat[i_l, :])
 
             R_curr[i_m, nn] = np.sum(
                     r_part_l_M_R_mat[i_m, :]*
@@ -81,7 +83,8 @@ class CouplingMatrix(object):
 
     def __init__(self, z_slices, HH, KK, l_min,
             l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_b, r_b,
-            a_param, R_tilde_lmn=None, R_lmn=None, MM = None,
+            a_param, omega0, omega_s, alpha_p=[],
+            R_tilde_lmn=None, R_lmn=None, MM = None,
             pool_size=0):
 
         self.z_slices = z_slices
@@ -97,6 +100,9 @@ class CouplingMatrix(object):
         self.sigma_b  = sigma_b
         self.r_b      = r_b
         self.a_param  = a_param
+        self.omega0 = omega0
+        self.omega_s = omega_s
+        self.alpha_p = alpha_p
 
         l_vect = np.array(range(l_min, l_max+1))
         m_vect = np.array(range(0, m_max+1))
@@ -110,10 +116,43 @@ class CouplingMatrix(object):
             dz = z_slices[1] - z_slices[0]
 
             r_vect = np.linspace(0, r_max, n_r)
-            phi_vect = np.linspace(0, 2*np.pi, n_phi)
+            phi_vect = np.linspace(0, 2*np.pi, n_phi+1)[:-1]
 
             dphi = phi_vect[1] - phi_vect[0]
             dr = r_vect[1] - r_vect[0]
+
+            sin_phi = np.sin(phi_vect)
+            cos_phi = np.cos(phi_vect)
+            cos2_phi = cos_phi*cos_phi
+
+            radius = clight/omega0
+            beta_fun = radius/Q_full
+            # Compute phase shift term
+            dPhi_R_PHI = np.zeros((n_r, n_phi))
+            if len(alpha_p) > 0:
+                P_terms = len(alpha_p)
+                A_P = -beta_fun * alpha_p/4/ np.pi
+
+                C_N_PHI = np.zeros((P_terms, n_phi))
+
+                for nn in range(P_terms):
+                    if nn == 0:
+                        C_N_PHI[nn, :] = phi_vect
+                        continue
+                    if nn == 1:
+                        C_N_PHI[nn, :] = sin_phi
+                        continue
+                    C_N_PHI[nn, :] = (cos_phi**(nn-1)*sin_phi/nn
+                            + (nn-1)/nn * C_N_PHI[nn-2, :])
+
+                for nn in range(P_terms):
+                    dPhi_R_PHI += -omega0/omega_s * A_P[nn] * np.dot(
+                            np.atleast_2d(r_vect**nn).T, np.atleast_2d(C_N_PHI[nn, :]))
+
+            exp_j_dPhi_R_PHI = np.exp(1j*dPhi_R_PHI)
+            # For checks:
+            self.d_Q_R_PHI = -omega_s/omega0 * np.diff(dPhi_R_PHI[:, :], axis=1)/dphi
+            # End phase shift 
 
             l_vect = np.array(range(l_min, l_max+1))
             m_vect = np.array(range(0, m_max+1))
@@ -128,9 +167,6 @@ class CouplingMatrix(object):
             KK[np.isnan(KK)] = 0
 
             H_N_2_vect = dz * np.sum(HH**2, axis=1)
-
-            cos_phi = np.cos(phi_vect)
-            cos2_phi = cos_phi*cos_phi
 
             e_L_PHI_mat = np.zeros((n_l, n_phi), dtype=np.complex)
             for i_l, ll in enumerate(l_vect):
@@ -150,7 +186,8 @@ class CouplingMatrix(object):
                         i_l, ll, n_m, n_r, n_n, m_vect, i_l_zero, n_l_pos,
                         e_L_PHI_mat, r_vect, phi_vect,
                         r_b, sigma_b, a_param, dr, dphi,
-                        cos_phi, cos2_phi, z_slices, HH, H_N_2_vect)
+                        cos_phi, cos2_phi, z_slices, HH, H_N_2_vect,
+                        exp_j_dPhi_R_PHI)
                     R_tilde_lmn[i_l, :, :] = R_curr
                     i_mlp = np.where(l_vect==-ll)[0][0]
                     R_tilde_lmn[i_mlp, :, :] = np.conj(R_curr)
@@ -162,7 +199,8 @@ class CouplingMatrix(object):
                 other_args= [n_m, n_r, n_n, m_vect, i_l_zero, n_l_pos,
                     e_L_PHI_mat, r_vect, phi_vect,
                     r_b, sigma_b, a_param, dr, dphi,
-                    cos_phi, cos2_phi, z_slices, HH, H_N_2_vect]
+                    cos_phi, cos2_phi, z_slices, HH, H_N_2_vect,
+                    exp_j_dPhi_R_PHI]
                 i_l = 0
                 while (i_l<n_l):
                     ll = l_vect[i_l]
@@ -193,7 +231,7 @@ class CouplingMatrix(object):
                         i_l, ll, n_m, n_r, n_n, m_vect, i_l_zero, n_l_pos,
                         e_L_PHI_mat, r_vect, phi_vect,
                         r_b, sigma_b, a_param, dr, dphi,
-                        cos_phi, z_slices, KK)
+                        cos_phi, z_slices, KK, exp_j_dPhi_R_PHI)
                     R_lmn[i_l, :, :] = R_curr
                     i_ml = np.where(l_vect==-ll)[0][0]
                     R_lmn[i_ml, :, :] = np.conj(R_curr)
@@ -205,7 +243,7 @@ class CouplingMatrix(object):
                 other_args= [n_m, n_r, n_n, m_vect, i_l_zero, n_l_pos,
                         e_L_PHI_mat, r_vect, phi_vect,
                         r_b, sigma_b, a_param, dr, dphi,
-                        cos_phi, z_slices, KK]
+                        cos_phi, z_slices, KK, exp_j_dPhi_R_PHI]
                 i_l = 0
                 while (i_l<n_l):
                     ll = l_vect[i_l]
@@ -223,9 +261,12 @@ class CouplingMatrix(object):
                         R_lmn[i_mlp, :, :] = np.conj(Rp)
                     i_l += len(i_l_pool)
 
+            self.beta_fun = beta_fun
             self.R_tilde_lmn = R_tilde_lmn
             self.R_lmn = R_lmn
             self.MM = self.compute_final_matrix()
+            self.r_vect = r_vect
+            self.phi_vect = phi_vect
         else:
             self.R_tilde_lmn = R_tilde_lmn
             self.R_lmn = R_lmn
@@ -289,6 +330,9 @@ class CouplingMatrix(object):
             sigma_b=self.sigma_b,
             r_b=self.r_b,
             a_param=self.a_param,
+            omega0 = self.omega0,
+            omega_s = self.omega_s,
+            alpha_p = self.alpha_p,
             MM = new_MM)
 
         return new
