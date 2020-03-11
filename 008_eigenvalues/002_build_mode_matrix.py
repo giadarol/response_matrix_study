@@ -9,6 +9,8 @@ from mode_coupling_matrix import CouplingMatrix
 
 # Remember to rescale the beta!!!!
 
+eta = 0.000318152589
+
 # start-settings-section
 # Reference
 l_min = -7
@@ -62,6 +64,9 @@ if n_tail_cut > 0:
     KK[:, -n_tail_cut:] = 0.
 z_slices = ob.z_slices
 
+# Detuning with delta
+beta_N = []
+
 # Load detuning with z
 if detuning_fit_order > 0:
     obdet = mfm.myloadmat_to_obj(z_strength_file)
@@ -74,7 +79,8 @@ else:
 # Build matrix
 MM_obj = CouplingMatrix(z_slices, HH, cloud_rescale_by*KK, l_min,
         l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_b, r_b,
-        cloud_rescale_by * a_param, omega0, omega_s, alpha_p=alpha_N,
+        cloud_rescale_by * a_param, omega0, omega_s, eta,
+        alpha_p=alpha_N, beta_p = beta_N,
         pool_size=pool_size)
 
 if save_pkl_fname is not None:

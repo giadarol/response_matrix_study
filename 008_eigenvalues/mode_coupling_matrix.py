@@ -83,7 +83,7 @@ class CouplingMatrix(object):
 
     def __init__(self, z_slices, HH, KK, l_min,
             l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_b, r_b,
-            a_param, omega0, omega_s, eta, alpha_p=(), beta_p=(),
+            a_param, omega0, omega_s, eta=None, alpha_p=(), beta_p=(),
             R_tilde_lmn=None, R_lmn=None, MM = None,
             pool_size=0):
 
@@ -336,6 +336,12 @@ class CouplingMatrix(object):
         new_MM = new_MM[:, :, mask_l_keep, :]
         new_MM = new_MM[:, :, :, mask_m_keep]
 
+        # Patch to load old pickles
+        if not hasattr(self, 'eta'):
+            self.eta = None
+        if not hasattr(self, 'beta_p'):
+            self.beta_p = ()
+
         new = CouplingMatrix(
             z_slices=self.z_slices,
             HH=self.HH,
@@ -352,7 +358,7 @@ class CouplingMatrix(object):
             a_param=self.a_param,
             omega0 = self.omega0,
             omega_s = self.omega_s,
-            eta=eta,
+            eta=self.eta,
             alpha_p = self.alpha_p,
             beta_p = self.beta_p,
             MM = new_MM)
