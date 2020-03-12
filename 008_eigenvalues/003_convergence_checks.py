@@ -7,9 +7,9 @@ import PyECLOUD.mystyle as ms
 
 pkl_fname = 'mode_coupling_matrix.pkl'
 
-l_min = -7
-l_max = 7
-m_max = 20
+l_min = -5
+l_max = 5
+m_max = 5
 N_max = 30
 min_imag_unstab = 1.
 rescale_to_beta_fun = 92.7
@@ -44,13 +44,13 @@ Omega_mat_mode[~mask_mode] = np.nan
 title = f'l_min={l_min}, l_max={l_max}, m_max={m_max}, N_max={N_max}, beta_x={rescale_to_beta_fun}'
 
 plt.figure(200)
-plt.plot(strength_scan, np.real(Omega_mat)/omega_s, '.b')
-plt.plot(strength_scan, np.real(Omega_mat_unstable)/omega_s, '.r')
+plt.plot(MM_orig.beta_fun/rescale_to_beta_fun*strength_scan, np.real(Omega_mat)/omega_s, '.b')
+plt.plot(MM_orig.beta_fun/rescale_to_beta_fun*strength_scan, np.real(Omega_mat_unstable)/omega_s, '.r')
 plt.suptitle(title)
 
 plt.figure(201)
-plt.plot(strength_scan, np.imag(Omega_mat), '.b')
-plt.plot(strength_scan, np.imag(Omega_mat_mode), '.g')
+plt.plot(MM_orig.beta_fun/rescale_to_beta_fun*strength_scan, np.imag(Omega_mat), '.b')
+plt.plot(MM_orig.beta_fun/rescale_to_beta_fun*strength_scan, np.imag(Omega_mat_mode), '.g')
 plt.suptitle(title)
 
 plt.figure(300)
@@ -61,7 +61,7 @@ plt.suptitle(title)
 
 plt.figure(400)
 for ii in range(len(strength_scan)):
-    plt.scatter(x=strength_scan[ii]+0*np.imag(Omega_mat[ii, :]),
+    plt.scatter(x=MM_orig.beta_fun/rescale_to_beta_fun*strength_scan[ii]+0*np.imag(Omega_mat[ii, :]),
             y=np.imag(Omega_mat[ii, :]),
             c = np.real(Omega_mat[ii, :])/omega_s,
             cmap=plt.cm.seismic)
