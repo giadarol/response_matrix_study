@@ -16,8 +16,13 @@ from PyPARIS_sim_class import propsort as ps
 
 import PyECLOUD.myfilemanager as mfm
 import PyECLOUD.mystyle as ms
+import NAFFlib as nl
+
+from PySUSSIX import Sussix
 
 from scipy.constants import c as ccc
+
+flag_close_figffts = True
 
 # # Test
 # labels = [f'test', 'reference']
@@ -48,99 +53,25 @@ from scipy.constants import c as ccc
 # fit_cut = 2000
 # flag_compact = True
 
-# # Comparison against full study
-# VRF_MV = 8
-# labels = ['matrix_map', 'matrix_only', 'map_only', 'simulation']
-# folders_compare = [
-#     f'../005k_voltage_scan_all_harmonics_damper_off_matrix_map/simulations/V_RF_{VRF_MV:.1e}',
-#     f'../005l_voltage_scan_all_harmonics_damper_off_matrix_only/simulations/V_RF_{VRF_MV:.1e}',
-#     f'../005c_voltage_scan_map_only/simulations/V_RF_{VRF_MV:.1e}',
-#     ('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_017/'
-#         'inj_arcQuad_drift_sey_1.4_intensity_1.2e11ppb_sigmaz_97mm_VRF_3_8MV_yes_no_initial_kick/'
-#          'simulations_PyPARIS/'
-#          f'ArcQuad_no_initial_kick_T0_x_slices_500_segments_8_MPslice_2500_eMPs_5e5_length_07_sey_1.4_intensity_1.2e11ppb_VRF_{VRF_MV:d}MV')
-#     ]
-# fname = f'comparison_Vrf{VRF_MV:.1f}_MV'
-# fft2mod = 'log'
-# i_start_list = [3000, 3000, 3000, 2000]
-# n_turns = 6*[3500]
-# cmap = None
-# i_force_line = 2
-# fit_cut = 2000
-# flag_compact = True
-
-## Comparison with Luca
-#V_RF=3
-#labels = ['new no recenter', 'new recenter', 'old']
-#folders_compare = [
-#        f'/afs/cern.ch/project/spsecloud/Sim_PyPARIS_019/inj_arcQuad_no_initial_kick_no_damper_sey_1.4_intensity_1.2e11ppb_sigmaz_97mm_scan_VRF_3_8MV_recenter_slice_yes_no/simulations_PyPARIS/initial_kick_no_damper_no_recenter_slices_False_VRF_{V_RF:.0f}MV',
-#    f'/afs/cern.ch/project/spsecloud/Sim_PyPARIS_019/inj_arcQuad_no_initial_kick_no_damper_sey_1.4_intensity_1.2e11ppb_sigmaz_97mm_scan_VRF_3_8MV_recenter_slice_yes_no/simulations_PyPARIS/initial_kick_no_damper_no_recenter_slices_True_VRF_{V_RF:.0f}MV',
-#    f'/afs/cern.ch/project/spsecloud/Sim_PyPARIS_017/inj_arcQuad_drift_sey_1.4_intensity_1.2e11ppb_sigmaz_97mm_VRF_3_8MV_yes_no_initial_kick/simulations_PyPARIS/ArcQuad_no_initial_kick_T0_x_slices_500_segments_8_MPslice_2500_eMPs_5e5_length_07_sey_1.4_intensity_1.2e11ppb_VRF_{V_RF:.0f}MV'
-#    ]
-#fname = None
-#fft2mod = 'lin'
-#i_start_list = None
-#n_turns = 6*[10000]
-#cmap = plt.cm.rainbow
-#i_force_line = 2
-#fit_cut = 2000
-#flag_compact = True
-
-# # Comparison v
-# V_list = np.arange(3, 8.1, 1)
-# labels = [f'{vv:.1f}_MV' for vv in V_list]
-# folders_compare = [
-# #    f'../005a_voltage_scan_matrix_map/simulations/V_RF_{vv:.1e}' for vv in V_list]
-# #    f'../005c_voltage_scan_map_only/simulations/V_RF_{vv:.1e}' for vv in V_list]
-# #    f'../005b_voltage_scan_matrix_only/simulations/V_RF_{vv:.1e}' for vv in V_list]
-# #    f'../005g_voltage_scan_all_harmonics_matrix_map/simulations/V_RF_{vv:.1e}' for vv in V_list]
-#     f'../005k_voltage_scan_all_harmonics_damper_off_matrix_map/simulations/V_RF_{vv:.1e}' for vv in V_list]
-# #    f'../005l_voltage_scan_all_harmonics_damper_off_matrix_only/simulations/V_RF_{vv:.1e}' for vv in V_list]
-# #      ('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_017/'
-# #          'inj_arcQuad_drift_sey_1.4_intensity_1.2e11ppb_sigmaz_97mm_VRF_3_8MV_yes_no_initial_kick/'
-# #           'simulations_PyPARIS/'
-# #      f'ArcQuad_yes_initial_kick_T0_x_slices_500_segments_8_MPslice_2500_eMPs_5e5_length_07_sey_1.4_intensity_1.2e11ppb_VRF_{vv:d}MV') for vv in np.int_(V_list)]
-# fname = 'compact_forced_vscan_matrix_200harm_nodamper_mat_map'
-# #fname = 'compact_forced_vscan_sim_kick'
-# #fname = None
-# fft2mod = 'lin'
-# i_start_list = None
-# n_turns = 12*[10000000]
-# cmap = plt.cm.rainbow
-# i_force_line = 2
-# fit_cut = 5000
-# flag_compact = True
 
 # Comparison strength
-strength_list = np.arange(0.1, 2.1, 0.1)
+strength_list = np.arange(0.1, 1.0, 0.02)
 labels = [f'strength {ss:.1f}' for ss in strength_list]
 folders_compare = [
-      f'../005n_strength_scan_6MV_all_harmonics_dip_matrix_fullmap/simulations_2/strength_{ss:.2e}/' for ss in strength_list]
-#      f'../005o_strength_scan_6MV_all_harmonics_dip_matrix_linmap/simulations_2/strength_{ss:.2e}/' for ss in strength_list]
-#      f'../005p_strength_scan_6MV_all_harmonics_dip_matrix_nomap/simulations_2/strength_{ss:.2e}/' for ss in strength_list]
-#     f'../005d_strength_scan_6MV_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
-#     f'../005e_strength_scan_6MV_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
-#     f'../005f_strength_scan_6MV_map_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
-#     f'../005i_strength_scan_6MV_all_harmonics_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
-#     f'../005j_strength_scan_6MV_all_harmonics_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
-#     f'../005m_strength_scan_6MV_all_harmonics_matrix_linmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
-#     ('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_019/'
-#      'inj_arcQuad_no_initial_kick_no_damper_recenter_slice_sey_1.4'
-#      '_intensity_1.2e11ppb_VRF_6MV_scan_length_factor_0.1_2.0/'
-#      'simulations_PyPARIS/'
-#      f'initial_kick_no_damper_no_recenter_slices_length_factor_{ss:.1f}') for ss in strength_list]
+      f'../005a_pyheadtail_impedance_strength_scan/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      # f'../005b_matrix_strength_scan/simulations/strength_{ss:.2e}/' for ss in strength_list]
 fft2mod = 'lin'
-fname = 'compact_strength_scan_dip_matrix_fullmap'
-# fname = None
+# fname = 'compact_strength_scan_dip_matrix_fullmap'
+fname = None
 i_start_list = None
-n_turns = 30*[10000000]
+n_turns = len(folders_compare)*[10000000]
 cmap = plt.cm.rainbow
-i_force_line = 2
+i_force_line = 0
 fit_cut = 5000
 flag_compact = True
 #######################################################################
 
-flag_naff = False
+flag_naff = True
 
 def extract_info_from_sim_param(spfname):
     with open(spfname, 'r') as fid:
@@ -165,6 +96,9 @@ ax12 = fig1.add_subplot(3,1,2, sharex=ax11)
 ax13 = fig1.add_subplot(3,1,3, sharex=ax11)
 
 p_list = []
+freq_list = []
+ap_list = []
+an_list =[]
 for ifol, folder in enumerate(folders_compare):
 
     print('Folder %d/%d'%(ifol, len(folders_compare)))
@@ -248,38 +182,6 @@ for ifol, folder in enumerate(folders_compare):
     qax = np.fft.rfftfreq(len(ob.mean_x[mask_zero]))
     axfft.semilogy(qax, np.abs(fftx), label=labels[ifol])
 
-    # I try some NAFF on the centroid
-    import NAFFlib as nl
-    if flag_naff:
-
-        n_wind = 50
-        N_lines = 10
-        freq_list = []
-        ampl_list = []
-
-        x_vect = ob.mean_x[mask_zero]
-        N_samples = len(x_vect)
-
-        for ii in range(N_samples):
-            if ii < n_wind/2:
-                continue
-            if ii > N_samples-n_wind/2:
-                continue
-
-            freq, a1, a2 = nl.get_tunes(
-                    x_vect[ii-n_wind/2 : ii+n_wind/2], N_lines)
-            freq_list.append(freq)
-            ampl_list.append(np.abs(a1))
-
-        fignaff = plt.figure(301)
-        axnaff = fignaff.add_subplot(111)
-
-        mpbl = axnaff.scatter(x=np.array(N_lines*[np.arange(len(freq_list))]).T,
-            y=np.array(freq_list), c=(np.array(ampl_list)),
-            vmax=1*np.max(ampl_list),
-            s=1)
-        plt.colorbar(mpbl)
-
     # Details
     L_zframe = np.max(ob_slice.mean_z[:, 0]) - np.min(ob_slice.mean_z[:, 0])
     # I try some FFT on the slice motion
@@ -328,7 +230,7 @@ for ifol, folder in enumerate(folders_compare):
     ax1mode.ticklabel_format(style='sci', scilimits=(0, 0), axis='y')
     ax1mode.set_xlim(0, np.sum(mask_zero))
 
-    activity_mode = savgol_filter(np.abs(ffts[i_mode, :][mask_zero]), 41, 3)
+    activity_mode =  np.abs(ffts[i_mode, :][mask_zero]) #savgol_filter(np.abs(ffts[i_mode, :][mask_zero]), 41, 3)
     x_fit = np.arange(len(activity_mode), dtype=np.float)
     p_fit = np.polyfit(x_fit[20:fit_cut], np.log(activity_mode)[20:fit_cut], deg = 1)
     y_fit = np.polyval(p_fit, x_fit)
@@ -352,7 +254,7 @@ for ifol, folder in enumerate(folders_compare):
             transform=ax1mode.transAxes,
             ha='left', va='bottom', fontsize=11)
 
-    N_traces =15 
+    N_traces =15
     max_intr = np.max(intrabunch_activity)
     if i_start_list is None:
         try:
@@ -428,6 +330,28 @@ for ifol, folder in enumerate(folders_compare):
     if fname is not None:
         figffts.savefig(fname+'_' + labels[ifol].replace(
             ' ', '_').replace('=', '').replace('-_', '')+'.png', dpi=200)
+    if flag_close_figffts:
+        plt.close(figffts)
+
+    # I try some NAFF on the centroid
+    if flag_naff:
+
+        x_vect = ob.mean_x[mask_zero]
+
+        N_lines = 50
+        freq, ap, an = nl.get_tunes(x_vect, N_lines)
+
+        freq_list.append(freq)
+        ap_list.append(np.abs(ap)/np.max(np.abs(ap)))
+
+        #from PySUSSIX import Sussix
+        #SX = Sussix()
+        #SX.sussix_inp(nt1=1, nt2=len(x_vect), idam=2, ir=1, tunex=.27, tuney=.27)
+        #SX.sussix(x_vect, x_vect, x_vect, x_vect, x_vect, x_vect)
+
+        #freq_list.append(SX.ox)
+        #ap_list.append(SX.ax/np.max(SX.ax))
+        #N_lines = len(SX.ax)
 
 for ax in [ax11, ax12, ax13, axfft]:
     ax.grid(True, linestyle='--', alpha=0.5)
@@ -443,6 +367,13 @@ fig1.subplots_adjust(
         right=0.955,
         hspace=0.2,
         wspace=0.2)
+
+figharm = plt.figure()
+maxsize =np.max(np.array(ap_list))
+
+axharm = figharm.add_subplot(111)
+str_mat = np.dot(np.atleast_2d(np.ones(N_lines)).T, np.atleast_2d(np.array(strength_list)))
+axharm.scatter(x=str_mat.flatten(), y=(np.abs(np.array(freq_list)).T.flatten()-.27)/Qs, s=np.array(ap_list).T.flatten()/maxsize*10)
 
 
 leg = ax11.legend(prop={'size':10})
