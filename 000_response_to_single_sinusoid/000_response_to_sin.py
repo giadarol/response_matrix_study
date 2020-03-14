@@ -108,15 +108,14 @@ for i_ss, ss in enumerate(slices[::-1]):
             temp_rho = ee.cloudsim.cloud_list[0].rho.copy()
         else:
             temp_rho += ee.cloudsim.cloud_list[0].rho.copy()
-    dpx_slices.append(ss.mean_xp())
+    dpx_slices.append(ss.mean_xp() * sim_content.n_segments)
     rho_slices.append(temp_rho)
 dpx_slices = np.array(dpx_slices[::-1])
 rho_slices = np.array(rho_slices[::-1])
 t_end = time.mktime(time.localtime())
 print(('Ecloud sim time %.2f s' % (t_end - t_start)))
 
-dpx_slices_all_clouds = dpx_slices * sim_content.n_segments
-
+dpx_slices_all_clouds = dpx_slices
 # Savings and plots
 if len(sim_content.parent_eclouds) > 0:
     first_ecloud = sim_content.parent_eclouds[0]
