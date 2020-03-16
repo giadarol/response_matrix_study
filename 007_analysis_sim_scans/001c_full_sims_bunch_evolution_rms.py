@@ -55,13 +55,11 @@ flag_close_figffts = True
 
 
 # Comparison strength
-# strength_list = np.arange(0.1, 1.0, 0.02)
-strength_list = np.arange(0.1, 1.0, 0.1)
-strength_list = [2]
+strength_list = np.arange(0.1, 2.0, 0.02)
 labels = [f'strength {ss:.1f}' for ss in strength_list]
 folders_compare = [
-      #f'../005a_pyheadtail_impedance_strength_scan/simulations/strength_{ss:.2e}/' for ss in strength_list]
-      f'../005b_matrix_strength_scan/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      f'../005a_pyheadtail_impedance_strength_scan/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005b_matrix_strength_scan/simulations/strength_{ss:.2e}/' for ss in strength_list]
 fft2mod = 'lin'
 #fname = 'impedance_'
 fname = None
@@ -139,7 +137,12 @@ for ifol, folder in enumerate(folders_compare):
         kwargs = {}
     ax11.plot(ob.mean_x[mask_zero]*1e3, label=labels[ifol], **kwargs)
     ax12.plot(ob.epsn_x[mask_zero]*1e6, **kwargs)
-    intrabunch_activity = savgol_filter(rms_x[mask_zero], 21, 3)
+
+    activity_intrab_filter_wlength = 21
+    if sum(mask_zero) <= activity_intrab_filter_wlength:
+        intrabunch_activity = rms_x[mask_zero]
+    else:
+        intrabunch_activity = savgol_filter(rms_x[mask_zero],  activity_intrab_filter_wlength, 3)
     # ax13.plot(intrabunch_activity, **kwargs)
 
     import sys
@@ -232,13 +235,16 @@ for ifol, folder in enumerate(folders_compare):
     ax1mode.ticklabel_format(style='sci', scilimits=(0, 0), axis='y')
     ax1mode.set_xlim(0, np.sum(mask_zero))
 
-    activity_filter_wlength = 41
-    if np.sum(mask_zero) <= activity_filter_wlength:
+    activity_mode_filter_wlength = 41
+    if np.sum(mask_zero) <= activity_mode_filter_wlength:
         activity_mode =  np.abs(ffts[i_mode, :][mask_zero])
     else:
-        activity_mode =  savgol_filter(np.abs(ffts[i_mode, :][mask_zero]), 41, 3)
+        activity_mode =  savgol_filter(np.abs(ffts[i_mode, :][mask_zero]), activity_mode_filter_wlength, 3)
     x_fit = np.arange(len(activity_mode), dtype=np.float)
-    p_fit = np.polyfit(x_fit[20:fit_cut], np.log(activity_mode)[20:fit_cut], deg = 1)
+    try:
+        p_fit = np.polyfit(x_fit[20:fit_cut], np.log(activity_mode)[20:fit_cut], deg = 1)
+    except TypeError:
+        p_fit = np.polyfit(x_fit[:fit_cut], np.log(activity_mode)[:fit_cut], deg = 1)
     y_fit = np.polyval(p_fit, x_fit)
     p_list.append(p_fit)
     tau = 1./p_fit[0]
