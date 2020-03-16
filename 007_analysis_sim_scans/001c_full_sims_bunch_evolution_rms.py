@@ -55,13 +55,15 @@ flag_close_figffts = True
 
 
 # Comparison strength
-strength_list = np.arange(0.1, 1.0, 0.02)
+# strength_list = np.arange(0.1, 1.0, 0.02)
+strength_list = np.arange(0.1, 1.0, 0.1)
+strength_list = [2]
 labels = [f'strength {ss:.1f}' for ss in strength_list]
 folders_compare = [
-      f'../005a_pyheadtail_impedance_strength_scan/simulations/strength_{ss:.2e}/' for ss in strength_list]
-      # f'../005b_matrix_strength_scan/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005a_pyheadtail_impedance_strength_scan/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      f'../005b_matrix_strength_scan/simulations/strength_{ss:.2e}/' for ss in strength_list]
 fft2mod = 'lin'
-# fname = 'compact_strength_scan_dip_matrix_fullmap'
+#fname = 'impedance_'
 fname = None
 i_start_list = None
 n_turns = len(folders_compare)*[10000000]
@@ -230,7 +232,11 @@ for ifol, folder in enumerate(folders_compare):
     ax1mode.ticklabel_format(style='sci', scilimits=(0, 0), axis='y')
     ax1mode.set_xlim(0, np.sum(mask_zero))
 
-    activity_mode =  np.abs(ffts[i_mode, :][mask_zero]) #savgol_filter(np.abs(ffts[i_mode, :][mask_zero]), 41, 3)
+    activity_filter_wlength = 41
+    if np.sum(mask_zero) <= activity_filter_wlength:
+        activity_mode =  np.abs(ffts[i_mode, :][mask_zero])
+    else:
+        activity_mode =  savgol_filter(np.abs(ffts[i_mode, :][mask_zero]), 41, 3)
     x_fit = np.arange(len(activity_mode), dtype=np.float)
     p_fit = np.polyfit(x_fit[20:fit_cut], np.log(activity_mode)[20:fit_cut], deg = 1)
     y_fit = np.polyval(p_fit, x_fit)
@@ -338,20 +344,20 @@ for ifol, folder in enumerate(folders_compare):
 
         x_vect = ob.mean_x[mask_zero]
 
-        N_lines = 50
-        freq, ap, an = nl.get_tunes(x_vect, N_lines)
+        # N_lines = 50
+        # freq, ap, an = nl.get_tunes(x_vect, N_lines)
 
-        freq_list.append(freq)
-        ap_list.append(np.abs(ap)/np.max(np.abs(ap)))
+        # freq_list.append(freq)
+        # ap_list.append(np.abs(ap)/np.max(np.abs(ap)))
 
-        #from PySUSSIX import Sussix
-        #SX = Sussix()
-        #SX.sussix_inp(nt1=1, nt2=len(x_vect), idam=2, ir=1, tunex=.27, tuney=.27)
-        #SX.sussix(x_vect, x_vect, x_vect, x_vect, x_vect, x_vect)
+        from PySUSSIX import Sussix
+        SX = Sussix()
+        SX.sussix_inp(nt1=1, nt2=len(x_vect), idam=2, ir=1, tunex=.27, tuney=.27)
+        SX.sussix(x_vect, x_vect, x_vect, x_vect, x_vect, x_vect)
 
-        #freq_list.append(SX.ox)
-        #ap_list.append(SX.ax/np.max(SX.ax))
-        #N_lines = len(SX.ax)
+        freq_list.append(SX.ox)
+        ap_list.append(SX.ax/np.max(SX.ax))
+        N_lines = len(SX.ax)
 
 for ax in [ax11, ax12, ax13, axfft]:
     ax.grid(True, linestyle='--', alpha=0.5)
@@ -373,7 +379,7 @@ maxsize =np.max(np.array(ap_list))
 
 axharm = figharm.add_subplot(111)
 str_mat = np.dot(np.atleast_2d(np.ones(N_lines)).T, np.atleast_2d(np.array(strength_list)))
-axharm.scatter(x=str_mat.flatten(), y=(np.abs(np.array(freq_list)).T.flatten()-.27)/Qs, s=np.array(ap_list).T.flatten()/maxsize*10)
+axharm.scatter(x=str_mat.flatten(), y=(np.abs(np.array(freq_list)).T.flatten()-.27)/Qs, s=np.clip(np.array(ap_list).T.flatten()/maxsize*10, 0.01, 10))
 
 
 leg = ax11.legend(prop={'size':10})

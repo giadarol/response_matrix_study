@@ -40,9 +40,10 @@ sim_content = sim_mod.Simulation(param_file=sim_param_file)
 for ff in sim_param_amend_files:
     sim_content.pp.update(param_file=ff)
 
-# Disable real e-clouds
+# Disable real e-clouds and impedance
 sim_content.pp.enable_arc_dip = False
 sim_content.pp.enable_arc_quad = False
+sim_content.pp.enable_impedance = False
 
 # Add ring of CPU information
 ring_cpu = pu.get_serial_CPUring(sim_content,
