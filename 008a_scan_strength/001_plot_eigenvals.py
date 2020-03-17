@@ -9,11 +9,11 @@ strength_scan = np.arange(0., 2.75, 0.02)[1::]
 
 omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
 omega_s = 4.9e-3*omega0
-simulation_folder = './simulations'
+simulation_folder = './simulations_2'
 pkl_fname = 'mode_coupling_matrix.pkl'
 
-l_min = -7
-l_max = 7
+l_min = -9
+l_max = 9
 m_max = 20
 N_max = 30
 min_imag_unstab = 1.

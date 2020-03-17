@@ -16,8 +16,13 @@ from PyPARIS_sim_class import propsort as ps
 
 import PyECLOUD.myfilemanager as mfm
 import PyECLOUD.mystyle as ms
+import NAFFlib as nl
+
+from PySUSSIX import Sussix
 
 from scipy.constants import c as ccc
+
+flag_close_figffts = True
 
 # # Test
 # labels = [f'test', 'reference']
@@ -115,9 +120,13 @@ from scipy.constants import c as ccc
 strength_list = np.arange(0.1, 2.1, 0.1)
 labels = [f'strength {ss:.1f}' for ss in strength_list]
 folders_compare = [
-      f'../005n_strength_scan_6MV_all_harmonics_dip_matrix_fullmap/simulations_2/strength_{ss:.2e}/' for ss in strength_list]
+#      f'../005n_strength_scan_6MV_all_harmonics_dip_matrix_fullmap/simulations_2/strength_{ss:.2e}/' for ss in strength_list]
 #      f'../005o_strength_scan_6MV_all_harmonics_dip_matrix_linmap/simulations_2/strength_{ss:.2e}/' for ss in strength_list]
 #      f'../005p_strength_scan_6MV_all_harmonics_dip_matrix_nomap/simulations_2/strength_{ss:.2e}/' for ss in strength_list]
+#      f'../005q_strength_scan_linrf6MV_all_harmonics_dip_matrix_fullmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      f'../005r_strength_scan_linrf6MV_all_harmonics_dip_matrix_linmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
+#      f'../005s_strength_scan_linrf6MV_all_harmonics_dip_matrix_nomap/simulations/strength_{ss:.2e}/' for ss in strength_list]
+
 #     f'../005d_strength_scan_6MV_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005e_strength_scan_6MV_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005f_strength_scan_6MV_map_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
@@ -130,7 +139,7 @@ folders_compare = [
 #      'simulations_PyPARIS/'
 #      f'initial_kick_no_damper_no_recenter_slices_length_factor_{ss:.1f}') for ss in strength_list]
 fft2mod = 'lin'
-fname = 'compact_strength_scan_dip_matrix_fullmap'
+fname = 'compact_strength_scan_dip_matrix_fullmap_linrf'
 # fname = None
 i_start_list = None
 n_turns = 30*[10000000]
@@ -140,7 +149,7 @@ fit_cut = 5000
 flag_compact = True
 #######################################################################
 
-flag_naff = False
+flag_naff = True
 
 def extract_info_from_sim_param(spfname):
     with open(spfname, 'r') as fid:
@@ -165,6 +174,9 @@ ax12 = fig1.add_subplot(3,1,2, sharex=ax11)
 ax13 = fig1.add_subplot(3,1,3, sharex=ax11)
 
 p_list = []
+freq_list = []
+ap_list = []
+an_list =[]
 for ifol, folder in enumerate(folders_compare):
 
     print('Folder %d/%d'%(ifol, len(folders_compare)))
@@ -203,7 +215,12 @@ for ifol, folder in enumerate(folders_compare):
         kwargs = {}
     ax11.plot(ob.mean_x[mask_zero]*1e3, label=labels[ifol], **kwargs)
     ax12.plot(ob.epsn_x[mask_zero]*1e6, **kwargs)
-    intrabunch_activity = savgol_filter(rms_x[mask_zero], 21, 3)
+
+    activity_intrab_filter_wlength = 21
+    if sum(mask_zero) <= activity_intrab_filter_wlength:
+        intrabunch_activity = rms_x[mask_zero]
+    else:
+        intrabunch_activity = savgol_filter(rms_x[mask_zero],  activity_intrab_filter_wlength, 3)
     # ax13.plot(intrabunch_activity, **kwargs)
 
     import sys
@@ -247,38 +264,6 @@ for ifol, folder in enumerate(folders_compare):
     fftx = np.fft.rfft(ob.mean_x[mask_zero])
     qax = np.fft.rfftfreq(len(ob.mean_x[mask_zero]))
     axfft.semilogy(qax, np.abs(fftx), label=labels[ifol])
-
-    # I try some NAFF on the centroid
-    import NAFFlib as nl
-    if flag_naff:
-
-        n_wind = 50
-        N_lines = 10
-        freq_list = []
-        ampl_list = []
-
-        x_vect = ob.mean_x[mask_zero]
-        N_samples = len(x_vect)
-
-        for ii in range(N_samples):
-            if ii < n_wind/2:
-                continue
-            if ii > N_samples-n_wind/2:
-                continue
-
-            freq, a1, a2 = nl.get_tunes(
-                    x_vect[ii-n_wind/2 : ii+n_wind/2], N_lines)
-            freq_list.append(freq)
-            ampl_list.append(np.abs(a1))
-
-        fignaff = plt.figure(301)
-        axnaff = fignaff.add_subplot(111)
-
-        mpbl = axnaff.scatter(x=np.array(N_lines*[np.arange(len(freq_list))]).T,
-            y=np.array(freq_list), c=(np.array(ampl_list)),
-            vmax=1*np.max(ampl_list),
-            s=1)
-        plt.colorbar(mpbl)
 
     # Details
     L_zframe = np.max(ob_slice.mean_z[:, 0]) - np.min(ob_slice.mean_z[:, 0])
@@ -328,9 +313,16 @@ for ifol, folder in enumerate(folders_compare):
     ax1mode.ticklabel_format(style='sci', scilimits=(0, 0), axis='y')
     ax1mode.set_xlim(0, np.sum(mask_zero))
 
-    activity_mode = savgol_filter(np.abs(ffts[i_mode, :][mask_zero]), 41, 3)
+    activity_mode_filter_wlength = 41
+    if np.sum(mask_zero) <= activity_mode_filter_wlength:
+        activity_mode =  np.abs(ffts[i_mode, :][mask_zero])
+    else:
+        activity_mode =  savgol_filter(np.abs(ffts[i_mode, :][mask_zero]), activity_mode_filter_wlength, 3)
     x_fit = np.arange(len(activity_mode), dtype=np.float)
-    p_fit = np.polyfit(x_fit[20:fit_cut], np.log(activity_mode)[20:fit_cut], deg = 1)
+    try:
+        p_fit = np.polyfit(x_fit[20:fit_cut], np.log(activity_mode)[20:fit_cut], deg = 1)
+    except TypeError:
+        p_fit = np.polyfit(x_fit[:fit_cut], np.log(activity_mode)[:fit_cut], deg = 1)
     y_fit = np.polyval(p_fit, x_fit)
     p_list.append(p_fit)
     tau = 1./p_fit[0]
@@ -352,7 +344,7 @@ for ifol, folder in enumerate(folders_compare):
             transform=ax1mode.transAxes,
             ha='left', va='bottom', fontsize=11)
 
-    N_traces =15 
+    N_traces = 15
     max_intr = np.max(intrabunch_activity)
     if i_start_list is None:
         try:
@@ -428,6 +420,28 @@ for ifol, folder in enumerate(folders_compare):
     if fname is not None:
         figffts.savefig(fname+'_' + labels[ifol].replace(
             ' ', '_').replace('=', '').replace('-_', '')+'.png', dpi=200)
+    if flag_close_figffts:
+        plt.close(figffts)
+
+    # I try some NAFF on the centroid
+    if flag_naff:
+
+        x_vect = ob.mean_x[mask_zero]
+
+        # N_lines = 50
+        # freq, ap, an = nl.get_tunes(x_vect, N_lines)
+
+        # freq_list.append(freq)
+        # ap_list.append(np.abs(ap)/np.max(np.abs(ap)))
+
+        from PySUSSIX import Sussix
+        SX = Sussix()
+        SX.sussix_inp(nt1=1, nt2=len(x_vect), idam=2, ir=1, tunex=.27, tuney=.27)
+        SX.sussix(x_vect, x_vect, x_vect, x_vect, x_vect, x_vect)
+
+        freq_list.append(SX.ox)
+        ap_list.append(SX.ax/np.max(SX.ax))
+        N_lines = len(SX.ax)
 
 for ax in [ax11, ax12, ax13, axfft]:
     ax.grid(True, linestyle='--', alpha=0.5)
@@ -443,6 +457,13 @@ fig1.subplots_adjust(
         right=0.955,
         hspace=0.2,
         wspace=0.2)
+
+figharm = plt.figure()
+maxsize =np.max(np.array(ap_list))
+
+axharm = figharm.add_subplot(111)
+str_mat = np.dot(np.atleast_2d(np.ones(N_lines)).T, np.atleast_2d(np.array(strength_list)))
+axharm.scatter(x=str_mat.flatten(), y=(np.abs(np.array(freq_list)).T.flatten()-.27)/Qs, s=np.clip(np.array(ap_list).T.flatten()/maxsize*10, 0.01, 10))
 
 
 leg = ax11.legend(prop={'size':10})
