@@ -11,7 +11,8 @@ def compute_R_tilde_for_one_l(
         cos_phi, cos2_phi, z_slices, HH, H_N_2_vect, exp_j_dPhi_R_PHI):
 
     r_part_l_M_R_mat = np.zeros((n_m, n_r))
-    R_curr = np.zeros((n_m, n_n), dtype=np.complex)
+    R_plus_curr = np.zeros((n_m, n_n), dtype=np.complex)
+    R_minus_curr = np.zeros((n_m, n_n), dtype=np.complex)
     for i_m, mm in  enumerate(m_vect):
         print(f'l={i_l-i_l_zero}/{n_l_pos} m={i_m}/{n_m}')
         lag_l_m_R_vect =assoc_laguerre(
@@ -23,22 +24,28 @@ def compute_R_tilde_for_one_l(
                 )
         for nn in range(n_n):
             int_dphi_l_n_R_vect = np.zeros(n_r, dtype=np.complex)
+            int_dphi_ml_n_R_vect = np.zeros(n_r, dtype=np.complex)
             for i_r, rr in enumerate(r_vect):
                 h_n_r_cos_phi = np.interp(rr*cos_phi,
                     z_slices, HH[nn, :])
                 exp_c2_r_PHI_vect = np.exp(-a_param*rr*rr
                         *(1-cos2_phi/(2*a_param*sigma_b**2)))
-                int_dphi_l_n_R_vect[i_r] = dphi * np.sum(
-                    np.conj(exp_j_dPhi_R_PHI[i_r, :])
-                  * exp_c2_r_PHI_vect
+                integrand_part = (exp_c2_r_PHI_vect
                   * h_n_r_cos_phi/H_N_2_vect[nn]
                   * np.conj(e_L_PHI_mat[i_l, :]))
-
-            R_curr[i_m, nn] = np.sum(
+                int_dphi_l_n_R_vect[i_r] = dphi * np.sum(
+                    integrand_part
+                  * np.conj(exp_j_dPhi_R_PHI[i_r, :]))
+                int_dphi_ml_n_R_vect[i_r] = dphi * np.sum(
+                    np.conj(integrand_part)
+                  * np.conj(exp_j_dPhi_R_PHI[i_r, :]))
+            R_plus_curr[i_m, nn] = np.sum(
                     r_part_l_M_R_mat[i_m, :]*
                     int_dphi_l_n_R_vect)
-
-    return R_curr
+            R_minus_curr[i_m, nn] = np.sum(
+                    r_part_l_M_R_mat[i_m, :]*
+                    int_dphi_ml_n_R_vect)
+    return R_plus_curr, R_minus_curr
 
 def compute_R_for_one_l(
         i_l, ll, n_m, n_r, n_n, m_vect, i_l_zero, n_l_pos,
@@ -47,7 +54,8 @@ def compute_R_for_one_l(
         cos_phi, z_slices, KK, exp_j_dPhi_R_PHI):
 
     r_part_l_M_R_mat = np.zeros((n_m, n_r))
-    R_curr = np.zeros((n_m, n_n), dtype=np.complex)
+    R_plus_curr = np.zeros((n_m, n_n), dtype=np.complex)
+    R_minus_curr = np.zeros((n_m, n_n), dtype=np.complex)
     for i_m, mm in  enumerate(m_vect):
         print(f'l={i_l-i_l_zero}/{n_l_pos} m={i_m}/{n_m}')
         lag_l_m_R_vect =assoc_laguerre(
@@ -61,17 +69,24 @@ def compute_R_for_one_l(
 
         for nn in range(n_n):
             int_dphi_l_n_R_vect = np.zeros(n_r, dtype=np.complex)
+            int_dphi_ml_n_R_vect = np.zeros(n_r, dtype=np.complex)
             for i_r, rr in enumerate(r_vect):
                 k_n_r_cos_phi = np.interp(rr*cos_phi,
                     z_slices, KK[nn, :])
+                integrand_part = k_n_r_cos_phi*e_L_PHI_mat[i_l, :]
                 int_dphi_l_n_R_vect[i_r] = dphi * np.sum(
                     exp_j_dPhi_R_PHI[i_r, :]
-                    *k_n_r_cos_phi*e_L_PHI_mat[i_l, :])
-
-            R_curr[i_m, nn] = np.sum(
+                  * integrand_part)
+                int_dphi_ml_n_R_vect[i_r] = dphi * np.sum(
+                    exp_j_dPhi_R_PHI[i_r, :]
+                  * np.conj(integrand_part))
+            R_plus_curr[i_m, nn] = np.sum(
                     r_part_l_M_R_mat[i_m, :]*
                     int_dphi_l_n_R_vect)
-    return R_curr
+            R_minus_curr[i_m, nn] = np.sum(
+                    r_part_l_M_R_mat[i_m, :]*
+                    int_dphi_ml_n_R_vect)
+    return R_plus_curr, R_minus_curr
 
 def f_R_tilde_for_pool(args):
     return  compute_R_tilde_for_one_l(*args)
@@ -202,15 +217,15 @@ class CouplingMatrix(object):
                 for i_l, ll in enumerate(l_vect):
                     if ll<0:
                         continue
-                    R_curr = compute_R_tilde_for_one_l(
+                    R_plus_curr, R_minus_curr = compute_R_tilde_for_one_l(
                         i_l, ll, n_m, n_r, n_n, m_vect, i_l_zero, n_l_pos,
                         e_L_PHI_mat, r_vect, phi_vect,
                         r_b, sigma_b, a_param, dr, dphi,
                         cos_phi, cos2_phi, z_slices, HH, H_N_2_vect,
                         exp_j_dPhi_R_PHI)
-                    R_tilde_lmn[i_l, :, :] = R_curr
+                    R_tilde_lmn[i_l, :, :] = R_plus_curr
                     i_mlp = np.where(l_vect==-ll)[0][0]
-                    R_tilde_lmn[i_mlp, :, :] = np.conj(R_curr)
+                    R_tilde_lmn[i_mlp, :, :] = R_minus_curr
             else:
                 print('Parallel implementation')
                 n_pools = len(l_vect)/pool_size
@@ -234,9 +249,9 @@ class CouplingMatrix(object):
 
                     for ilp, Rp in zip(i_l_pool, R_pool):
                         llp = l_vect[ilp]
-                        R_tilde_lmn[ilp, :, :] = Rp
+                        R_tilde_lmn[ilp, :, :] = Rp[0]
                         i_mlp = np.where(l_vect==-llp)[0][0]
-                        R_tilde_lmn[i_mlp, :, :] = np.conj(Rp)
+                        R_tilde_lmn[i_mlp, :, :] = Rp[1]
                     i_l += len(i_l_pool)
 
             # Compute R integrals
@@ -247,14 +262,14 @@ class CouplingMatrix(object):
                 for i_l, ll in enumerate(l_vect):
                     if ll<0:
                         continue
-                    R_curr = compute_R_for_one_l(
+                    R_plus_curr, R_minus_curr = compute_R_for_one_l(
                         i_l, ll, n_m, n_r, n_n, m_vect, i_l_zero, n_l_pos,
                         e_L_PHI_mat, r_vect, phi_vect,
                         r_b, sigma_b, a_param, dr, dphi,
                         cos_phi, z_slices, KK, exp_j_dPhi_R_PHI)
-                    R_lmn[i_l, :, :] = R_curr
+                    R_lmn[i_l, :, :] = R_plus_curr
                     i_ml = np.where(l_vect==-ll)[0][0]
-                    R_lmn[i_ml, :, :] = np.conj(R_curr)
+                    R_lmn[i_ml, :, :] =  R_minus_curr
             else:
                 print('Parallel implementation')
                 n_pools = len(l_vect)/pool_size
@@ -276,9 +291,9 @@ class CouplingMatrix(object):
                     R_pool = pool.map(f_R_for_pool, args_pool)
                     for ilp, Rp in zip(i_l_pool, R_pool):
                         llp = l_vect[ilp]
-                        R_lmn[ilp, :, :] = Rp
+                        R_lmn[ilp, :, :] = Rp[0]
                         i_mlp = np.where(l_vect==-llp)[0][0]
-                        R_lmn[i_mlp, :, :] = np.conj(Rp)
+                        R_lmn[i_mlp, :, :] = Rp[1]
                     i_l += len(i_l_pool)
 
             self.beta_fun = beta_fun
