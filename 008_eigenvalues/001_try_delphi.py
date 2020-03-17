@@ -26,8 +26,8 @@ from DELPHI import compute_impedance_matrix, computes_coef
 from DELPHI import eigenmodesDELPHI
 from DELPHI import longdistribution_decomp
 
-lmax = 4 #5
-nmax = 4 #5
+lmax = 5
+nmax = 5
 nx = 0 # Coupled-bunch mode
 M = 1 # Number of bunches
 Qp = 5. #0. # Chromaticity 
@@ -95,7 +95,7 @@ plt.legend()
 
 Omega_mat = np.array(eigenval_list)
 
-mask_unstable = np.imag(Omega_mat) < -0.1
+mask_unstable = np.imag(Omega_mat) < -1
 Omega_mat_unstable = Omega_mat.copy()
 Omega_mat_unstable[~mask_unstable] = np.nan +1j*np.nan
 
