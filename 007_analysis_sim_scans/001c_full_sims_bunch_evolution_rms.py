@@ -266,7 +266,7 @@ for ifol, folder in enumerate(folders_compare):
             transform=ax1mode.transAxes,
             ha='left', va='bottom', fontsize=11)
 
-    N_traces =15
+    N_traces = 15
     max_intr = np.max(intrabunch_activity)
     if i_start_list is None:
         try:

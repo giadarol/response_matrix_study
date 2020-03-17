@@ -4,7 +4,7 @@ from scipy.constants import c as clight
 import matplotlib.pyplot as plt
 
 from Impedance import imp_model_resonator, freq_param
-
+eta = 0.000318152589
 beta = 1.
 # Broad-band impedance
 Rt = 3*25e6 # shunt impedance in MOhm/m
@@ -26,11 +26,11 @@ from DELPHI import compute_impedance_matrix, computes_coef
 from DELPHI import eigenmodesDELPHI
 from DELPHI import longdistribution_decomp
 
-lmax = 5
-nmax = 5
+lmax = 4 #5
+nmax = 4 #5
 nx = 0 # Coupled-bunch mode
 M = 1 # Number of bunches
-omegaksi = 0. # Chromatic shift
+Qp = 5. #0. # Chromaticity 
 radius = 27e3 / 2. / np.pi
 omega0 = clight/radius # Revolution angular frquency
 Q_frac = .27
@@ -43,6 +43,8 @@ gamma = 479.606
 omega_s = 0.0049053*omega0
 
 beta_smooth = radius/Q_full
+
+omegaksi = Qp*omega0/eta
 
 g,a,b = longdistribution_decomp(tau_b, typelong='Gaussian')
 g_0 = g[0]
@@ -93,7 +95,7 @@ plt.legend()
 
 Omega_mat = np.array(eigenval_list)
 
-mask_unstable = np.imag(Omega_mat) > 0.1
+mask_unstable = np.imag(Omega_mat) < -0.1
 Omega_mat_unstable = Omega_mat.copy()
 Omega_mat_unstable[~mask_unstable] = np.nan +1j*np.nan
 

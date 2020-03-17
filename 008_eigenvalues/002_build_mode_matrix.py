@@ -13,19 +13,20 @@ eta = 0.000318152589
 
 # start-settings-section
 # Reference
-l_min = -7
-l_max = 7
-m_max = 30
+l_min = -3 #5
+l_max = 3 #5
+m_max = 3 #5
 n_phi = 3*360
 n_r = 3*200
 N_max = 49
+Qp=0.#5
 n_tail_cut = 0
 save_pkl_fname = 'mode_coupling_matrix.pkl'
 response_matrix_file = '../001_sin_response_scan/response_data.mat'
 z_strength_file = '../001a_sin_response_scan_unperturbed/linear_strength.mat'
 detuning_fit_order = 0
-pool_size = 4
-flag_solve_and_plot = False
+pool_size = 0 # 4
+flag_solve_and_plot = True
 
 omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
 omega_s = 4.9e-3*omega0
@@ -65,7 +66,7 @@ if n_tail_cut > 0:
 z_slices = ob.z_slices
 
 # Detuning with delta
-beta_N = []
+beta_N = [Qp]
 
 # Load detuning with z
 if detuning_fit_order > 0:

@@ -7,9 +7,9 @@ import PyECLOUD.mystyle as ms
 
 pkl_fname = 'mode_coupling_matrix.pkl'
 
-l_min = -5
-l_max = 5
-m_max = 5
+l_min = -4 #5
+l_max = 4 #5
+m_max = 4 #5
 N_max = 30
 min_imag_unstab = 1.
 rescale_to_beta_fun = 92.7
