@@ -13,9 +13,9 @@ eta = 0.000318152589
 
 # start-settings-section
 # Reference
-l_min = -3 #5
-l_max = 3 #5
-m_max = 3 #5
+l_min = -5
+l_max = 5
+m_max = 5
 n_phi = 3*360
 n_r = 3*200
 N_max = 49
@@ -96,7 +96,7 @@ if flag_solve_and_plot:
     import matplotlib.pyplot as plt
     plt.close('all')
 
-    mask_unstable = np.imag(Omega_mat) > 1e-1
+    mask_unstable = np.imag(Omega_mat) < -1e-1
     Omega_mat_unstable = Omega_mat.copy()
     Omega_mat_unstable[~mask_unstable] = np.nan
 

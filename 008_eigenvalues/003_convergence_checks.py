@@ -11,7 +11,7 @@ l_min = -4 #5
 l_max = 4 #5
 m_max = 4 #5
 N_max = 30
-min_imag_unstab = 1.
+abs_min_imag_unstab = .1
 rescale_to_beta_fun = 92.7
 
 with open(pkl_fname, 'rb') as fid:
@@ -30,7 +30,7 @@ import matplotlib.pyplot as plt
 plt.close('all')
 ms.mystyle(fontsz=14, traditional_look=False)
 
-mask_unstable = np.imag(Omega_mat) > min_imag_unstab
+mask_unstable = np.imag(Omega_mat) < -abs_min_imag_unstab
 Omega_mat_unstable = Omega_mat.copy()
 Omega_mat_unstable[~mask_unstable] = np.nan+1j*np.nan
 
