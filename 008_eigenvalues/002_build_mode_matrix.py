@@ -19,7 +19,7 @@ m_max = 3 #5
 n_phi = 3*360
 n_r = 3*200
 N_max = 49
-Qp=0.#5
+Qp=5
 n_tail_cut = 0
 save_pkl_fname = 'mode_coupling_matrix.pkl'
 response_matrix_file = '../001_sin_response_scan/response_data.mat'
@@ -66,7 +66,7 @@ if n_tail_cut > 0:
 z_slices = ob.z_slices
 
 # Detuning with delta
-beta_N = [Qp]
+beta_N = [0, Qp]
 
 # Load detuning with z
 if detuning_fit_order > 0:
