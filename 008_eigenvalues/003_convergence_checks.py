@@ -43,15 +43,23 @@ Omega_mat_mode[~mask_mode] = np.nan
 
 title = f'l_min={l_min}, l_max={l_max}, m_max={m_max}, N_max={N_max}, beta_x={rescale_to_beta_fun}'
 
-plt.figure(200)
+figre = plt.figure(200)
 plt.plot(MM_orig.beta_fun/rescale_to_beta_fun*strength_scan, np.real(Omega_mat)/omega_s, '.b')
 plt.plot(MM_orig.beta_fun/rescale_to_beta_fun*strength_scan, np.real(Omega_mat_unstable)/omega_s, '.r')
 plt.suptitle(title)
+plt.grid(True, linestyle=':', alpha=.8)
+plt.xlabel('Strength')
+plt.ylabel(r'Re($\Omega$)/$\omega_s$')
+plt.subplots_adjust(bottom=.12)
 
-plt.figure(201)
+figim = plt.figure(201)
 plt.plot(MM_orig.beta_fun/rescale_to_beta_fun*strength_scan, np.imag(Omega_mat), '.b')
 plt.plot(MM_orig.beta_fun/rescale_to_beta_fun*strength_scan, np.imag(Omega_mat_unstable), '.r')
 plt.suptitle(title)
+plt.grid(True, linestyle=':', alpha=.8)
+plt.xlabel('Strength')
+plt.ylabel(r'Im($\Omega$)')
+plt.subplots_adjust(bottom=.12)
 
 plt.figure(300)
 plt.plot(np.imag(Omega_mat).flatten(),

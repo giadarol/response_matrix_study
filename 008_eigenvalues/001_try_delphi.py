@@ -30,7 +30,7 @@ lmax = 5
 nmax = 5
 nx = 0 # Coupled-bunch mode
 M = 1 # Number of bunches
-Qp = 5. #0. # Chromaticity 
+Qp = 0. # Chromaticity 
 radius = 27e3 / 2. / np.pi
 omega0 = clight/radius # Revolution angular frquency
 Q_frac = .27
@@ -99,7 +99,7 @@ mask_unstable = np.imag(Omega_mat) < -1
 Omega_mat_unstable = Omega_mat.copy()
 Omega_mat_unstable[~mask_unstable] = np.nan +1j*np.nan
 
-fig1 = plt.figure(2)
+figre = plt.figure(2)
 plt.plot(strength_scan*beta_smooth/rescale_to_beta_fun, np.real(Omega_mat)/omega_s, '.b')
 plt.plot(strength_scan*beta_smooth/rescale_to_beta_fun, np.real(Omega_mat_unstable)/omega_s, '.r')
 plt.grid(True, linestyle=':', alpha=.8)
@@ -107,15 +107,15 @@ plt.subplots_adjust(bottom=.12)
 plt.suptitle('DELPHI')
 plt.xlabel('Strength')
 plt.ylabel(r'Re($\Omega$)/$\omega_s$')
-fig1.savefig('delphi_real.png', dpi=200)
+figre.savefig('delphi_real.png', dpi=200)
 
-fig2 = plt.figure(3)
+figim = plt.figure(3)
 plt.plot(strength_scan*beta_smooth/rescale_to_beta_fun, np.imag(Omega_mat), '.b')
 plt.plot(strength_scan*beta_smooth/rescale_to_beta_fun, np.imag(Omega_mat_unstable), '.r')
 plt.grid(True, linestyle=':', alpha=.8)
 plt.subplots_adjust(bottom=.12)
 plt.suptitle('DELPHI')
-plt.xlabel('Bunch intensity [p]')
+plt.xlabel('Strength')
 plt.ylabel(r'Im($\Omega$)')
-fig2.savefig('delphi_imag.png', dpi=200)
+figim.savefig('delphi_imag.png', dpi=200)
 plt.show()
