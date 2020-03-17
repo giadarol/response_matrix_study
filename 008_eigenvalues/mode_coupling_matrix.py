@@ -249,9 +249,9 @@ class CouplingMatrix(object):
 
                     for ilp, Rp in zip(i_l_pool, R_pool):
                         llp = l_vect[ilp]
-                        R_tilde_lmn[ilp, :, :] = Rp
+                        R_tilde_lmn[ilp, :, :] = Rp[0]
                         i_mlp = np.where(l_vect==-llp)[0][0]
-                        R_tilde_lmn[i_mlp, :, :] = np.conj(Rp)
+                        R_tilde_lmn[i_mlp, :, :] = Rp[1]
                     i_l += len(i_l_pool)
 
             # Compute R integrals
@@ -291,9 +291,9 @@ class CouplingMatrix(object):
                     R_pool = pool.map(f_R_for_pool, args_pool)
                     for ilp, Rp in zip(i_l_pool, R_pool):
                         llp = l_vect[ilp]
-                        R_lmn[ilp, :, :] = Rp
+                        R_lmn[ilp, :, :] = Rp[0]
                         i_mlp = np.where(l_vect==-llp)[0][0]
-                        R_lmn[i_mlp, :, :] = np.conj(Rp)
+                        R_lmn[i_mlp, :, :] = Rp[1]
                     i_l += len(i_l_pool)
 
             self.beta_fun = beta_fun

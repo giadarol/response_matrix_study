@@ -25,7 +25,7 @@ save_pkl_fname = 'mode_coupling_matrix.pkl'
 response_matrix_file = '../001_sin_response_scan/response_data.mat'
 z_strength_file = '../001a_sin_response_scan_unperturbed/linear_strength.mat'
 detuning_fit_order = 0
-pool_size = 0 # 4
+pool_size =  4
 flag_solve_and_plot = True
 
 omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
