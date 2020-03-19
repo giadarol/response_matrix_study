@@ -12,7 +12,6 @@ l_max = 5
 m_max = 5
 N_max = 30
 abs_min_imag_unstab = 1.
-rescale_to_beta_fun = 92.7
 
 with open(pkl_fname, 'rb') as fid:
     MM_orig = pickle.load(fid)
@@ -41,11 +40,11 @@ plt.plot(strength_scan, np.imag(Omega_mat), '.b')
 Omega_mat_mode = Omega_mat.copy()
 Omega_mat_mode[~mask_mode] = np.nan
 
-title = f'l_min={l_min}, l_max={l_max}, m_max={m_max}, N_max={N_max}, beta_x={rescale_to_beta_fun}'
+title = f'l_min={l_min}, l_max={l_max}, m_max={m_max}, N_max={N_max}'
 
 figre = plt.figure(200)
-plt.plot(MM_orig.beta_fun/rescale_to_beta_fun*strength_scan, np.real(Omega_mat)/omega_s, '.b')
-plt.plot(MM_orig.beta_fun/rescale_to_beta_fun*strength_scan, np.real(Omega_mat_unstable)/omega_s, '.r')
+plt.plot(strength_scan, np.real(Omega_mat)/omega_s, '.b')
+plt.plot(strength_scan, np.real(Omega_mat_unstable)/omega_s, '.r')
 plt.suptitle(title)
 plt.grid(True, linestyle=':', alpha=.8)
 plt.xlabel('Strength')
@@ -53,8 +52,8 @@ plt.ylabel(r'Re($\Omega$)/$\omega_s$')
 plt.subplots_adjust(bottom=.12)
 
 figim = plt.figure(201)
-plt.plot(MM_orig.beta_fun/rescale_to_beta_fun*strength_scan, np.imag(Omega_mat), '.b')
-plt.plot(MM_orig.beta_fun/rescale_to_beta_fun*strength_scan, np.imag(Omega_mat_unstable), '.r')
+plt.plot(strength_scan, np.imag(Omega_mat), '.b')
+plt.plot(strength_scan, np.imag(Omega_mat_unstable), '.r')
 plt.suptitle(title)
 plt.grid(True, linestyle=':', alpha=.8)
 plt.xlabel('Strength')
@@ -69,7 +68,7 @@ plt.suptitle(title)
 
 plt.figure(400)
 for ii in range(len(strength_scan)):
-    plt.scatter(x=MM_orig.beta_fun/rescale_to_beta_fun*strength_scan[ii]+0*np.imag(Omega_mat[ii, :]),
+    plt.scatter(x=strength_scan[ii]+0*np.imag(Omega_mat[ii, :]),
             y=np.imag(Omega_mat[ii, :]),
             c = np.real(Omega_mat[ii, :])/omega_s,
             cmap=plt.cm.seismic)
@@ -89,7 +88,7 @@ for ii in range(len(strength_scan)):
     ind_sorted = np.argsort(-np.imag(Omega_ii))
     re_sorted = np.take(np.real(Omega_ii), ind_sorted)
     im_sorted = np.take(np.imag(Omega_ii), ind_sorted)
-    plt.scatter(x=MM_orig.beta_fun/rescale_to_beta_fun*strength_scan[ii]+0*np.imag(Omega_mat[ii, :]),
+    plt.scatter(x=strength_scan[ii]+0*np.imag(Omega_mat[ii, :]),
             y=re_sorted/omega_s,
             c = np.clip(-im_sorted, im_min_col, im_max_col),
             cmap=plt.cm.jet,

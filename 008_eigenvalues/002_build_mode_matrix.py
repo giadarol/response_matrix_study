@@ -7,12 +7,11 @@ import PyECLOUD.myfilemanager as mfm
 
 from mode_coupling_matrix import CouplingMatrix
 
-# Remember to rescale the beta!!!!
-
 eta = 0.000318152589
 
 # start-settings-section
 # Reference
+beta_fun_rescale = 92.7
 l_min = -5
 l_max = 5
 m_max = 5
@@ -81,7 +80,7 @@ z_slices = ob.z_slices
 MM_obj = CouplingMatrix(z_slices, HH, cloud_rescale_by*KK, l_min,
         l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_b, r_b,
         cloud_rescale_by * a_param, omega0, omega_s, eta,
-        alpha_p=alpha_N, beta_p = beta_N,
+        alpha_p=alpha_N, beta_p = beta_N, beta_fun_rescale=beta_fun_rescale,
         pool_size=pool_size)
 
 if save_pkl_fname is not None:
