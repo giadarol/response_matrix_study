@@ -1,3 +1,4 @@
+import numpy as np
 from PyHEADTAIL.general.element import Element
 
 class ModulatedQuadrupole(Element):
@@ -10,9 +11,10 @@ class ModulatedQuadrupole(Element):
 
     def track(self, bunch):
         kpart = np.zeros_like(bunch.z)
-        for pp, a_pp in enumrate(self.alpha_N):
+        for pp, a_pp in enumerate(self.alpha_N):
             kpart += a_pp * bunch.z**pp
-        for pp, b_pp in enumrate(self.beta_N):
+        for pp, b_pp in enumerate(self.beta_N):
             kpart += b_pp * bunch.dp**pp
         dp_part = kpart * getattr(bunch, self.coord)
-        setattr(bunch, self.coord + 'p', p_old + dp_prt)
+        p_old = getattr(bunch, self.coord + 'p')
+        setattr(bunch, self.coord + 'p', p_old + dp_part)

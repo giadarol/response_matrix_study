@@ -19,7 +19,7 @@ m_max = 5
 n_phi = 3*360
 n_r = 3*200
 N_max = 49
-Qp=0
+Qp=15
 n_tail_cut = 0
 save_pkl_fname = 'mode_coupling_matrix.pkl'
 response_matrix_file = '../001_sin_response_scan/response_data.mat'
@@ -62,8 +62,10 @@ if detuning_fit_order > 0:
     p = np.polyfit(obdet.z_slices, obdet.k_z_integrated, deg=detuning_fit_order)
     alpha_N = p[::-1] # Here I fit the strength
 else:
-    alpha_N = np.array([0, 2e-2])
-    alpha_N = np.array([0, 0, 2e-1])
+    # alpha_N = np.array([0, 2e-2])
+    alpha_N = np.array([0, -2e-2])
+    alpha_N = np.array([0, 0, -2e-1])
+    # alpha_N = np.array([])
 
 # Prepare response matrix
 ob = mfm.myloadmat_to_obj(response_matrix_file)
