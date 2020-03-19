@@ -53,7 +53,17 @@ cloud_rescale_by = 1.
 # detuning_fit_order = 10
 # pool_size = 4
 
-
+# Detunings with delta
+beta_N = [0, Qp]
+# Load detuning with z
+if detuning_fit_order > 0:
+    obdet = mfm.myloadmat_to_obj(z_strength_file)
+    z_slices = obdet.z_slices
+    p = np.polyfit(obdet.z_slices, obdet.k_z_integrated, deg=detuning_fit_order)
+    alpha_N = p[::-1] # Here I fit the strength
+else:
+    alpha_N = np.array([0, 2e-2])
+    alpha_N = np.array([0, 0, 2e-1])
 
 # Prepare response matrix
 ob = mfm.myloadmat_to_obj(response_matrix_file)
@@ -65,17 +75,6 @@ if n_tail_cut > 0:
     KK[:, -n_tail_cut:] = 0.
 z_slices = ob.z_slices
 
-# Detuning with delta
-beta_N = [0, Qp]
-
-# Load detuning with z
-if detuning_fit_order > 0:
-    obdet = mfm.myloadmat_to_obj(z_strength_file)
-    z_slices = obdet.z_slices
-    p = np.polyfit(obdet.z_slices, obdet.k_z_integrated, deg=detuning_fit_order)
-    alpha_N = p[::-1] # Here I fit the strength
-else:
-    alpha_N = []
 
 # Build matrix
 MM_obj = CouplingMatrix(z_slices, HH, cloud_rescale_by*KK, l_min,
