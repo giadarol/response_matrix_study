@@ -8,10 +8,21 @@ from PyPARIS_sim_class import Simulation as sim_mod
 import PyPARIS.util as pu
 
 
+# Import modulated_quadrupol
+import sys
+sys.path.append('../')
+import response_matrix.modulated_quadrupole as mq
+
 # start-settings-section
 recenter_all_slices = True # Cancels initial kick from input
 
 strength_scale = 1.
+
+Qp_x = 0.
+alpha_N = []
+beta_N = []
+
+flag_enable_multiple_runs = False
 
 sim_param_file = '../reference_simulation/Simulation_parameters.py'
 sim_param_amend_files = ['../Simulation_parameters_amend.py',
@@ -26,6 +37,8 @@ sim_content = sim_mod.Simulation(param_file=sim_param_file)
 for ff in sim_param_amend_files:
     sim_content.pp.update(param_file=ff)
 
+# Set chromaticity
+sim_content.pp.Qp_x = Qp_x
 
 # Add ring of CPU information
 ring_cpu = pu.get_serial_CPUring(sim_content,
@@ -49,6 +62,10 @@ machine = sim_content.machine
 bunch_monitor = sim_content.bunch_monitor
 slice_monitor = sim_content.slice_monitor
 
+# Add modulated quadrupole
+if len(alpha_N)>0 or len(beta_N)>0:
+    mquad = mq.ModulatedQuadrupole(coord='x', alpha_N=alpha_N, beta_N=beta_N)
+    machine.one_turn_map.append(mquad)
 # Recenter all slices
 if recenter_all_slices and sim_content.SimSt.first_run:
     slices = bunch.get_slices(slicer)
@@ -73,4 +90,5 @@ for i_turn in range(sim_content.N_turns):
         os.system('touch met_stop_condition')
         break
 
-sim_content._finalize_multijob_mode()
+if flag_enable_multiple_runs:
+    sim_content._finalize_multijob_mode()
