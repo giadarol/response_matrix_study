@@ -43,10 +43,10 @@ recenter_all_slices = True # Cancels initial kick from input
 strength_scale = {strength_scan[ii]:.2e}
 
 Qp_x = 0.
-alpha_N = []
+alpha_N = [0, 0, 1e-1]
 beta_N = []
 
-n_segments = 1
+n_segments = 8
 
 flag_enable_multiple_runs = False
 
