@@ -58,10 +58,10 @@ flag_close_figffts = True
 strength_list = np.arange(0.02, 2.0, 0.02)
 labels = [f'strength {ss:.1f}' for ss in strength_list]
 folders_compare = [
-      f'../005a_pyheadtail_impedance_strength_scan/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005a_pyheadtail_impedance_strength_scan/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005b_matrix_strength_scan/simulations/strength_{ss:.2e}/' for ss in strength_list]
       # f'../005c_try_alpha1_plus/simulations/strength_{ss:.2e}/' for ss in strength_list]
-      # f'../005d_try_alpha2_plus/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      f'../005d_try_alpha2_plus/simulations/strength_{ss:.2e}/' for ss in strength_list]
 fft2mod = 'lin'
 #fname = 'impedance_'
 fname = None

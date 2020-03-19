@@ -62,8 +62,8 @@ if detuning_fit_order > 0:
     alpha_N = p[::-1] # Here I fit the strength
 else:
     # alpha_N = np.array([0, 2e-2])
-    # alpha_N = np.array([0, 0, 6e-2])
-    alpha_N = np.array([])
+    alpha_N = np.array([0, 0, 6e-2])
+    #alpha_N = np.array([])
 
 # Prepare response matrix
 ob = mfm.myloadmat_to_obj(response_matrix_file)

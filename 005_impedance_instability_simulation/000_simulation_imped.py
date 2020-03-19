@@ -19,8 +19,10 @@ recenter_all_slices = True # Cancels initial kick from input
 strength_scale = 1.
 
 Qp_x = 0.
-alpha_N = [0, 0e-3]
+alpha_N = [0, 8e-3]
 beta_N = []
+
+n_segments = 8
 
 flag_enable_multiple_runs = False
 
@@ -39,6 +41,7 @@ for ff in sim_param_amend_files:
 
 # Set chromaticity
 sim_content.pp.Qp_x = Qp_x
+sim_content.pp.n_segments = n_segments
 
 # Add ring of CPU information
 ring_cpu = pu.get_serial_CPUring(sim_content,
@@ -64,8 +67,10 @@ slice_monitor = sim_content.slice_monitor
 
 # Add modulated quadrupole
 if len(alpha_N)>0 or len(beta_N)>0:
-    mquad = mq.ModulatedQuadrupole(coord='x', alpha_N=alpha_N, beta_N=beta_N)
-    machine.one_turn_map.append(mquad)
+    mquad = mq.ModulatedQuadrupole(coord='x',
+            alpha_N=np.array(alpha_N)/sim_content.pp.n_segments,
+            beta_N=np.array(beta_N)/sim_content.pp.n_segments)
+    machine.install_after_each_transverse_segment(mquad)
 # Recenter all slices
 if recenter_all_slices and sim_content.SimSt.first_run:
     slices = bunch.get_slices(slicer)
