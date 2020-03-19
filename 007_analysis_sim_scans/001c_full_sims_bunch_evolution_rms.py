@@ -55,11 +55,13 @@ flag_close_figffts = True
 
 
 # Comparison strength
-strength_list = np.arange(0.1, 2.0, 0.02)
+strength_list = np.arange(0.02, 2.0, 0.02)
 labels = [f'strength {ss:.1f}' for ss in strength_list]
 folders_compare = [
       f'../005a_pyheadtail_impedance_strength_scan/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005b_matrix_strength_scan/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      # f'../005c_try_alpha1_plus/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      # f'../005d_try_alpha2_plus/simulations/strength_{ss:.2e}/' for ss in strength_list]
 fft2mod = 'lin'
 #fname = 'impedance_'
 fname = None
@@ -395,7 +397,7 @@ maxsize =np.max(np.array(ap_list))
 
 axharm = figharm.add_subplot(111)
 str_mat = np.dot(np.atleast_2d(np.ones(N_lines)).T, np.atleast_2d(np.array(strength_list)))
-axharm.scatter(x=str_mat.flatten(), y=(np.abs(np.array(freq_list)).T.flatten()-.27)/Qs, s=np.clip(np.array(ap_list).T.flatten()/maxsize*10, 0.01, 10))
+axharm.scatter(x=str_mat.flatten(), y=(np.abs(np.array(freq_list)).T.flatten()-.27)/Qs, s=np.clip(np.array(ap_list).T.flatten()/maxsize*10, 0.0, 100))
 
 
 leg = ax11.legend(prop={'size':10})

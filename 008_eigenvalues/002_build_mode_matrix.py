@@ -19,7 +19,7 @@ m_max = 5
 n_phi = 3*360
 n_r = 3*200
 N_max = 49
-Qp=15
+Qp=0.
 n_tail_cut = 0
 save_pkl_fname = 'mode_coupling_matrix.pkl'
 response_matrix_file = '../001_sin_response_scan/response_data.mat'
@@ -63,9 +63,8 @@ if detuning_fit_order > 0:
     alpha_N = p[::-1] # Here I fit the strength
 else:
     # alpha_N = np.array([0, 2e-2])
-    alpha_N = np.array([0, -2e-2])
-    alpha_N = np.array([0, 0, -2e-1])
-    # alpha_N = np.array([])
+    # alpha_N = np.array([0, 0, 6e-2])
+    alpha_N = np.array([])
 
 # Prepare response matrix
 ob = mfm.myloadmat_to_obj(response_matrix_file)
