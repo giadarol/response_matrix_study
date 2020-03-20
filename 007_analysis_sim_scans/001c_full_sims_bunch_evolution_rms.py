@@ -55,13 +55,15 @@ flag_close_figffts = True
 
 
 # Comparison strength
-strength_list = np.arange(0.02, 2.0, 0.02)
-labels = [f'strength {ss:.1f}' for ss in strength_list]
+strength_list = np.arange(0.02, 1.0, 0.005)
+#strength_list = np.arange(0.2, 0.3, 0.05)
+labels = [f'strength {ss:.3f}' for ss in strength_list]
 folders_compare = [
-      #f'../005a_pyheadtail_impedance_strength_scan/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      # f'../005a_pyheadtail_impedance_strength_scan/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005b_matrix_strength_scan/simulations/strength_{ss:.2e}/' for ss in strength_list]
-      # f'../005c_try_alpha1_plus/simulations/strength_{ss:.2e}/' for ss in strength_list]
-      f'../005d_try_alpha2_plus/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      f'../005c_imp_neg_chroma/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005c2_imp_neg_chroma_modquads/simulations_corrected/strength_{ss:.2e}/' for ss in strength_list]
+      # f'../005d_try_alpha2_plus/simulations_more_seg/strength_{ss:.2e}/' for ss in strength_list]
 fft2mod = 'lin'
 #fname = 'impedance_'
 fname = None
@@ -99,6 +101,7 @@ ax12 = fig1.add_subplot(3,1,2, sharex=ax11)
 ax13 = fig1.add_subplot(3,1,3, sharex=ax11)
 
 p_list = []
+p_list_centroid = []
 freq_list = []
 ap_list = []
 an_list =[]
@@ -143,6 +146,15 @@ for ifol, folder in enumerate(folders_compare):
         kwargs = {}
     ax11.plot(ob.mean_x[mask_zero]*1e3, label=labels[ifol], **kwargs)
     ax12.plot(ob.epsn_x[mask_zero]*1e6, **kwargs)
+
+    # Fit risetime centroid
+    x_fit_centroid = np.arange(len(ob.mean_x[mask_zero]), dtype=np.float)
+    p_fit_centroid = np.polyfit(x_fit_centroid,
+            np.log(np.abs(ob.mean_x[mask_zero])), deg = 1)
+    p_list_centroid.append(p_fit_centroid)
+    ax11.plot(x_fit_centroid,
+            2*1e3*np.exp(np.polyval(p_fit_centroid, x_fit_centroid)),
+                **kwargs)
 
     if not flag_no_slice:
         activity_intrab_filter_wlength = 21
@@ -244,6 +256,7 @@ for ifol, folder in enumerate(folders_compare):
         ax1mode.ticklabel_format(style='sci', scilimits=(0, 0), axis='y')
         ax1mode.set_xlim(0, np.sum(mask_zero))
 
+        # Fit most unstable mode
         activity_mode_filter_wlength = 41
         if np.sum(mask_zero) <= activity_mode_filter_wlength:
             activity_mode =  np.abs(ffts[i_mode, :][mask_zero])

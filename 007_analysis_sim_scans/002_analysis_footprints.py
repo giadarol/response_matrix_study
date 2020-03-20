@@ -13,10 +13,11 @@ import PyECLOUD.myfilemanager as mfm
 
 from PyPARIS_sim_class import LHC_custom
 
-fname_root = 'full_vs_lin'
+fname_root = None #'full_vs_lin'
 folders = [
-           '../004a_instab_simulation_6MV_full_mat_nl_map',
-           '../004c_instab_simulation_6MV_dipolar_mat_lin_map',
+#           '../004a_instab_simulation_6MV_full_mat_nl_map',
+#           '../004c_instab_simulation_6MV_dipolar_mat_lin_map',
+          '../005_impedance_instability_simulation/'
            ]
 leg_labels = ['full', 'lin']
 labels = ['full', 'lin',]

@@ -1,7 +1,7 @@
 import os
 import numpy as np
 
-scan_folder_rel = 'simulations_more_seg'
+scan_folder_rel = 'simulations'
 
 environment_preparation = f'''
 source /afs/cern.ch/work/g/giadarol/sim_workspace_mpi_py3/venvs/py3/bin/activate
@@ -10,14 +10,14 @@ PYTHONPATH=$PYTHONPATH:{os.path.abspath('../')}
 '''
 # Last one is to get response matrix path
 
-strength_scan = np.arange(0, 1., 0.005)
+strength_scan = np.arange(0, 2.75, 0.02)
 
 files_to_be_copied = [
-        '../005_impedance_instability_simulation/000_simulation_imped.py',
-        '../005_impedance_instability_simulation/Simulation_parameters_amend_for_impsim.py',
+        '../004_instability_simulation/000_simulation_matrix_map.py',
+        '../004_instability_simulation/Simulation_parameters_amend_for_matrixsim.py'
         ]
 
-settings_to_be_replaced_in = '000_simulation_imped.py'
+settings_to_be_replaced_in = '000_simulation_matrix_map.py'
 
 
 scan_folder_abs = os.getcwd() + '/' + scan_folder_rel
@@ -38,25 +38,26 @@ for ii in range(len(strength_scan)):
 
     # Replace settings section
     settings_section = f'''# start-settings-section
+n_terms_to_be_kept = 61
+n_tail_cut = 10
 recenter_all_slices = True # Cancels initial kick from input
 
-strength_scale = {strength_scan[ii]:.2e}
-
-Qp_x = 0.
-alpha_N = [0, 0, 1.5e-1]
-beta_N = []
-
-n_segments = 15
-
-flag_enable_multiple_runs = False
+ecloud_strength_scale = {strength_scan[ii]:e}
 
 sim_param_file = '../../../reference_simulation/Simulation_parameters.py'
 sim_param_amend_files = ['../../../Simulation_parameters_amend.py',
-                    'Simulation_parameters_amend_for_impsim.py']
+                    'Simulation_parameters_amend_for_matrixsim.py']
+
+include_response_matrix = True
+response_data_file = '../../../001_sin_response_scan/response_data.mat'
+
+include_non_linear_map = False
+flag_wrt_bunch_centroid = False
+field_map_file = '../../../003_generate_field_map/field_map.mat'
 # end-settings-section'''
 
-    # sim_param_amend_curr= f''' '''
-
+    # sim_param_amend_curr= f'''
+    # '''
     # with open(current_sim_abs_path
     #     + '/Simulation_parameters_amend_for_matrixsim.py', 'w') as fid:
     #     fid.write(sim_param_amend_curr)
@@ -82,7 +83,7 @@ which python
 
 cd {current_sim_abs_path}
 
-python 000_simulation_imped.py
+python 000_simulation_matrix_map.py
 '''
     with open(current_sim_abs_path + '/job.job', 'w') as fid:
        fid.write(job_content)
@@ -91,5 +92,5 @@ python 000_simulation_imped.py
 import PyPARIS_sim_class.htcondor_config as htcc
 htcc.htcondor_config(
         scan_folder_abs,
-        time_requirement_days=1.,
+        time_requirement_days=2., # 120 minutes
         htcondor_files_in=scan_folder_abs)

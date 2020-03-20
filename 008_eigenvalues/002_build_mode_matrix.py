@@ -18,8 +18,8 @@ m_max = 5
 n_phi = 3*360
 n_r = 3*200
 N_max = 49
-Qp=0.
-alpha_N_custom = np.array([0, 0, 0*1e-1])
+Qp=-5.
+alpha_N_custom = [] #np.array([0, 0, 1.5e-1]) # 0, 2e-2]) #1e-1])
 n_tail_cut = 0
 save_pkl_fname = 'mode_coupling_matrix.pkl'
 response_matrix_file = '../001_sin_response_scan/response_data.mat'
@@ -125,19 +125,23 @@ if flag_solve_and_plot:
                 vmin=-2, vmax=2, cmap=plt.cm.seismic)
     plt.colorbar()
 
-    if detuning_fit_order > 0:
+    if detuning_fit_order > 0 or len(alpha_N_custom)>0:
         deltascaled_obs = 3e-2
         r_obs = np.sqrt(deltascaled_obs**2 + z_slices**2)
         phi_obs = np.arctan2(deltascaled_obs, z_slices)
         from scipy.interpolate import interp2d
         dQ_obs_fun = interp2d(MM_obj.r_vect, MM_obj.phi_vect[:-1], MM_obj.d_Q_R_PHI.T)
         dQ_obs = np.squeeze(np.array([ dQ_obs_fun(rr, pp) for rr,pp in zip(r_obs, phi_obs)]))
-        k_obs = - dQ_obs*4*np.pi/MM_obj.beta_fun
-        plt.close('all')
-        fig100 = plt.figure(100)
-        ax101 = fig100.add_subplot(111)
-        ax101.plot(ob.z_slices, obdet.k_z_integrated)
-        ax101.plot(ob.z_slices, k_obs)
+        fig101 = plt.figure(101)
+        ax1011 = fig101.add_subplot(111)
+        ax1011.plot(z_slices, dQ_obs)
+        if detuning_fit_order > 0:
+            k_obs = - dQ_obs*4*np.pi/MM_obj.beta_fun
+            plt.close('all')
+            fig100 = plt.figure(100)
+            ax101 = fig100.add_subplot(111)
+            ax101.plot(ob.z_slices, obdet.k_z_integrated)
+            ax101.plot(ob.z_slices, k_obs)
 
     plt.show()
 

@@ -16,11 +16,11 @@ import response_matrix.modulated_quadrupole as mq
 # start-settings-section
 recenter_all_slices = True # Cancels initial kick from input
 
-strength_scale = 1.
+strength_scale = 0.1
 
-Qp_x = 0.
-alpha_N = [0, 8e-3]
-beta_N = []
+Qp_x = -5
+alpha_N = [0]
+beta_N = [0, 0]
 
 n_segments = 8
 
