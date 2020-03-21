@@ -43,7 +43,7 @@ recenter_all_slices = True # Cancels initial kick from input
 strength_scale = {strength_scan[ii]:.2e}
 
 Qp_x = 0.
-alpha_N = [0, 0, 14e-1]
+alpha_N = [0, 0, 2e-1]
 beta_N = []
 only_phase_shift = True
 
