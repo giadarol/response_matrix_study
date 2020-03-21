@@ -1,7 +1,7 @@
 import os
 import numpy as np
 
-scan_folder_rel = 'simulations_more_seg'
+scan_folder_rel = 'simulations_only_phaseshift'
 
 environment_preparation = f'''
 source /afs/cern.ch/work/g/giadarol/sim_workspace_mpi_py3/venvs/py3/bin/activate
@@ -43,8 +43,9 @@ recenter_all_slices = True # Cancels initial kick from input
 strength_scale = {strength_scan[ii]:.2e}
 
 Qp_x = 0.
-alpha_N = [0, 0, 1.5e-1]
+alpha_N = [0, 0, 14e-1]
 beta_N = []
+only_phase_shift = True
 
 n_segments = 15
 
