@@ -2,6 +2,7 @@ import os
 import time
 
 import numpy as np
+from scipy.constants import c as clight
 
 import PyECLOUD.myfilemanager as mfm
 from PyPARIS_sim_class import Simulation as sim_mod
@@ -21,6 +22,7 @@ strength_scale = 0.1
 Qp_x = 0.
 alpha_N = [0]
 beta_N = [0, 0]
+only_phase_shift = True
 
 n_segments = 8
 
@@ -67,9 +69,14 @@ slice_monitor = sim_content.slice_monitor
 
 # Add modulated quadrupole
 if len(alpha_N)>0 or len(beta_N)>0:
+    omega_0 = 2 * np.pi * clight / machine.circumference
+    v_eta__omegas = (clight *machine.longitudinal_map.eta(dp=0, gamma=machine.gamma)
+            / (omega_0 * machine.longitudinal_map.Q_s))
     mquad = mq.ModulatedQuadrupole(coord='x',
             alpha_N=np.array(alpha_N)/sim_content.pp.n_segments,
-            beta_N=np.array(beta_N)/sim_content.pp.n_segments)
+            beta_N=np.array(beta_N)/sim_content.pp.n_segments,
+            only_phase_shift=only_phase_shift,
+            v_eta__omegas=v_eta__omegas)
     machine.install_after_each_transverse_segment(mquad)
 # Recenter all slices
 if recenter_all_slices and sim_content.SimSt.first_run:
