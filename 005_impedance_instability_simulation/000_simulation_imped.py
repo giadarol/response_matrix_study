@@ -18,7 +18,7 @@ recenter_all_slices = True # Cancels initial kick from input
 
 strength_scale = 0.1
 
-Qp_x = -5
+Qp_x = 0.
 alpha_N = [0]
 beta_N = [0, 0]
 

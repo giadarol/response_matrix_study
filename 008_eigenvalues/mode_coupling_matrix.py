@@ -191,6 +191,7 @@ class CouplingMatrix(object):
 
             exp_j_dPhi_R_PHI = np.exp(1j*dPhi_R_PHI)
             # For checks:
+            self.dPhi_R_PHI= dPhi_R_PHI[:, :]
             self.d_Q_R_PHI = -omega_s/omega0 * np.diff(dPhi_R_PHI[:, :], axis=1)/dphi
             # End phase shift 
 

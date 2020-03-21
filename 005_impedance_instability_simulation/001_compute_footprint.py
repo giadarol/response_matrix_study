@@ -20,8 +20,8 @@ recenter_all_slices = False # Cancels initial kick from input
 strength_scale = 1.
 
 Qp_x = 0.
-alpha_N = [0, 0, 0.]
-beta_N = [0., -5.*(-4*np.pi/92.7)]
+alpha_N = [0, 0, 1.5e-1]
+beta_N = [0.,]# -5.*(-4*np.pi/92.7)]
 
 n_segments = 8
 

@@ -23,6 +23,7 @@ from PySUSSIX import Sussix
 from scipy.constants import c as ccc
 
 flag_close_figffts = True
+T_rev = 88.9e-6
 
 # # Test
 # labels = [f'test', 'reference']
@@ -61,9 +62,9 @@ labels = [f'strength {ss:.3f}' for ss in strength_list]
 folders_compare = [
       # f'../005a_pyheadtail_impedance_strength_scan/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005b_matrix_strength_scan/simulations/strength_{ss:.2e}/' for ss in strength_list]
-      f'../005c_imp_neg_chroma/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005c_imp_neg_chroma/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005c2_imp_neg_chroma_modquads/simulations_corrected/strength_{ss:.2e}/' for ss in strength_list]
-      # f'../005d_try_alpha2_plus/simulations_more_seg/strength_{ss:.2e}/' for ss in strength_list]
+      f'../005d_try_alpha2_plus/simulations_more_seg/strength_{ss:.2e}/' for ss in strength_list]
 fft2mod = 'lin'
 #fname = 'impedance_'
 fname = None
@@ -412,6 +413,9 @@ axharm = figharm.add_subplot(111)
 str_mat = np.dot(np.atleast_2d(np.ones(N_lines)).T, np.atleast_2d(np.array(strength_list)))
 axharm.scatter(x=str_mat.flatten(), y=(np.abs(np.array(freq_list)).T.flatten()-.27)/Qs, s=np.clip(np.array(ap_list).T.flatten()/maxsize*10, 0.0, 100))
 
+figtau = plt.figure(112)
+axtau = figtau.add_subplot(111)
+axtau.plot(strength_list, np.array(p_list_centroid)[:, 0]/T_rev)
 
 leg = ax11.legend(prop={'size':10})
 legfft = axfft.legend(prop={'size':10})
