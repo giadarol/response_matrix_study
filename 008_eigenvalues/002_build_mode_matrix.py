@@ -60,7 +60,7 @@ if detuning_fit_order > 0:
     obdet = mfm.myloadmat_to_obj(z_strength_file)
     z_slices = obdet.z_slices
     p = np.polyfit(obdet.z_slices, obdet.k_z_integrated, deg=detuning_fit_order)
-    alpha_N = p[::-1] # Here I fit the strength
+    alpha_N = cloud_rescale_by*p[::-1] # Here I fit the strength
 else:
     alpha_N = alpha_N_custom
 
@@ -78,8 +78,9 @@ z_slices = ob.z_slices
 # Build matrix
 MM_obj = CouplingMatrix(z_slices, HH, cloud_rescale_by*KK, l_min,
         l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_b, r_b,
-        cloud_rescale_by * a_param, omega0, omega_s, eta,
-        alpha_p=alpha_N, beta_p = beta_N, beta_fun_rescale=beta_fun_rescale,
+        a_param, omega0, omega_s, eta,
+        alpha_p=alpha_N,
+        beta_p = beta_N, beta_fun_rescale=beta_fun_rescale,
         pool_size=pool_size)
 
 if save_pkl_fname is not None:

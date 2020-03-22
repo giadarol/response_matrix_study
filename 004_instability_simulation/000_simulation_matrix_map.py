@@ -14,6 +14,8 @@ sys.path.append('../')
 import response_matrix.response_matrix as rm
 import response_matrix.modulated_quadrupole as mq
 
+# Default value
+flag_suppress_alpha_0 = False
 
 # start-settings-section
 n_terms_to_be_kept = 12
@@ -40,17 +42,17 @@ flag_wrt_bunch_centroid = True
 field_map_file = '../003_generate_field_map/field_map.mat'
 # end-settings-section
 
-
 # Load and fit detuning with z
-if detuning_fit_order > 0:
-    obdet = mfm.myloadmat_to_obj(z_strength_file)
-    z_slices = obdet.z_slices
-    p = np.polyfit(obdet.z_slices, obdet.k_z_integrated, deg=detuning_fit_order)
-    alpha_N = p[::-1] # Here I fit the strength
-    print('Detuning cefficients alpha_N:')
-    print(alpha_N)
-else:
-    alpha_N = alpha_N_custom
+if include_detuning_with_z:
+    if detuning_fit_order > 0:
+        obdet = mfm.myloadmat_to_obj(z_strength_file)
+        z_slices = obdet.z_slices
+        p = np.polyfit(obdet.z_slices, obdet.k_z_integrated, deg=detuning_fit_order)
+        alpha_N = p[::-1] # Here I fit the strength
+        print('Detuning cefficients alpha_N:')
+        print(alpha_N)
+    else:
+        alpha_N = alpha_N_custom
 
 # Instantiate simulation
 sim_content = sim_mod.Simulation(param_file=sim_param_file)
@@ -107,16 +109,17 @@ if include_response_matrix:
     machine.install_after_each_transverse_segment(respmat)
 
 # Add modulated quadrupole
-if len(alpha_N)>0 or len(beta_N)>0:
-    omega_0 = 2 * np.pi * clight / machine.circumference
-    v_eta__omegas = (clight *machine.longitudinal_map.eta(dp=0, gamma=machine.gamma)
-            / (omega_0 * machine.longitudinal_map.Q_s))
-    mquad = mq.ModulatedQuadrupole(coord='x',
-            alpha_N=np.array(alpha_N)/sim_content.pp.n_segments,
-            beta_N=[],
-            only_phase_shift=only_phase_shift,
-            v_eta__omegas=v_eta__omegas)
-    machine.install_after_each_transverse_segment(mquad)
+if include_detuning_with_z:
+    if len(alpha_N)>0 or len(beta_N)>0:
+        omega_0 = 2 * np.pi * clight / machine.circumference
+        v_eta__omegas = (clight *machine.longitudinal_map.eta(dp=0, gamma=machine.gamma)
+                / (omega_0 * machine.longitudinal_map.Q_s))
+        mquad = mq.ModulatedQuadrupole(coord='x',
+                alpha_N=np.array(alpha_N)/sim_content.pp.n_segments,
+                beta_N=[],
+                only_phase_shift=only_phase_shift,
+                v_eta__omegas=v_eta__omegas)
+        machine.install_after_each_transverse_segment(mquad)
 
 # Introduce non-linear field map
 if include_non_linear_map:

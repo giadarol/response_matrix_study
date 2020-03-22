@@ -5,7 +5,7 @@ from scipy.constants import c as clight
 
 import PyECLOUD.mystyle as ms
 
-strength_scan = np.arange(0., 2., 0.02)[1:]
+strength_scan = np.arange(0., 2., 0.02)[1::4]
 
 omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
 omega_s = 4.9e-3*omega0
@@ -17,7 +17,7 @@ l_max = 7
 m_max = 20
 N_max = 30
 min_imag_unstab = 1.
-
+flag_correct_tune = True
 
 Omega_mat = []
 for ii in range(0, len(strength_scan)):
@@ -30,6 +30,12 @@ for ii in range(0, len(strength_scan)):
     MM_obj = MM_orig.get_sub_matrix(l_min, l_max, m_max, N_max)
 
     Omega_array = MM_obj.compute_mode_complex_freq(omega_s)
+    if flag_correct_tune:
+        if len(MM_obj.alpha_p)>0:
+            print('alpha_p:')
+            print(MM_obj.alpha_p)
+            Omega_array += -(MM_obj.beta_fun_rescale
+                    * MM_obj.alpha_p[0] /(4*np.pi))*MM_obj.omega0
     Omega_mat.append(Omega_array)
 
 Omega_mat = np.array(Omega_mat)
@@ -81,8 +87,8 @@ plt.colorbar()
 fig500 = plt.figure(500, figsize=(1.3*6.4, 1.3*4.8))
 ax = fig500.add_subplot(111)
 ax.set_facecolor('grey')
-im_min_col = 5
-im_max_col = 200
+im_min_col = 0.1
+im_max_col = 100
 im_min_size = 5
 im_max_size = 50
 import matplotlib

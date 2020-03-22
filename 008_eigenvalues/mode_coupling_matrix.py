@@ -395,7 +395,8 @@ class CouplingMatrix(object):
             eta=self.eta,
             alpha_p = self.alpha_p,
             beta_p = self.beta_p,
-            MM = new_MM)
+            MM = new_MM,
+            beta_fun_rescale=self.beta_fun_rescale)
 
         return new
 

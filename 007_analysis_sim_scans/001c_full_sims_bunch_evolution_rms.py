@@ -136,6 +136,7 @@ T_rev = 88.9e-6
 
 # Comparison strength
 strength_list = np.arange(0.1, 2.1, 0.1)
+strength_list = np.arange(0.02, 2.0, 0.02)
 labels = [f'strength {ss:.1f}' for ss in strength_list]
 folders_compare = [
 #      f'../005n_strength_scan_6MV_all_harmonics_dip_matrix_fullmap/simulations_2/strength_{ss:.2e}/' for ss in strength_list]
@@ -143,7 +144,9 @@ folders_compare = [
 #      f'../005p_strength_scan_6MV_all_harmonics_dip_matrix_nomap/simulations_2/strength_{ss:.2e}/' for ss in strength_list]
 #      f'../005q_strength_scan_linrf6MV_all_harmonics_dip_matrix_fullmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005r_strength_scan_linrf6MV_all_harmonics_dip_matrix_linmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
-      f'../005s_strength_scan_linrf6MV_all_harmonics_dip_matrix_nomap/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005s_strength_scan_linrf6MV_all_harmonics_dip_matrix_nomap/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005t1_strength_scan_linrf6MV_all_harmonics_dip_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      f'../005t2_strength_scan_linrf6MV_all_harmonics_dip_matrix_phshift/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005d_strength_scan_6MV_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005e_strength_scan_6MV_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005f_strength_scan_6MV_map_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
@@ -159,7 +162,7 @@ fft2mod = 'lin'
 #fname = 'compact_strength_scan_dip_matrix_fullmap_linrf'
 fname = None
 i_start_list = None
-n_turns = 30*[3000]
+n_turns = len(strength_list)*[3000]
 cmap = plt.cm.rainbow
 i_force_line = 2
 fit_cut = 5000
