@@ -113,7 +113,7 @@ if len(alpha_N)>0 or len(beta_N)>0:
             / (omega_0 * machine.longitudinal_map.Q_s))
     mquad = mq.ModulatedQuadrupole(coord='x',
             alpha_N=np.array(alpha_N)/sim_content.pp.n_segments,
-            beta_N=np.array(beta_N)/sim_content.pp.n_segments,
+            beta_N=[],
             only_phase_shift=only_phase_shift,
             v_eta__omegas=v_eta__omegas)
     machine.install_after_each_transverse_segment(mquad)
