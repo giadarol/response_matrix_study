@@ -48,7 +48,7 @@ if include_detuning_with_z:
         obdet = mfm.myloadmat_to_obj(z_strength_file)
         z_slices = obdet.z_slices
         p = np.polyfit(obdet.z_slices, obdet.k_z_integrated, deg=detuning_fit_order)
-        alpha_N = p[::-1] # Here I fit the strength
+        alpha_N = p[::-1]*ecloud_strength_scale # Here I fit the strength
         print('Detuning cefficients alpha_N:')
         print(alpha_N)
     else:
