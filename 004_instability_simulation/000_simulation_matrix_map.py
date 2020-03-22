@@ -2,6 +2,7 @@ import os
 import time
 
 import numpy as np
+from scipy.constants import c as clight
 
 import PyECLOUD.myfilemanager as mfm
 from PyPARIS_sim_class import Simulation as sim_mod
@@ -11,6 +12,7 @@ import PyPARIS.util as pu
 import sys
 sys.path.append('../')
 import response_matrix.response_matrix as rm
+import response_matrix.modulated_quadrupole as mq
 
 
 # start-settings-section
@@ -27,11 +29,28 @@ sim_param_amend_files = ['../Simulation_parameters_amend.py',
 include_response_matrix = True
 response_data_file = '../001_sin_response_scan/response_data.mat'
 
+include_detuning_with_z = True
+only_phase_shift = True
+z_strength_file = '../001a_sin_response_scan_unperturbed/linear_strength.mat'
+detuning_fit_order = 10
+alpha_N_custom = []
+
 include_non_linear_map = True
 flag_wrt_bunch_centroid = True
 field_map_file = '../003_generate_field_map/field_map.mat'
 # end-settings-section
 
+
+# Load and fit detuning with z
+if detuning_fit_order > 0:
+    obdet = mfm.myloadmat_to_obj(z_strength_file)
+    z_slices = obdet.z_slices
+    p = np.polyfit(obdet.z_slices, obdet.k_z_integrated, deg=detuning_fit_order)
+    alpha_N = p[::-1] # Here I fit the strength
+    print('Detuning cefficients alpha_N:')
+    print(alpha_N)
+else:
+    alpha_N = alpha_N_custom
 
 # Instantiate simulation
 sim_content = sim_mod.Simulation(param_file=sim_param_file)
@@ -39,6 +58,11 @@ sim_content = sim_mod.Simulation(param_file=sim_param_file)
 # Here sim_content.pp can be edited (directly and through files)
 for ff in sim_param_amend_files:
     sim_content.pp.update(param_file=ff)
+
+# Make the slice output file smaller
+sim_content.pp.slice_stats_to_store = ['mean_x', 'mean_z',
+ 'n_macroparticles_per_slice']
+
 
 # Disable real e-clouds
 sim_content.pp.enable_arc_dip = False
@@ -81,6 +105,18 @@ if include_response_matrix:
         n_terms_to_be_kept=n_terms_to_be_kept,
         n_tail_cut=n_tail_cut)
     machine.install_after_each_transverse_segment(respmat)
+
+# Add modulated quadrupole
+if len(alpha_N)>0 or len(beta_N)>0:
+    omega_0 = 2 * np.pi * clight / machine.circumference
+    v_eta__omegas = (clight *machine.longitudinal_map.eta(dp=0, gamma=machine.gamma)
+            / (omega_0 * machine.longitudinal_map.Q_s))
+    mquad = mq.ModulatedQuadrupole(coord='x',
+            alpha_N=np.array(alpha_N)/sim_content.pp.n_segments,
+            beta_N=np.array(beta_N)/sim_content.pp.n_segments,
+            only_phase_shift=only_phase_shift,
+            v_eta__omegas=v_eta__omegas)
+    machine.install_after_each_transverse_segment(mquad)
 
 # Introduce non-linear field map
 if include_non_linear_map:

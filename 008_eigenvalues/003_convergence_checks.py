@@ -11,8 +11,7 @@ l_min = -7
 l_max = 7
 m_max = 20
 N_max = 30
-min_imag_unstab = 1.
-rescale_to_beta_fun = 92.7
+abs_min_imag_unstab = 1.
 
 with open(pkl_fname, 'rb') as fid:
     MM_orig = pickle.load(fid)
@@ -23,14 +22,14 @@ omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
 omega_s = 4.9e-3*omega0
 
 # Mode coupling test
-strength_scan = np.arange(0, 2.75, 0.02)
+strength_scan = np.arange(0, 1, 0.005)
 Omega_mat = MM_obj.compute_mode_complex_freq(omega_s, rescale_by=strength_scan)
 
 import matplotlib.pyplot as plt
 plt.close('all')
 ms.mystyle(fontsz=14, traditional_look=False)
 
-mask_unstable = np.imag(Omega_mat) > min_imag_unstab
+mask_unstable = np.imag(Omega_mat) < -abs_min_imag_unstab
 Omega_mat_unstable = Omega_mat.copy()
 Omega_mat_unstable[~mask_unstable] = np.nan+1j*np.nan
 
@@ -41,17 +40,25 @@ plt.plot(strength_scan, np.imag(Omega_mat), '.b')
 Omega_mat_mode = Omega_mat.copy()
 Omega_mat_mode[~mask_mode] = np.nan
 
-title = f'l_min={l_min}, l_max={l_max}, m_max={m_max}, N_max={N_max}, beta_x={rescale_to_beta_fun}'
+title = f'l_min={l_min}, l_max={l_max}, m_max={m_max}, N_max={N_max}'
 
-plt.figure(200)
+figre = plt.figure(200)
 plt.plot(strength_scan, np.real(Omega_mat)/omega_s, '.b')
 plt.plot(strength_scan, np.real(Omega_mat_unstable)/omega_s, '.r')
 plt.suptitle(title)
+plt.grid(True, linestyle=':', alpha=.8)
+plt.xlabel('Strength')
+plt.ylabel(r'Re($\Omega$)/$\omega_s$')
+plt.subplots_adjust(bottom=.12)
 
-plt.figure(201)
+figim = plt.figure(201)
 plt.plot(strength_scan, np.imag(Omega_mat), '.b')
-plt.plot(strength_scan, np.imag(Omega_mat_mode), '.g')
+plt.plot(strength_scan, np.imag(Omega_mat_unstable), '.r')
 plt.suptitle(title)
+plt.grid(True, linestyle=':', alpha=.8)
+plt.xlabel('Strength')
+plt.ylabel(r'Im($\Omega$)')
+plt.subplots_adjust(bottom=.12)
 
 plt.figure(300)
 plt.plot(np.imag(Omega_mat).flatten(),
@@ -81,7 +88,7 @@ for ii in range(len(strength_scan)):
     ind_sorted = np.argsort(-np.imag(Omega_ii))
     re_sorted = np.take(np.real(Omega_ii), ind_sorted)
     im_sorted = np.take(np.imag(Omega_ii), ind_sorted)
-    plt.scatter(x=MM_orig.beta_fun/rescale_to_beta_fun*strength_scan[ii]+0*np.imag(Omega_mat[ii, :]),
+    plt.scatter(x=strength_scan[ii]+0*np.imag(Omega_mat[ii, :]),
             y=re_sorted/omega_s,
             c = np.clip(-im_sorted, im_min_col, im_max_col),
             cmap=plt.cm.jet,

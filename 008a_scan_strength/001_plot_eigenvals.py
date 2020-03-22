@@ -5,19 +5,18 @@ from scipy.constants import c as clight
 
 import PyECLOUD.mystyle as ms
 
-strength_scan = np.arange(0., 2.75, 0.02)[1::]
+strength_scan = np.arange(0., 2., 0.02)[1:]
 
 omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
 omega_s = 4.9e-3*omega0
-simulation_folder = './simulations_2'
+simulation_folder = './simulations'
 pkl_fname = 'mode_coupling_matrix.pkl'
 
-l_min = -9
-l_max = 9
+l_min = -7
+l_max = 7
 m_max = 20
 N_max = 30
 min_imag_unstab = 1.
-rescale_to_beta_fun = 92.7
 
 
 Omega_mat = []
@@ -49,7 +48,8 @@ plt.plot(strength_scan, np.imag(Omega_mat), '.b')
 Omega_mat_mode = Omega_mat.copy()
 Omega_mat_mode[~mask_mode] = np.nan
 
-title = f'l_min={l_min}, l_max={l_max}, m_max={m_max}, N_max={N_max}, beta_x={rescale_to_beta_fun}'
+title = f'l_min={l_min}, l_max={l_max}, m_max={m_max}, N_max={N_max}'
+
 
 plt.figure(200)
 plt.plot(strength_scan, np.real(Omega_mat)/omega_s, '.b')
@@ -91,7 +91,7 @@ for ii in range(len(strength_scan)):
     ind_sorted = np.argsort(-np.imag(Omega_ii))
     re_sorted = np.take(np.real(Omega_ii), ind_sorted)
     im_sorted = np.take(np.imag(Omega_ii), ind_sorted)
-    plt.scatter(x=MM_orig.beta_fun/rescale_to_beta_fun*strength_scan[ii]+0*np.imag(Omega_mat[ii, :]),
+    plt.scatter(x=strength_scan[ii]+0*np.imag(Omega_mat[ii, :]),
             y=re_sorted/omega_s,
             c = np.clip(-im_sorted, im_min_col, im_max_col),
             cmap=plt.cm.jet,
