@@ -60,11 +60,11 @@ strength_list = np.arange(0.02, 1.0, 0.005)
 #strength_list = np.arange(0.2, 0.3, 0.05)
 labels = [f'strength {ss:.3f}' for ss in strength_list]
 folders_compare = [
-      f'../005a_pyheadtail_impedance_strength_scan/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005a_pyheadtail_impedance_strength_scan/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005b_matrix_strength_scan/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005c_imp_neg_chroma/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005c2_imp_neg_chroma_modquads/simulations_corrected/strength_{ss:.2e}/' for ss in strength_list]
-      #f'../005d_try_alpha2_plus/simulations_only_phaseshift/strength_{ss:.2e}/' for ss in strength_list]
+      f'../005d_try_alpha2_plus/simulations_only_phaseshift/strength_{ss:.2e}/' for ss in strength_list]
 fft2mod = 'lin'
 #fname = 'impedance_'
 fname = None
