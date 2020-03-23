@@ -1,7 +1,7 @@
 import os
 import numpy as np
 
-scan_folder_rel = 'simulations_2'
+scan_folder_rel = 'simulations'
 
 environment_preparation = f'''
 source /afs/cern.ch/work/g/giadarol/sim_workspace_mpi_py3/venvs/py3/bin/activate
@@ -10,7 +10,7 @@ PYTHONPATH=$PYTHONPATH:{os.path.abspath('../')}
 '''
 # Last one is to get response matrix path
 
-strength_scan = np.arange(0.1, 2.1, 0.1)
+strength_scan = np.arange(0.02, 2.01, 0.02)
 
 files_to_be_copied = [
         '../004_instability_simulation/000_simulation_matrix_map.py',
@@ -51,16 +51,24 @@ sim_param_amend_files = ['../../../Simulation_parameters_amend.py',
 include_response_matrix = True
 response_data_file = '../../../001_sin_response_scan/response_data_processed.mat'
 
-include_non_linear_map = True
+include_detuning_with_z = False
+only_phase_shift = True
+z_strength_file = '../001a_sin_response_scan_unperturbed/linear_strength.mat'
+detuning_fit_order = 0
+alpha_N_custom = []
+
+include_non_linear_map = False
 flag_wrt_bunch_centroid = False
 field_map_file = '../../../003_generate_field_map/field_map_lin.mat'
 # end-settings-section'''
 
     sim_param_amend_curr= f'''
-N_turns = 500
+N_turns = 1000
 
-enable_transverse_damper = True
-V_RF = 6e6'''
+enable_transverse_damper = False
+V_RF = 6e6
+longitudinal_mode = 'linear'
+'''
 
     with open(current_sim_abs_path
         + '/Simulation_parameters_amend_for_matrixsim.py', 'w') as fid:
@@ -74,6 +82,21 @@ V_RF = 6e6'''
         fid.writelines(lines[:istart])
         fid.write(settings_section + '\n')
         fid.writelines(lines[iend+1:])
+
+    # Prepare run script
+    run_script_curr= '''#!/bin/bash
+for i in {1..2}
+do
+   echo "Iteration $i"
+   if test -f "met_stop_condition"; then
+	   echo "Met stop condition!"
+	   break
+   fi
+   python 000_simulation_matrix_map.py
+done
+    '''
+    with open(current_sim_abs_path + '/run_it_several_times', 'w') as fid:
+       fid.write(run_script_curr)
 
     # Prepare job script
     job_content = f'''#!/bin/bash

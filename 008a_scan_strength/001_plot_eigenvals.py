@@ -5,7 +5,7 @@ from scipy.constants import c as clight
 
 import PyECLOUD.mystyle as ms
 
-strength_scan = np.arange(0., 2., 0.02)[1::4]
+strength_scan = np.arange(0., 2., 0.02)[1::]
 
 omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
 omega_s = 4.9e-3*omega0
