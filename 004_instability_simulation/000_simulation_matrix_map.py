@@ -33,6 +33,7 @@ response_data_file = '../001_sin_response_scan/response_data.mat'
 
 include_detuning_with_z = True
 only_phase_shift = True
+add_alpha_0_to_tune = True
 z_strength_file = '../001a_sin_response_scan_unperturbed/linear_strength.mat'
 detuning_fit_order = 10
 alpha_N_custom = []
@@ -65,6 +66,9 @@ for ff in sim_param_amend_files:
 sim_content.pp.slice_stats_to_store = ['mean_x', 'mean_z',
  'n_macroparticles_per_slice']
 
+if add_alpha_0_to_tune:
+    assert(only_phase_shift)
+    sim_content.pp.Q_x += -(alpha_N[0] * sim_content.pp.beta_x)/(4*np.pi)
 
 # Disable real e-clouds
 sim_content.pp.enable_arc_dip = False

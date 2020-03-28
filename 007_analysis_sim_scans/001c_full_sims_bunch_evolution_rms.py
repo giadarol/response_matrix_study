@@ -135,9 +135,10 @@ T_rev = 88.9e-6
 # flag_compact = True
 
 # Comparison strength
-strength_list = np.arange(0.1, 2.1, 0.1)
+#strength_list = np.arange(0.1, 2.1, 0.1)
 strength_list = np.arange(0.02, 2.0, 0.02)
-labels = [f'strength {ss:.1f}' for ss in strength_list]
+strength_list = np.arange(0.1, 2.0, 0.02)
+labels = [f'strength {ss:.3f}' for ss in strength_list]
 folders_compare = [
 #      f'../005n_strength_scan_6MV_all_harmonics_dip_matrix_fullmap/simulations_2/strength_{ss:.2e}/' for ss in strength_list]
 #      f'../005o_strength_scan_6MV_all_harmonics_dip_matrix_linmap/simulations_2/strength_{ss:.2e}/' for ss in strength_list]
@@ -145,29 +146,36 @@ folders_compare = [
 #      f'../005q_strength_scan_linrf6MV_all_harmonics_dip_matrix_fullmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005r_strength_scan_linrf6MV_all_harmonics_dip_matrix_linmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005s_strength_scan_linrf6MV_all_harmonics_dip_matrix_nomap/simulations/strength_{ss:.2e}/' for ss in strength_list]
-      f'../005t1_strength_scan_linrf6MV_all_harmonics_dip_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005t1_strength_scan_linrf6MV_all_harmonics_dip_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t2_strength_scan_linrf6MV_all_harmonics_dip_matrix_phshift/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005t2a_strength_scan_linrf6MV_all_harmonics_dip_matrix_phshift_staticDq/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t3_strength_scan_linrf6MV_all_harmonics_dip_matrix_zdetuning/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      f'../005t4_strength_scan_linrf6MV_all_harmonics_dip_matrix_nonlinearmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005d_strength_scan_6MV_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005e_strength_scan_6MV_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005f_strength_scan_6MV_map_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005i_strength_scan_6MV_all_harmonics_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005j_strength_scan_6MV_all_harmonics_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005m_strength_scan_6MV_all_harmonics_matrix_linmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
-#     ('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_019/'
-#      'inj_arcQuad_no_initial_kick_no_damper_recenter_slice_sey_1.4'
-#      '_intensity_1.2e11ppb_VRF_6MV_scan_length_factor_0.1_2.0/'
-#      'simulations_PyPARIS/'
-#      f'initial_kick_no_damper_no_recenter_slices_length_factor_{ss:.1f}') for ss in strength_list]
+     #('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_019/'
+     # 'inj_arcQuad_no_initial_kick_no_damper_recenter_slice_sey_1.4'
+     # '_intensity_1.2e11ppb_VRF_6MV_scan_length_factor_0.1_2.0/'
+     # 'simulations_PyPARIS/'
+     # f'initial_kick_no_damper_no_recenter_slices_length_factor_{ss:.1f}') for ss in strength_list]
+     # ('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_019/'
+     #  '/inj_arcQuad_no_initial_kick_no_damper_recenter_slice'
+     #   '_sey_1.4_intensity_1.2e11ppb_VRF_6MV_scan_length_factor_0.1_1.5'
+     #   '/simulations_PyPARIS/'
+     #   f'initial_kick_no_damper_no_recenter_slices_length_factor_{ss:.3f}') for ss in strength_list]
 fft2mod = 'lin'
-#fname = 'compact_strength_scan_dip_matrix_fullmap_linrf'
-fname = None
+fname = 'compact_t4'
+#fname = None
 i_start_list = None
-n_turns = len(strength_list)*[3000]
+n_turns = len(strength_list)*[2000]
 cmap = plt.cm.rainbow
 i_force_line = 2
 fit_cut = 5000
-flag_no_slice = True
+flag_no_slice = False
 flag_compact = True
 #######################################################################
 
