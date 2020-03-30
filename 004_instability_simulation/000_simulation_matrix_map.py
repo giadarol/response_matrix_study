@@ -22,6 +22,8 @@ n_terms_to_be_kept = 12
 n_tail_cut = 10
 recenter_all_slices = True # Cancels initial kick from input
 
+Qp_x = 0.
+
 ecloud_strength_scale = 1.
 
 sim_param_file = '../reference_simulation/Simulation_parameters.py'
@@ -65,6 +67,8 @@ for ff in sim_param_amend_files:
 # Make the slice output file smaller
 sim_content.pp.slice_stats_to_store = ['mean_x', 'mean_z',
  'n_macroparticles_per_slice']
+
+sim_content.pp.Qp_x = Qp_x
 
 if add_alpha_0_to_tune:
     assert(only_phase_shift)

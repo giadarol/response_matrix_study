@@ -137,7 +137,8 @@ T_rev = 88.9e-6
 # Comparison strength
 #strength_list = np.arange(0.1, 2.1, 0.1)
 strength_list = np.arange(0.02, 2.0, 0.02)
-strength_list = np.arange(0.1, 2.0, 0.02)
+#strength_list = np.arange(0.1, 1.5, 0.02)
+#strength_list = np.arange(0.1, 2.0, 0.02)
 labels = [f'strength {ss:.3f}' for ss in strength_list]
 folders_compare = [
 #      f'../005n_strength_scan_6MV_all_harmonics_dip_matrix_fullmap/simulations_2/strength_{ss:.2e}/' for ss in strength_list]
@@ -149,8 +150,11 @@ folders_compare = [
       #f'../005t1_strength_scan_linrf6MV_all_harmonics_dip_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t2_strength_scan_linrf6MV_all_harmonics_dip_matrix_phshift/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t2a_strength_scan_linrf6MV_all_harmonics_dip_matrix_phshift_staticDq/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005t2b_strength_scan_linrf6MV_all_harmonics_dip_matrix_phshift_other_tune/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005t2c_strength_scan_linrf6MV_all_harmonics_dip_matrix_phshift_Qp5/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t3_strength_scan_linrf6MV_all_harmonics_dip_matrix_zdetuning/simulations/strength_{ss:.2e}/' for ss in strength_list]
-      f'../005t4_strength_scan_linrf6MV_all_harmonics_dip_matrix_nonlinearmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005t4_strength_scan_linrf6MV_all_harmonics_dip_matrix_nonlinearmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      f'../005t4c_strength_scan_linrf6MV_all_harmonics_dip_matrix_nonlinearmap_Qp5/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005d_strength_scan_6MV_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005e_strength_scan_6MV_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005f_strength_scan_6MV_map_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
@@ -162,20 +166,20 @@ folders_compare = [
      # '_intensity_1.2e11ppb_VRF_6MV_scan_length_factor_0.1_2.0/'
      # 'simulations_PyPARIS/'
      # f'initial_kick_no_damper_no_recenter_slices_length_factor_{ss:.1f}') for ss in strength_list]
-     # ('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_019/'
-     #  '/inj_arcQuad_no_initial_kick_no_damper_recenter_slice'
-     #   '_sey_1.4_intensity_1.2e11ppb_VRF_6MV_scan_length_factor_0.1_1.5'
-     #   '/simulations_PyPARIS/'
-     #   f'initial_kick_no_damper_no_recenter_slices_length_factor_{ss:.3f}') for ss in strength_list]
+     #('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_019/'
+     # '/inj_arcQuad_no_initial_kick_no_damper_recenter_slice'
+     #  '_sey_1.4_intensity_1.2e11ppb_VRF_6MV_scan_length_factor_0.1_1.5'
+     #  '/simulations_PyPARIS/'
+     #  f'initial_kick_no_damper_no_recenter_slices_length_factor_{ss:.3f}') for ss in strength_list]
 fft2mod = 'lin'
-fname = 'compact_t4'
+fname = 'compact_t4c'
 #fname = None
 i_start_list = None
-n_turns = len(strength_list)*[2000]
+n_turns = len(strength_list)*[8000]
 cmap = plt.cm.rainbow
 i_force_line = 2
 fit_cut = 5000
-flag_no_slice = False
+flag_no_slice = True
 flag_compact = True
 #######################################################################
 
@@ -236,6 +240,8 @@ for ifol, folder in enumerate(folders_compare):
         print(config_module_file)
         pars = mfm.obj_from_dict(
                 extract_info_from_sim_param(config_module_file))
+
+    q_frac = np.modf(pars.Q_x)[0]
 
     if not flag_no_slice:
         w_slices = ob_slice.n_macroparticles_per_slice
@@ -472,7 +478,7 @@ for ifol, folder in enumerate(folders_compare):
     # r cos + j r sin + ji cos - i sin | + r cos -j r sin -jicos -i sin = 
     # 2r cos - 2 i sin
 
-    if fname is not None:
+    if fname is not None and not flag_no_slice:
         figffts.savefig(fname+'_' + labels[ifol].replace(
             ' ', '_').replace('=', '').replace('-_', '')+'.png', dpi=200)
     if flag_close_figffts:
@@ -491,7 +497,8 @@ for ifol, folder in enumerate(folders_compare):
 
         from PySUSSIX import Sussix
         SX = Sussix()
-        SX.sussix_inp(nt1=1, nt2=len(x_vect), idam=2, ir=1, tunex=.27, tuney=.27)
+        SX.sussix_inp(nt1=1, nt2=len(x_vect), idam=2, ir=1,
+                tunex=q_frac, tuney=q_frac)
         SX.sussix(x_vect, x_vect, x_vect, x_vect, x_vect, x_vect)
 
         freq_list.append(SX.ox)
@@ -531,7 +538,7 @@ maxsize =np.max(np.array(ap_list))
 
 axharm = figharm.add_subplot(111)
 str_mat = np.dot(np.atleast_2d(np.ones(N_lines)).T, np.atleast_2d(np.array(strength_list)))
-axharm.scatter(x=str_mat.flatten(), y=(np.abs(np.array(freq_list)).T.flatten()-.27)/Qs, s=np.clip(np.array(ap_list).T.flatten()/maxsize*10, 0.0, 100))
+axharm.scatter(x=str_mat.flatten(), y=(np.abs(np.array(freq_list)).T.flatten()-q_frac)/Qs, s=np.clip(np.array(ap_list).T.flatten()/maxsize*10, 0.0, 100))
 
 figtau = plt.figure(112)
 axtau = figtau.add_subplot(111)
@@ -542,5 +549,8 @@ legfft = axfft.legend(prop={'size':10})
 if fname is not None:
     fig1.savefig(fname+'.png', dpi=200)
     sio.savemat(fname+'_fit.mat', {
-        'p_coeff': np.array(p_list)[:, 0]})
+        'strength_list': strength_list,
+        'freq_list': np.array(freq_list),
+        'ap_list': np.array(ap_list),
+        'p_list_centroid': np.array(p_list_centroid)[:, 0]})
 plt.show()
