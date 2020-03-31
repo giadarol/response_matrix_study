@@ -9,7 +9,7 @@ pkl_fname = 'mode_coupling_matrix.pkl'
 
 l_min = -7
 l_max = 7
-m_max = 28
+m_max = 30
 N_max = 30
 abs_min_imag_unstab = 1.
 

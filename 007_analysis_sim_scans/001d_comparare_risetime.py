@@ -17,8 +17,8 @@ DQ_0 = -alpha_0 * beta_func/4/np.pi
 
 dict_plot = {
         't1':  {'fname':'./processed_data/compact_t1_fit.mat', 'tilt_lines':False},
-        't2': {'fname':'./processed_data/compact_t2_fit.mat', 'tilt_lines':False},
-        't2a':{'fname':'./processed_data/compact_t2a_fit.mat', 'tilt_lines':True},
+        #'t2': {'fname':'./processed_data/compact_t2_fit.mat', 'tilt_lines':False},
+        #'t2a':{'fname':'./processed_data/compact_t2a_fit.mat', 'tilt_lines':True},
         #'t2b':{'fname':'./processed_data/compact_t2b_fit.mat', 'tilt_lines':True},
         #'t2c':{'fname':'./processed_data/compact_t2c_fit.mat', 'tilt_lines':True},
         #'t3': {'fname':'./processed_data/compact_t3_fit.mat', 'tilt_lines':True},
@@ -65,6 +65,7 @@ for ii, ll in enumerate(dict_plot.keys()):
 
 ax1.legend(bbox_to_anchor=(1, 1),  loc='upper left', fontsize='small')
 ax1.grid(True, linestyle=':')
+ax1.set_xlim(min_strength, max_strength)
 ax1.set_xlabel('e-cloud strength')
 ax1.set_ylabel('Instability growth rate [1/s]')
 fig1.subplots_adjust(right=.77)
