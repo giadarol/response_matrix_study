@@ -154,7 +154,10 @@ folders_compare = [
       #f'../005t2c_strength_scan_linrf6MV_all_harmonics_dip_matrix_phshift_Qp5/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t3_strength_scan_linrf6MV_all_harmonics_dip_matrix_zdetuning/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t4_strength_scan_linrf6MV_all_harmonics_dip_matrix_nonlinearmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
-      f'../005t4c_strength_scan_linrf6MV_all_harmonics_dip_matrix_nonlinearmap_Qp5/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005t4c_strength_scan_linrf6MV_all_harmonics_dip_matrix_nonlinearmap_Qp5/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005t4c2_strength_scan_linrf6MV_all_harmonics_dip_matrix_nonlinearmap_Qp10/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005t5_strength_scan_linrf6MV_all_harmonics_dip_matrix_phase_and_recentered_nlmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      f'../005t5a_strength_scan_linrf6MV_all_harmonics_dip_matrix_tune_and_recentered_nlmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005d_strength_scan_6MV_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005e_strength_scan_6MV_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005f_strength_scan_6MV_map_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
@@ -172,7 +175,7 @@ folders_compare = [
      #  '/simulations_PyPARIS/'
      #  f'initial_kick_no_damper_no_recenter_slices_length_factor_{ss:.3f}') for ss in strength_list]
 fft2mod = 'lin'
-fname = 'compact_t4c'
+fname = 'compact_t5a'
 #fname = None
 i_start_list = None
 n_turns = len(strength_list)*[8000]
@@ -523,7 +526,7 @@ fig1.subplots_adjust(
 axemi.set_ylabel('Transverse emittance [um]')
 axemi.set_xlabel('Turn')
 axemi.grid(True, linestyle='--', alpha=0.5)
-axemi.legend(bbox_to_anchor=(1, 1),  loc='upper left', prop={'size':14})
+axemi.legend(bbox_to_anchor=(1, 1),  loc='upper left', prop={'size':8})
 figemi.subplots_adjust(
     top=0.88,
     bottom=0.11,
