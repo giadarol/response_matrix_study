@@ -137,7 +137,7 @@ T_rev = 88.9e-6
 # Comparison strength
 #strength_list = np.arange(0.1, 2.1, 0.1)
 strength_list = np.arange(0.02, 2.0, 0.02)
-#strength_list = np.arange(0.1, 1.5, 0.02)
+strength_list = np.arange(0.1, 1.5, 0.02)
 #strength_list = np.arange(0.1, 2.0, 0.02)
 labels = [f'strength {ss:.3f}' for ss in strength_list]
 folders_compare = [
@@ -150,14 +150,19 @@ folders_compare = [
       #f'../005t1_strength_scan_linrf6MV_all_harmonics_dip_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t2_strength_scan_linrf6MV_all_harmonics_dip_matrix_phshift/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t2a_strength_scan_linrf6MV_all_harmonics_dip_matrix_phshift_staticDq/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005t2af_strength_scan_linrf6MV_all_harmonics_dip_matrix_phshift_staticDqwfactor/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t2b_strength_scan_linrf6MV_all_harmonics_dip_matrix_phshift_other_tune/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t2c_strength_scan_linrf6MV_all_harmonics_dip_matrix_phshift_Qp5/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t3_strength_scan_linrf6MV_all_harmonics_dip_matrix_zdetuning/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005t3z_strength_scan_linrf6MV_all_harmonics_no_matrix_zdetuning/simulations_nokick/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005t3z_strength_scan_linrf6MV_all_harmonics_no_matrix_zdetuning/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005t3a_strength_scan_linrf6MV_all_harmonics_dip_matrix_zdetuning_cutN1/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005t3b_strength_scan_linrf6MV_all_harmonics_dip_matrix_zdetuning_cutN3/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t4_strength_scan_linrf6MV_all_harmonics_dip_matrix_nonlinearmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t4c_strength_scan_linrf6MV_all_harmonics_dip_matrix_nonlinearmap_Qp5/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t4c2_strength_scan_linrf6MV_all_harmonics_dip_matrix_nonlinearmap_Qp10/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t5_strength_scan_linrf6MV_all_harmonics_dip_matrix_phase_and_recentered_nlmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
-      f'../005t5a_strength_scan_linrf6MV_all_harmonics_dip_matrix_tune_and_recentered_nlmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005t5a_strength_scan_linrf6MV_all_harmonics_dip_matrix_tune_and_recentered_nlmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005d_strength_scan_6MV_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005e_strength_scan_6MV_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005f_strength_scan_6MV_map_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
@@ -169,13 +174,13 @@ folders_compare = [
      # '_intensity_1.2e11ppb_VRF_6MV_scan_length_factor_0.1_2.0/'
      # 'simulations_PyPARIS/'
      # f'initial_kick_no_damper_no_recenter_slices_length_factor_{ss:.1f}') for ss in strength_list]
-     #('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_019/'
-     # '/inj_arcQuad_no_initial_kick_no_damper_recenter_slice'
-     #  '_sey_1.4_intensity_1.2e11ppb_VRF_6MV_scan_length_factor_0.1_1.5'
-     #  '/simulations_PyPARIS/'
-     #  f'initial_kick_no_damper_no_recenter_slices_length_factor_{ss:.3f}') for ss in strength_list]
+     ('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_019/'
+      '/inj_arcQuad_no_initial_kick_no_damper_recenter_slice'
+       '_sey_1.4_intensity_1.2e11ppb_VRF_6MV_scan_length_factor_0.1_1.5'
+       '/simulations_PyPARIS/'
+       f'initial_kick_no_damper_no_recenter_slices_length_factor_{ss:.3f}') for ss in strength_list]
 fft2mod = 'lin'
-fname = 'compact_t5a'
+fname = 'compact_pic'
 #fname = None
 i_start_list = None
 n_turns = len(strength_list)*[8000]
@@ -217,6 +222,7 @@ p_list = []
 p_list_centroid = []
 freq_list = []
 ap_list = []
+n_sample_list = []
 an_list =[]
 for ifol, folder in enumerate(folders_compare):
 
@@ -505,7 +511,8 @@ for ifol, folder in enumerate(folders_compare):
         SX.sussix(x_vect, x_vect, x_vect, x_vect, x_vect, x_vect)
 
         freq_list.append(SX.ox)
-        ap_list.append(SX.ax/np.max(SX.ax))
+        ap_list.append(SX.ax)
+        n_sample_list.append(len(x_vect))
         N_lines = len(SX.ax)
 
 for ax in [ax11, ax12, ax13, axfft]:
@@ -555,5 +562,6 @@ if fname is not None:
         'strength_list': strength_list,
         'freq_list': np.array(freq_list),
         'ap_list': np.array(ap_list),
+        'n_sample_list': np.array(n_sample_list),
         'p_list_centroid': np.array(p_list_centroid)[:, 0]})
 plt.show()

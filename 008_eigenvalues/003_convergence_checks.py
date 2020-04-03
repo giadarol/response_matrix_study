@@ -17,7 +17,9 @@ abs_min_imag_unstab = 1.
 l_min_plot = -5
 l_max_plot = 3
 min_strength_plot = 0
-max_strength_plot = 1.4
+max_strength_plot = 1.55
+tau_min_plot = 0
+tau_max_plot = 300
 
 with open(pkl_fname, 'rb') as fid:
     MM_orig = pickle.load(fid)
@@ -28,7 +30,7 @@ omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
 omega_s = 4.9e-3*omega0
 
 # Mode coupling test
-strength_scan = np.arange(0, 1.4, 0.01)
+strength_scan = np.arange(min_strength_plot, max_strength_plot, 0.01)
 Omega_mat = MM_obj.compute_mode_complex_freq(omega_s, rescale_by=strength_scan)
 
 import matplotlib.pyplot as plt
@@ -112,9 +114,13 @@ plt.colorbar()
 
 figtau = plt.figure(600)
 axtau = figtau.add_subplot(111)
+axtau.plot(strength_scan, np.imag(Omega_mat),
+        '.', color='grey', alpha=0.5)
 axtau.plot(strength_scan, np.max(-np.imag(Omega_mat), axis=1),
-        linewidth=1, color='b')
+        linewidth=2, color='b')
 axtau.set_xlim(min_strength_plot, max_strength_plot)
+axtau.set_ylim(tau_min_plot, tau_max_plot)
 axtau.grid(True, linestyle=':')
+figtau.suptitle(title)
 plt.show()
 
