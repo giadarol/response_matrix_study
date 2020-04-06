@@ -1,7 +1,7 @@
 import os
 import numpy as np
 
-scan_folder_rel = 'simulations'
+scan_folder_rel = 'simulations_long'
 
 environment_preparation = f'''
 source /afs/cern.ch/work/g/giadarol/sim_workspace_mpi_py3/venvs/py3/bin/activate
@@ -42,6 +42,8 @@ n_terms_to_be_kept = 200
 n_tail_cut = 10
 recenter_all_slices = True # Cancels initial kick from input
 
+Qp_x = 0.
+
 ecloud_strength_scale = {strength_scan[ii]:e}
 
 sim_param_file = '../../../reference_simulation/Simulation_parameters.py'
@@ -53,8 +55,11 @@ response_data_file = '../../../001_sin_response_scan/response_data_processed.mat
 
 include_detuning_with_z = False
 only_phase_shift = False
+add_alpha_0_to_tune = False
+factor_alpha_0_to_tune = 0.
 z_strength_file = '../../../001a_sin_response_scan_unperturbed/linear_strength.mat'
 detuning_fit_order = 0
+N_poly_cut = detuning_fit_order + 1
 alpha_N_custom = []
 
 include_non_linear_map = True
@@ -63,7 +68,7 @@ field_map_file = '../../../003_generate_field_map/field_map.mat'
 # end-settings-section'''
 
     sim_param_amend_curr= f'''
-N_turns = 1000
+N_turns = 8000
 
 enable_transverse_damper = False
 V_RF = 6e6
@@ -85,7 +90,7 @@ longitudinal_mode = 'linear'
 
     # Prepare run script
     run_script_curr= '''#!/bin/bash
-for i in {1..2}
+for i in {1..1}
 do
    echo "Iteration $i"
    if test -f "met_stop_condition"; then

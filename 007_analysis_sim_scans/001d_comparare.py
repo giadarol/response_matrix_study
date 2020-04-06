@@ -19,23 +19,15 @@ factor_DQ0 = 0.85
 DQ_0 = -alpha_0 * beta_func/4/np.pi*factor_DQ0
 
 dict_plot = {
-        't1':  {'fname':'./processed_data/compact_t1_fit.mat', 'tilt_lines':False, 'scale_x':1},
-        't2': {'fname':'./processed_data/compact_t2_fit.mat', 'tilt_lines':False, 'scale_x':1},
-        #'t2a':{'fname':'./processed_data/compact_t2a_fit.mat', 'tilt_lines':True, 'scale_x':1},
+        #'t1':  {'fname':'./processed_data/compact_t1_fit.mat', 'tilt_lines':False, 'scale_x':1},
+        #'t2': {'fname':'./processed_data/compact_t2_fit.mat', 'tilt_lines':False, 'scale_x':1},
         't2af':{'fname':'./processed_data/compact_t2af_fit.mat', 'tilt_lines':True, 'scale_x':1},
-        #'t2b':{'fname':'./processed_data/compact_t2b_fit.mat', 'tilt_lines':True, 'scale_x':1},
-        #'t2c':{'fname':'./processed_data/compact_t2c_fit.mat', 'tilt_lines':True, 'scale_x':1},
-        't3': {'fname':'./processed_data/compact_t3_fit.mat', 'tilt_lines':True, 'scale_x':1},
-        #'t3z': {'fname':'./processed_data/compact_t3z_fit.mat', 'tilt_lines':True, 'scale_x':1},
-        #'t3a': {'fname':'./processed_data/compact_t3a_fit.mat', 'tilt_lines':True, 'scale_x':1},
-        #'t3b': {'fname':'./processed_data/compact_t3b_fit.mat', 'tilt_lines':True, 'scale_x':1},
+        #'t3': {'fname':'./processed_data/compact_t3_fit.mat', 'tilt_lines':True, 'scale_x':1},
         't4': {'fname':'./processed_data/compact_t4_fit.mat', 'tilt_lines':True, 'scale_x':1},
-        #'t4c':{'fname':'./processed_data/compact_t4c_fit.mat', 'tilt_lines':True, 'scale_x':1},
-        #'t5a':{'fname':'./processed_data/compact_t5a_fit.mat', 'tilt_lines':True, 'scale_x':1},
         'pic':{'fname':'./processed_data/compact_pic_fit.mat', 'tilt_lines':True, 'scale_x':1.},
         }
-colorlist = ['b', 'r', 'g']
-colorlist = None #['b', 'r', 'g']
+colorlist = ['b', 'r', 'k']
+#colorlist = None #['b', 'r', 'g']
 
 plt.close('all')
 fig1 = plt.figure(1, figsize=(6.4*1.2, 4.8))
@@ -52,10 +44,12 @@ for ii, ll in enumerate(dict_plot.keys()):
     ax1.plot(oo.strength_list*scale_x, oo.p_list_centroid/T_rev, label=ll,
             linewidth=2, **kwargs)
 
+    mask_strength = (oo.strength_list <= max_strength)
+
     ap_list = oo.ap_list
     N_lines = ap_list.shape[1]
-    strength_list = oo.strength_list*scale_x
-    freq_list = oo.freq_list
+    strength_list = oo.strength_list[mask_strength]*scale_x
+    freq_list = oo.freq_list[mask_strength, :]
     figharm = plt.figure(100+ii)
     maxsize = np.max(np.array(ap_list))
     axharm = figharm.add_subplot(111, sharex=axshare, sharey=axshare)
@@ -67,7 +61,7 @@ for ii, ll in enumerate(dict_plot.keys()):
                 alpha=0.5, linestyle='-', color='grey')
     axharm.scatter(x=str_mat.flatten(),
             y=(np.abs(np.array(freq_list)).T.flatten()-q_frac)/Qs,
-            s=np.clip(np.array(ap_list).T.flatten()/maxsize*10, 0.0, 10)*5)
+            s=np.clip(np.array(ap_list).T.flatten()/maxsize*10, 0.0, 10))
     axharm.set_ylim(l_min, l_max)
     axharm.set_xlim(min_strength, max_strength)
     figharm.suptitle(ll)

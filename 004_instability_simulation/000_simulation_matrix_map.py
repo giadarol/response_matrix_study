@@ -59,7 +59,7 @@ if include_detuning_with_z:
     else:
         alpha_N = alpha_N_custom
 
-alpha_N = alpha_N[:N_poly_cut]
+    alpha_N = alpha_N[:N_poly_cut]
 
 # Instantiate simulation
 sim_content = sim_mod.Simulation(param_file=sim_param_file)

@@ -95,6 +95,71 @@ def f_R_tilde_for_pool(args):
 def f_R_for_pool(args):
     return  compute_R_for_one_l(*args)
 
+
+def compute_d_Phi(alpha_p, beta_p, phi_vect, r_vect,
+            sin_phi, cos_phi, beta_fun_rescale,
+            omega0, omega_s, eta):
+
+    n_r = len(r_vect)
+    n_phi = len(phi_vect)
+
+    # Compute phase shift term
+    dPhi_R_PHI = np.zeros((n_r, n_phi))
+    if len(alpha_p) > 0:
+        aP_terms = len(alpha_p)
+        A_P = -beta_fun_rescale * alpha_p/4/ np.pi
+
+        C_N_PHI = np.zeros((aP_terms, n_phi))
+        C_bar_N = np.zeros(aP_terms)
+        for nn in range(aP_terms):
+            if nn == 0:
+                C_bar_N[nn] = 2*np.pi
+                C_N_PHI[nn, :] = phi_vect
+                continue
+            if nn == 1:
+                C_bar_N[nn] = 0.
+                C_N_PHI[nn, :] = sin_phi
+                continue
+            C_bar_N[nn] = (nn-1.)/nn * C_bar_N[nn-2]
+            C_N_PHI[nn, :] = (cos_phi**(nn-1)*sin_phi/nn
+                    + (nn-1.)/nn * C_N_PHI[nn-2, :])
+
+        for nn in range(aP_terms):
+            dPhi_R_PHI += -omega0/omega_s * A_P[nn] * np.dot(
+                    np.atleast_2d(r_vect**nn).T,
+                    np.atleast_2d(C_N_PHI[nn, :]
+                     - C_bar_N[nn]/(2*np.pi)*phi_vect))
+    if len(beta_p) > 0:
+        bP_terms = len(beta_p)
+        B_P = beta_p
+
+        S_N_PHI = np.zeros((bP_terms, n_phi))
+        S_bar_N = np.zeros(bP_terms)
+        for nn in range(bP_terms):
+            if nn == 0:
+                S_bar_N[nn] = 2*np.pi
+                S_N_PHI[nn, :] = phi_vect
+                continue
+            if nn == 1:
+                S_bar_N[nn] = 0.
+                S_N_PHI[nn, :] = -cos_phi
+                continue
+            S_bar_N[nn] = (nn-1.)/nn * S_bar_N[nn-2]
+            S_N_PHI[nn, :] = -((sin_phi**(nn-1)*cos_phi/nn)
+                    + (nn-1)/nn * S_N_PHI[nn-2, :])
+        for nn in range(bP_terms):
+            dPhi_R_PHI += -omega0/omega_s * B_P[nn] \
+                    * (omega_s/(clight*eta))**nn * np.dot(
+                    np.atleast_2d(r_vect**nn).T,
+                    np.atleast_2d(S_N_PHI[nn, :]
+                        - S_bar_N[nn]/(2*np.pi)*phi_vect))
+
+    exp_j_dPhi_R_PHI = np.exp(1j*dPhi_R_PHI)
+    d_Q_R_PHI = -omega_s/omega0 * np.diff(dPhi_R_PHI[:, :], axis=1)/np.diff(phi_vect)
+
+    return exp_j_dPhi_R_PHI, dPhi_R_PHI[:, :], d_Q_R_PHI
+
+
 class CouplingMatrix(object):
 
     def __init__(self, z_slices, HH, KK, l_min,
@@ -149,62 +214,12 @@ class CouplingMatrix(object):
             if beta_fun_rescale is None:
                 beta_fun_rescale = beta_fun_smooth
 
-            # Compute phase shift term
-            dPhi_R_PHI = np.zeros((n_r, n_phi))
-            if len(alpha_p) > 0:
-                aP_terms = len(alpha_p)
-                A_P = -beta_fun_rescale * alpha_p/4/ np.pi
-
-                C_N_PHI = np.zeros((aP_terms, n_phi))
-                C_bar_N = np.zeros(aP_terms)
-                for nn in range(aP_terms):
-                    if nn == 0:
-                        C_bar_N[nn] = 2*np.pi
-                        C_N_PHI[nn, :] = phi_vect
-                        continue
-                    if nn == 1:
-                        C_bar_N[nn] = 0.
-                        C_N_PHI[nn, :] = sin_phi
-                        continue
-                    C_bar_N[nn] = (nn-1.)/nn * C_bar_N[nn-2]
-                    C_N_PHI[nn, :] = (cos_phi**(nn-1)*sin_phi/nn
-                            + (nn-1.)/nn * C_N_PHI[nn-2, :])
-
-                for nn in range(aP_terms):
-                    dPhi_R_PHI += -omega0/omega_s * A_P[nn] * np.dot(
-                            np.atleast_2d(r_vect**nn).T,
-                            np.atleast_2d(C_N_PHI[nn, :]
-                             - C_bar_N[nn]/(2*np.pi)*phi_vect))
-            if len(beta_p) > 0:
-                bP_terms = len(beta_p)
-                B_P = beta_p
-
-                S_N_PHI = np.zeros((bP_terms, n_phi))
-                S_bar_N = np.zeros(bP_terms)
-                for nn in range(bP_terms):
-                    if nn == 0:
-                        S_bar_N[nn] = 2*np.pi
-                        S_N_PHI[nn, :] = phi_vect
-                        continue
-                    if nn == 1:
-                        S_bar_N[nn] = 0.
-                        S_N_PHI[nn, :] = -cos_phi
-                        continue
-                    S_bar_N[nn] = (nn-1.)/nn * S_bar_N[nn-2]
-                    S_N_PHI[nn, :] = -((sin_phi**(nn-1)*cos_phi/nn)
-                            + (nn-1)/nn * S_N_PHI[nn-2, :])
-                for nn in range(bP_terms):
-                    dPhi_R_PHI += -omega0/omega_s * B_P[nn] \
-                            * (omega_s/(clight*eta))**nn * np.dot(
-                            np.atleast_2d(r_vect**nn).T,
-                            np.atleast_2d(S_N_PHI[nn, :]
-                                - S_bar_N[nn]/(2*np.pi)*phi_vect))
-
-            exp_j_dPhi_R_PHI = np.exp(1j*dPhi_R_PHI)
-            # For checks:
-            self.dPhi_R_PHI= dPhi_R_PHI[:, :]
-            self.d_Q_R_PHI = -omega_s/omega0 * np.diff(dPhi_R_PHI[:, :], axis=1)/dphi
-            # End phase shift 
+            exp_j_dPhi_R_PHI, dPhi_R_PHI, d_Q_R_PHI = compute_d_Phi(
+                    alpha_p, beta_p, phi_vect, r_vect,
+                    sin_phi, cos_phi, beta_fun_rescale,
+                    omega0, omega_s, eta)
+            self.dPhi_R_PHI= dPhi_R_PHI #[:, :]
+            self.d_Q_R_PHI = d_Q_R_PHI
 
             l_vect = np.array(range(l_min, l_max+1))
             m_vect = np.array(range(0, m_max+1))

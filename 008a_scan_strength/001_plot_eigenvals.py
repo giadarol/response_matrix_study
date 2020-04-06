@@ -18,7 +18,7 @@ m_max = 20
 N_max = 30
 min_imag_unstab = 1.
 flag_correct_tune = True
-temp_rescale_DQ = .8
+temp_rescale_DQ = .85
 
 # Plot settings
 l_min_plot = -5
