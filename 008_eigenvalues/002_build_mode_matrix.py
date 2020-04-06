@@ -24,7 +24,7 @@ n_tail_cut = 0
 save_pkl_fname = 'mode_coupling_matrix.pkl'
 response_matrix_file = '../001_sin_response_scan/response_data_processed.mat'
 z_strength_file = '../001a_sin_response_scan_unperturbed/linear_strength.mat'
-detuning_fit_order = 0
+detuning_fit_order = 10
 pool_size = 4
 flag_solve_and_plot = True
 

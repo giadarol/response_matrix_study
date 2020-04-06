@@ -105,6 +105,7 @@ def compute_d_Phi(alpha_p, beta_p, phi_vect, r_vect,
 
     # Compute phase shift term
     dPhi_R_PHI = np.zeros((n_r, n_phi))
+    dQ_ave_R = np.zeros(n_r)
     if len(alpha_p) > 0:
         aP_terms = len(alpha_p)
         A_P = -beta_fun_rescale * alpha_p/4/ np.pi
@@ -129,6 +130,8 @@ def compute_d_Phi(alpha_p, beta_p, phi_vect, r_vect,
                     np.atleast_2d(r_vect**nn).T,
                     np.atleast_2d(C_N_PHI[nn, :]
                      - C_bar_N[nn]/(2*np.pi)*phi_vect))
+            dQ_ave_R += A_P[nn] * C_bar_N[nn]/(2*np.pi) * r_vect**nn
+
     if len(beta_p) > 0:
         bP_terms = len(beta_p)
         B_P = beta_p
@@ -153,11 +156,12 @@ def compute_d_Phi(alpha_p, beta_p, phi_vect, r_vect,
                     np.atleast_2d(r_vect**nn).T,
                     np.atleast_2d(S_N_PHI[nn, :]
                         - S_bar_N[nn]/(2*np.pi)*phi_vect))
+            dQ_ave_R += (omega_s/(clight*eta))**nn * B_P[nn] * S_bar_N[nn]/(2*np.pi) * r_vect**nn
 
     exp_j_dPhi_R_PHI = np.exp(1j*dPhi_R_PHI)
     d_Q_R_PHI = -omega_s/omega0 * np.diff(dPhi_R_PHI[:, :], axis=1)/np.diff(phi_vect)
 
-    return exp_j_dPhi_R_PHI, dPhi_R_PHI[:, :], d_Q_R_PHI
+    return exp_j_dPhi_R_PHI, dPhi_R_PHI[:, :], d_Q_R_PHI, dQ_ave_R
 
 
 class CouplingMatrix(object):
@@ -214,12 +218,13 @@ class CouplingMatrix(object):
             if beta_fun_rescale is None:
                 beta_fun_rescale = beta_fun_smooth
 
-            exp_j_dPhi_R_PHI, dPhi_R_PHI, d_Q_R_PHI = compute_d_Phi(
+            exp_j_dPhi_R_PHI, dPhi_R_PHI, d_Q_R_PHI, dQ_ave_R = compute_d_Phi(
                     alpha_p, beta_p, phi_vect, r_vect,
                     sin_phi, cos_phi, beta_fun_rescale,
                     omega0, omega_s, eta)
             self.dPhi_R_PHI= dPhi_R_PHI #[:, :]
             self.d_Q_R_PHI = d_Q_R_PHI
+            self.dQ_ave_R = dQ_ave_R
 
             l_vect = np.array(range(l_min, l_max+1))
             m_vect = np.array(range(0, m_max+1))
