@@ -170,6 +170,7 @@ class CouplingMatrix(object):
             l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_b, r_b,
             a_param, omega0, omega_s, eta=None, alpha_p=(), beta_p=(),
             R_tilde_lmn=None, R_lmn=None, MM = None, beta_fun_rescale=None,
+            include_detuning_with_longit_amplitude = False,
             pool_size=0):
 
         self.z_slices = z_slices
@@ -191,6 +192,7 @@ class CouplingMatrix(object):
         self.alpha_p = alpha_p
         self.beta_p = beta_p
         self.beta_fun_rescale = beta_fun_rescale
+        self.include_detuning_with_longit_amplitude = include_detuning_with_longit_amplitude
 
         l_vect = np.array(range(l_min, l_max+1))
         m_vect = np.array(range(0, m_max+1))
@@ -205,9 +207,13 @@ class CouplingMatrix(object):
 
             r_vect = np.linspace(0, r_max, n_r)
             phi_vect = np.linspace(0, 2*np.pi, n_phi+1)[:-1]
+            self.r_vect = r_vect
+            self.phi_vect = phi_vect
 
             dphi = phi_vect[1] - phi_vect[0]
             dr = r_vect[1] - r_vect[0]
+            self.dr = dr
+            self.dphi = dphi
 
             sin_phi = np.sin(phi_vect)
             cos_phi = np.cos(phi_vect)
@@ -225,6 +231,7 @@ class CouplingMatrix(object):
             self.dPhi_R_PHI= dPhi_R_PHI #[:, :]
             self.d_Q_R_PHI = d_Q_R_PHI
             self.dQ_ave_R = dQ_ave_R
+
 
             l_vect = np.array(range(l_min, l_max+1))
             m_vect = np.array(range(0, m_max+1))
@@ -357,6 +364,7 @@ class CouplingMatrix(object):
         else:
             n_cut = self.N_max
 
+
         print('Compute final matrix')
         no_coeff_M_l_m_lp_mp = np.zeros((n_l, n_m, n_l, n_m), dtype=np.complex)
         for i_l, ll in enumerate(self.l_vect):
@@ -372,7 +380,40 @@ class CouplingMatrix(object):
         coeff = -clight*self.a_param/(4*np.pi**2*np.sqrt(2*np.pi)*self.Q_full*self.sigma_b)
         MM = coeff*no_coeff_M_l_m_lp_mp
 
+        if self.include_detuning_with_longit_amplitude:
+            self.compute_M_tilde()
+            for i_l, ll in enumerate(self.l_vect):
+                for i_m, mm in enumerate(self.m_vect):
+                    for i_mp in range(n_m):
+                        MM[i_l, i_m, i_l, i_mp] += self.M_tilde_L_M_Mp[
+                                                    i_l, i_m, i_mp]
         return MM
+
+    def compute_M_tilde(self):
+        print("Compute M_tilde...")
+        n_l = len(self.l_vect)
+        n_m = len(self.m_vect)
+
+        M_tilde_L_M_Mp = np.zeros((n_l, n_m, n_m))
+
+        for il, ll in enumerate(self.l_vect):
+            print(f'l={ll}')
+            r_part = (self.dr * 2 * self.a_param *self.r_vect
+                        * np.exp(-self.a_param * self.r_vect**2)
+                        * (self.a_param*self.r_vect**2)**np.abs(ll) * self.dQ_ave_R)
+            for im, mm in enumerate(self.m_vect):
+                lag_l_m_R_vect =assoc_laguerre(
+                    self.a_param * self.r_vect*self.r_vect,
+                    n=mm, k=np.abs(ll))
+                for imp, mmp in enumerate(self.m_vect):
+                    lag_l_mp_R_vect =assoc_laguerre(
+                        self.a_param * self.r_vect*self.r_vect,
+                        n=mmp, k=np.abs(ll))
+                    temp = gamma(mm + 1) / gamma(np.abs(ll) + mm + 1)
+                    M_tilde_L_M_Mp[il, im, imp]  = self.omega0 * temp * np.sum(
+                            r_part * lag_l_m_R_vect * lag_l_mp_R_vect
+                        )
+        self.M_tilde_L_M_Mp = M_tilde_L_M_Mp
 
     def get_sub_matrix(self, l_min, l_max, m_max, N_max=None):
 
@@ -416,7 +457,9 @@ class CouplingMatrix(object):
             alpha_p = self.alpha_p,
             beta_p = self.beta_p,
             MM = new_MM,
-            beta_fun_rescale=self.beta_fun_rescale)
+            beta_fun_rescale=self.beta_fun_rescale,
+            include_detuning_with_longit_amplitude = self.include_detuning_with_longit_amplitude)
+
 
         return new
 
