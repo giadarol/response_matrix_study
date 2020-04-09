@@ -12,19 +12,19 @@ eta = 0.000318152589
 # start-settings-section
 # Reference
 beta_fun_rescale = 92.7
-l_min = -1#7
-l_max = 1#7
-m_max = 2#30
+l_min = -7
+l_max = 7
+m_max = 20
 n_phi = 3*360
 n_r = 3*200
 N_max = 49
 Qp = 0.
-alpha_N_custom = np.array([-0.02/beta_fun_rescale*4*np.pi])
+alpha_N_custom = []
 n_tail_cut = 0
 save_pkl_fname = 'mode_coupling_matrix.pkl'
 response_matrix_file = '../001_sin_response_scan/response_data_processed.mat'
 z_strength_file = '../001a_sin_response_scan_unperturbed/linear_strength.mat'
-detuning_fit_order = 0
+detuning_fit_order = 10
 include_detuning_with_long_amplitude = True
 pool_size = 4
 flag_solve_and_plot = True

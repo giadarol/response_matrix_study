@@ -5,13 +5,21 @@ from scipy.constants import c as clight
 
 import PyECLOUD.mystyle as ms
 
+strength_scan = np.arange(0., 2., 0.02)[1::]
+
+omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
+omega_s = 4.9e-3*omega0
+simulation_folder = './simulations'
 pkl_fname = 'mode_coupling_matrix.pkl'
 
 l_min = -7
 l_max = 7
-m_max = 20
-N_max = 30
-abs_min_imag_unstab = 1.
+m_max = 10
+N_max = 29
+min_imag_unstab = 1.
+flag_correct_tune = False
+flag_tilt_lines = True
+temp_rescale_DQ = .85
 
 # Plot settings
 l_min_plot = -5
@@ -21,23 +29,35 @@ max_strength_plot = 1.55
 tau_min_plot = 0
 tau_max_plot = 300
 
-with open(pkl_fname, 'rb') as fid:
-    MM_orig = pickle.load(fid)
+Omega_mat = []
+DQ_0_list = []
+for ii in range(0, len(strength_scan)):
+    print(f'{ii}/{len(strength_scan)}')
+    pkl_fname = simulation_folder+(f'/strength_{strength_scan[ii]:.3f}'
+        '/mode_coupling_matrix.pkl')
+    with open(pkl_fname, 'rb') as fid:
+        MM_orig = pickle.load(fid)
 
-MM_obj = MM_orig.get_sub_matrix(l_min, l_max, m_max, N_max)
+    MM_obj = MM_orig.get_sub_matrix(l_min, l_max, m_max, N_max)
 
-omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
-omega_s = 4.9e-3*omega0
+    Omega_array = MM_obj.compute_mode_complex_freq(omega_s)
+    if flag_correct_tune or flag_tilt_lines:
+        if len(MM_obj.alpha_p)>0:
+            print('alpha_p:')
+            print(MM_obj.alpha_p)
+            DQ_0 = -(MM_obj.beta_fun_rescale
+                    * MM_obj.alpha_p[0] /(4*np.pi)*temp_rescale_DQ)
+            if flag_correct_tune:
+                Omega_array += DQ_0 * MM_obj.omega0
+            DQ_0_list.append(DQ_0)
+    Omega_mat.append(Omega_array)
 
-# Mode coupling test
-strength_scan = np.arange(min_strength_plot, max_strength_plot, 0.01)
-Omega_mat = MM_obj.compute_mode_complex_freq(omega_s, rescale_by=strength_scan)
-
+Omega_mat = np.array(Omega_mat)
 import matplotlib.pyplot as plt
 plt.close('all')
-ms.mystyle(fontsz=13, traditional_look=False)
+ms.mystyle(fontsz=14, traditional_look=False)
 
-mask_unstable = np.imag(Omega_mat) < -abs_min_imag_unstab
+mask_unstable = np.imag(Omega_mat) > min_imag_unstab
 Omega_mat_unstable = Omega_mat.copy()
 Omega_mat_unstable[~mask_unstable] = np.nan+1j*np.nan
 
@@ -50,23 +70,16 @@ Omega_mat_mode[~mask_mode] = np.nan
 
 title = f'l_min={l_min}, l_max={l_max}, m_max={m_max}, N_max={N_max}'
 
-figre = plt.figure(200)
+
+plt.figure(200)
 plt.plot(strength_scan, np.real(Omega_mat)/omega_s, '.b')
 plt.plot(strength_scan, np.real(Omega_mat_unstable)/omega_s, '.r')
 plt.suptitle(title)
-plt.grid(True, linestyle=':', alpha=.8)
-plt.xlabel('Strength')
-plt.ylabel(r'Re($\Omega$)/$\omega_s$')
-plt.subplots_adjust(bottom=.12)
 
-figim = plt.figure(201)
+plt.figure(201)
 plt.plot(strength_scan, np.imag(Omega_mat), '.b')
-plt.plot(strength_scan, np.imag(Omega_mat_unstable), '.r')
+plt.plot(strength_scan, np.imag(Omega_mat_mode), '.g')
 plt.suptitle(title)
-plt.grid(True, linestyle=':', alpha=.8)
-plt.xlabel('Strength')
-plt.ylabel(r'Im($\Omega$)')
-plt.subplots_adjust(bottom=.12)
 
 plt.figure(300)
 plt.plot(np.imag(Omega_mat).flatten(),
@@ -74,21 +87,46 @@ plt.plot(np.imag(Omega_mat).flatten(),
 plt.suptitle(title)
 
 
-plt.figure(400)
+fig400 = plt.figure(400)
+ax = fig400.add_subplot(111)
+ax.set_facecolor('grey')
 for ii in range(len(strength_scan)):
     plt.scatter(x=strength_scan[ii]+0*np.imag(Omega_mat[ii, :]),
             y=np.imag(Omega_mat[ii, :]),
             c = np.real(Omega_mat[ii, :])/omega_s,
-            cmap=plt.cm.seismic)
+            cmap=plt.cm.seismic, s=3)
 plt.suptitle(title)
 plt.colorbar()
+
+# fig500 = plt.figure(500, figsize=(1.3*6.4, 1.3*4.8))
+# ax = fig500.add_subplot(111)
+# ax.set_facecolor('grey')
+# im_min_col = 0.1
+# im_max_col = 100
+# im_min_size = 5
+# im_max_size = 50
+# import matplotlib
+# for ii in range(len(strength_scan)):
+#     Omega_ii = Omega_mat[ii, :]
+#     ind_sorted = np.argsort(-np.imag(Omega_ii))
+#     re_sorted = np.take(np.real(Omega_ii), ind_sorted)
+#     im_sorted = np.take(np.imag(Omega_ii), ind_sorted)
+#     plt.scatter(x=strength_scan[ii]+0*np.imag(Omega_mat[ii, :]),
+#             y=re_sorted/omega_s,
+#             c = np.clip(-im_sorted, im_min_col, im_max_col),
+#             cmap=plt.cm.jet,
+#             s=np.clip(-im_sorted, im_min_size, im_max_size),
+#             vmin=im_min_col, vmax=im_max_col,
+#             norm=matplotlib.colors.LogNorm())
+# plt.suptitle(title)
+# plt.colorbar()
 
 fig500 = plt.figure(500)#, figsize=(1.3*6.4, 1.3*4.8))
 ax = fig500.add_subplot(111)
 ax.set_facecolor('grey')
 im_min_col = 5
 im_max_col = 200
-im_min_size = 5
+im_min_size = 10
 im_max_size = 50
 import matplotlib
 for ii in range(len(strength_scan)):
@@ -108,8 +146,15 @@ ax.set_xlim(min_strength_plot, max_strength_plot)
 ax.set_ylim(l_min_plot, l_max_plot)
 fig500.subplots_adjust(right=1.)
 for lll in range(l_min_plot-10, l_max_plot+10):
-    ax.plot(strength_scan, 0*strength_scan+lll, color='w',
+    if flag_tilt_lines:
+        add_to_line = np.array(DQ_0_list)*omega0/omega_s
+    else:
+        add_to_line = 0.
+    ax.plot(strength_scan,
+            0*strength_scan + lll + add_to_line,
+            color='w',
             alpha=.5, linestyle='--')
+ax.tick_params(right=True, top=True)
 plt.colorbar()
 
 figtau = plt.figure(600)
@@ -122,5 +167,6 @@ axtau.set_xlim(min_strength_plot, max_strength_plot)
 axtau.set_ylim(tau_min_plot, tau_max_plot)
 axtau.grid(True, linestyle=':')
 figtau.suptitle(title)
+
 plt.show()
 
