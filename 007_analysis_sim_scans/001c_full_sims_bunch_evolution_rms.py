@@ -150,7 +150,7 @@ folders_compare = [
       #f'../005t1_strength_scan_linrf6MV_all_harmonics_dip_matrix_only/simulations_long/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t2_strength_scan_linrf6MV_all_harmonics_dip_matrix_phshift/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t2a_strength_scan_linrf6MV_all_harmonics_dip_matrix_phshift_staticDq/simulations/strength_{ss:.2e}/' for ss in strength_list]
-      f'../005t2af_strength_scan_linrf6MV_all_harmonics_dip_matrix_phshift_staticDqwfactor/simulations_long/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005t2af_strength_scan_linrf6MV_all_harmonics_dip_matrix_phshift_staticDqwfactor/simulations_long/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t2b_strength_scan_linrf6MV_all_harmonics_dip_matrix_phshift_other_tune/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t2c_strength_scan_linrf6MV_all_harmonics_dip_matrix_phshift_Qp5/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t3_strength_scan_linrf6MV_all_harmonics_dip_matrix_zdetuning/simulations_long/strength_{ss:.2e}/' for ss in strength_list]
@@ -163,6 +163,7 @@ folders_compare = [
       #f'../005t4c2_strength_scan_linrf6MV_all_harmonics_dip_matrix_nonlinearmap_Qp10/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t5_strength_scan_linrf6MV_all_harmonics_dip_matrix_phase_and_recentered_nlmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t5a_strength_scan_linrf6MV_all_harmonics_dip_matrix_tune_and_recentered_nlmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      f'../005t6_strength_scan_linrf6MV_all_harmonics_dip_matrix_zdetuning_staticnlmap/simulations_long/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005d_strength_scan_6MV_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005e_strength_scan_6MV_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005f_strength_scan_6MV_map_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
@@ -180,14 +181,14 @@ folders_compare = [
      #  '/simulations_PyPARIS/'
      #  f'initial_kick_no_damper_no_recenter_slices_length_factor_{ss:.3f}') for ss in strength_list]
 fft2mod = 'lin'
-fname = 'compact_t4'
-fname = None
+fname = 'compact_t6'
+#fname = None
 i_start_list = None
 n_turns = len(strength_list)*[8000]
 cmap = plt.cm.rainbow
-i_force_line = 2
+i_force_line = None
 fit_cut = 5000
-flag_no_slice = True
+flag_no_slice = False
 flag_compact = True
 #######################################################################
 
@@ -236,8 +237,16 @@ for ifol, folder in enumerate(folders_compare):
     if not flag_no_slice:
         sim_curr_list_slice_ev = ps.sort_properly(
                 glob.glob(folder_curr_sim+'/slice_evolution_*.h5'))
-        ob_slice = mfm.monitorh5list_to_obj(
-                sim_curr_list_slice_ev, key='Slices', flag_transpose=True)
+        for attempt in range(10):
+            print('Attempt', attempt)
+            try:
+                ob_slice = mfm.monitorh5list_to_obj(
+                    sim_curr_list_slice_ev, key='Slices', flag_transpose=True)
+                break
+            except Exception as err:
+                ob_slice=None
+        if ob_slice is None:
+            raise(err)
 
     try:
         import pickle

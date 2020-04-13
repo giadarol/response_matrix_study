@@ -12,7 +12,7 @@ n_osc_list = range(200)
 
 cos_ampl = 0
 sin_ampl = 1e-4
-n_osc_list = range(1,200)
+n_osc_list = range(1,200)[5:6]
 
 for n_osc in n_osc_list:
 

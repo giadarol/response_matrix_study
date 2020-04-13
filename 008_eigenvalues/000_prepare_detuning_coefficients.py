@@ -3,10 +3,11 @@ import matplotlib.pyplot as plt
 from scipy.constants import c as clight
 
 import PyECLOUD.myfilemanager as mfm
+import PyECLOUD.mystyle as ms
 
 n_phi = 360
 n_r = 200
-beta_fun = 100.
+beta_fun = 92.7
 omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
 omega_s = 4.9e-3*omega0
 
@@ -57,12 +58,20 @@ dQ_obs = np.squeeze(np.array([ dQ_obs_fun(rr, pp) for rr,pp in zip(r_obs, phi_ob
 k_obs = - dQ_obs*4*np.pi/beta_fun
 
 plt.close('all')
+ms.mystyle_arial(fontsz=14, dist_tick_lab=5, traditional_look=False)
 fig100 = plt.figure(100)
 ax101 = fig100.add_subplot(111)
-ax101.plot(ob.z_slices, ob.k_z_integrated)
-ax101.plot(ob.z_slices, np.polyval(p, ob.z_slices))
-ax101.plot(ob.z_slices, k_obs)
+ax101.plot(100*ob.z_slices, -1/(4*np.pi)*beta_fun*ob.k_z_integrated, lw=2)
+ax101.plot(100*ob.z_slices, dQ_obs, linestyle='--',
+        lw=2, color='C3', alpha=0.8)
 
+ax101.ticklabel_format(axis='y', style='sci', scilimits=(-1, 1))
+ax101.set_xlim(-30, 30)
+ax101.set_ylim(bottom=0)
+ax101.set_xlabel('z [cm]')
+ax101.set_ylabel('Tune deviation')
+ax101.grid(True, linestyle=':')
+fig100.subplots_adjust(bottom=.12)
 
 # fig200 = plt.figure(200)
 # ax201 = fig200.add_subplot(111, polar=True)

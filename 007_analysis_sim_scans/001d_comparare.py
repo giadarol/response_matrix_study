@@ -11,7 +11,7 @@ l_min = -5
 l_max = 3
 alpha_0 = -1.61237838e-03
 min_strength = 0
-max_strength = 1.55
+max_strength = 2
 tau_min = 0
 tau_max = 300
 
@@ -22,12 +22,13 @@ dict_plot = {
         #'t1':  {'fname':'./processed_data/compact_t1_fit.mat', 'tilt_lines':False, 'scale_x':1},
         #'t2': {'fname':'./processed_data/compact_t2_fit.mat', 'tilt_lines':False, 'scale_x':1},
         't2af':{'fname':'./processed_data/compact_t2af_fit.mat', 'tilt_lines':True, 'scale_x':1},
-        #'t3': {'fname':'./processed_data/compact_t3_fit.mat', 'tilt_lines':True, 'scale_x':1},
+        't3': {'fname':'./processed_data/compact_t3_fit.mat', 'tilt_lines':True, 'scale_x':1},
         't4': {'fname':'./processed_data/compact_t4_fit.mat', 'tilt_lines':True, 'scale_x':1},
+        't6': {'fname':'./processed_data/compact_t6_fit.mat', 'tilt_lines':True, 'scale_x':1},
         'pic':{'fname':'./processed_data/compact_pic_fit.mat', 'tilt_lines':True, 'scale_x':1.},
         }
-colorlist = ['b', 'r', 'k']
-#colorlist = None #['b', 'r', 'g']
+colorlist = ['b', 'r', 'g', 'orange', 'k']
+#colorlist = None
 
 plt.close('all')
 fig1 = plt.figure(1, figsize=(6.4*1.2, 4.8))

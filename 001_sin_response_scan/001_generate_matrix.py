@@ -43,7 +43,11 @@ import scipy.io as sio
 sio.savemat('response_data.mat',{
     'x_mat': x_mat,
     'z_slices': z_slices,
-    'dpx_mat': dpx_mat})
+    'dpx_mat': dpx_mat,
+    'sin_ampl_list':np.array(sin_ampl_list),
+    'cos_ampl_list':np.array(cos_ampl_list),
+    'n_osc_list':np.array(n_osc_list),
+    })
 
 
 x_mat = np.array(x_mat)

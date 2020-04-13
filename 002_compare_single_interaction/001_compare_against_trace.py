@@ -11,15 +11,17 @@ import sys
 sys.path.append('../')
 import response_matrix.response_matrix as rm
 
-# test_data_file = './refsim_turn302.mat'
-# n_terms_list = range(1, 201, 2)
-# n_tail_cut = 10
-# response_data_file = '../001_sin_response_scan/response_data.mat'
-
-test_data_file = './test_pulse.mat'
-n_terms_list = [200]
+test_data_file = './refsim_turn302.mat'
+#n_terms_list = range(1, 201, 2)
+n_terms_list = [12]
 n_tail_cut = 10
-response_data_file = '../001_sin_response_scan/response_data.mat'
+response_data_file = '../001_sin_response_scan/response_data_processed.mat'
+z_strength_file = '../001a_sin_response_scan_unperturbed/linear_strength.mat'
+
+#test_data_file = './test_pulse.mat'
+#n_terms_list = [200]
+#n_tail_cut = 10
+#response_data_file = '../001_sin_response_scan/response_data.mat'
 
 sim_param_file = '../reference_simulation/Simulation_parameters.py'
 sim_param_amend_files = ['../Simulation_parameters_amend.py']
@@ -83,6 +85,12 @@ for n_terms_to_be_kept in n_terms_list:
 
     # Apply matrix
     respmat.track(bunch)
+
+    # Apply detuning
+    if z_strength_file is not None:
+        obdet = mfm.myloadmat_to_obj(z_strength_file)
+        bunch.xp = bunch.xp + bunch.x * np.interp(bunch.z, obdet.z_slices,
+                obdet.k_z_integrated) / sim_content.n_segments
 
     # Measure kicks
     bunch.clean_slices()

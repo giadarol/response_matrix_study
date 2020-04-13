@@ -37,14 +37,24 @@ for ss in range(len(ob.zg)):
 
 Ex_lin_ave = 0*Ex_lin
 Ey_lin_ave = 0*Ex_lin
-
-
 for ss in range(len(ob.zg)):
     for iy in range(len(ob.yg)):
         Ex_lin_ave[ss, :, iy] = np.mean(k_x_list)*ob.xg
 
     for ix in range(len(ob.xg)):
         Ey_lin_ave[ss, ix :] = np.mean(k_y_list)*ob.yg
+
+Ex_nonlin = ob.Ex_L_map - Ex_lin
+Ey_nonlin = ob.Ey_L_map - Ey_lin
+
+Ex_nonlin_ave = 0*Ex_nonlin
+Ey_nonlin_ave = 0*Ex_nonlin
+for ss in range(len(ob.zg)):
+    for iy in range(len(ob.yg)):
+        Ex_nonlin_ave[ss, :, :] = np.mean(Ex_nonlin, axis=0)
+    for ix in range(len(ob.xg)):
+        Ey_nonlin_ave[ss, :, :] = np.mean(Ey_nonlin, axis=0)
+
 
 dictlin = {kk: getattr(ob, kk) for kk in dir(ob) if not kk.startswith('__')}
 dictlin['Ex_L_map'] = Ex_lin
@@ -60,14 +70,19 @@ dictlinnoave['Ex_L_map'] = Ex_lin - Ex_lin_ave
 dictlinnoave['Ey_L_map'] = Ey_lin - Ey_lin_ave
 
 dictnonlin = {kk: getattr(ob, kk) for kk in dir(ob) if not kk.startswith('__')}
-dictnonlin['Ex_L_map'] = ob.Ex_L_map - Ex_lin
-dictnonlin['Ey_L_map'] = ob.Ey_L_map - Ey_lin
+dictnonlin['Ex_L_map'] = Ex_nonlin
+dictnonlin['Ey_L_map'] = Ey_nonlin
+
+dictnonlinave = {kk: getattr(ob, kk) for kk in dir(ob) if not kk.startswith('__')}
+dictnonlinave['Ex_L_map'] = Ex_nonlin_ave
+dictnonlinave['Ey_L_map'] = Ey_nonlin_ave
 
 import scipy.io as sio
 sio.savemat('field_map_lin.mat', dictlin)
 sio.savemat('field_map_lin_ave.mat', dictlinave)
 sio.savemat('field_map_lin_noave.mat', dictlinnoave)
 sio.savemat('field_map_nonlin.mat', dictnonlin)
+sio.savemat('field_map_nonlinave.mat', dictnonlinave)
 
 i_slice = 100
 

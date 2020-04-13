@@ -10,6 +10,8 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import statsmodels.api as sm
 
 import PyECLOUD.myfilemanager as mfm
+import PyECLOUD.mystyle as ms
+
 
 from PyPARIS_sim_class import LHC_custom
 
@@ -47,7 +49,8 @@ def extract_info_from_sim_param(fname):
     return ddd
 
 plt.close('all')
-plt.rcParams.update({'font.size': 12})
+ms.mystyle_arial(fontsz=14, dist_tick_lab=5,
+        traditional_look=False)
 
 figglob = plt.figure(1)
 axglob = figglob.add_subplot(111)
@@ -55,6 +58,8 @@ axdistrlist = []
 figfplist = []
 fighlist = []
 figvlist = []
+fig_comb_h = plt.figure(2)
+ax_comb_h = fig_comb_h.add_subplot(111)
 for ifol, folder in enumerate(folders):
     try:
         import pickle
@@ -171,6 +176,13 @@ for ifol, folder in enumerate(folders):
             hspace=0.2,
             wspace=0.2)
     figvlist.append(fig3)
+
+    kwargs = {'markersize': 2}
+    if ifol<2:
+        kwargs['color'] = ['C0', 'C3'][ifol]
+        kwargs['markersize'] = [1, 5][ifol]
+    ax_comb_h.plot(ob.z_init*1e2,
+            np.abs(ob.qy_i)-frac_qy, '.', **kwargs)
     # sigma_x = np.sqrt(pars['epsn_x']*betax/machine.betagamma)
     # sigma_y = np.sqrt(pars['epsn_y']*betay/machine.betagamma)
     # mask_small_amplitude = np.sqrt(
@@ -191,6 +203,13 @@ axglob.grid(True, linestyle='--', alpha=0.5)
 axglob.set_ylim(bottom=0)
 axglob.set_ylabel('Density [a.u.]')
 axglob.set_xlabel('Q$_x$')
+
+ax_comb_h.ticklabel_format(style='sci', scilimits=(0, 0), axis='y')
+ax_comb_h.set_ylim(bottom=0)
+ax_comb_h.grid(True, linestyle=':')
+ax_comb_h.set_ylabel('Tune deviation')
+ax_comb_h.set_xlabel('z [cm]')
+fig_comb_h.subplots_adjust(bottom=.12)
 
 for aa in axdistrlist:
     aa.set_ylim(axglob.get_ylim())
