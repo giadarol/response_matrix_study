@@ -7,7 +7,7 @@ from multiprocessing import Pool
 def compute_R_tilde_for_one_l(
         i_l, ll, n_m, n_r, n_n, m_vect, i_l_zero, n_l_pos,
         e_L_PHI_mat, r_vect, phi_vect,
-        r_b, sigma_b, a_param, dr, dphi,
+        r_b, sigma_b, a_param, lambda_param, dr, dphi,
         cos_phi, cos2_phi, z_slices,
         HH, H_N_2_vect, exp_j_dPhi_R_PHI):
 
@@ -20,7 +20,7 @@ def compute_R_tilde_for_one_l(
                 a_param * r_vect*r_vect, n=mm, k=np.abs(ll))
         r_part_l_M_R_mat[i_m, :]  = (
                   dr * r_vect
-                * (r_vect/r_b)**np.abs(ll)
+                * (r_vect/r_b)**(lambda_param*np.abs(ll))
                 * lag_l_m_R_vect
                 )
         for nn in range(n_n):
@@ -51,7 +51,7 @@ def compute_R_tilde_for_one_l(
 def compute_R_for_one_l(
         i_l, ll, n_m, n_r, n_n, m_vect, i_l_zero, n_l_pos,
         e_L_PHI_mat, r_vect, phi_vect,
-        r_b, sigma_b, a_param, dr, dphi,
+        r_b, sigma_b, a_param, lambda_param, dr, dphi,
         cos_phi, z_slices, KK, exp_j_dPhi_R_PHI):
 
     r_part_l_M_R_mat = np.zeros((n_m, n_r))
@@ -63,7 +63,8 @@ def compute_R_for_one_l(
                 a_param * r_vect*r_vect, n=mm, k=np.abs(ll))
         r_part_l_M_R_mat[i_m, :]  = (
                   dr * r_vect
-                * (a_param*r_b*r_vect)**np.abs(ll)
+                * a_param**np.abs(ll)*r_b**(lambda_param*np.abs(ll))
+                * r_vect**((2-lambda_param)*np.abs(ll))
                 * lag_l_m_R_vect
                 * np.exp(-r_vect**2 / (2*sigma_b**2))
                 )
@@ -168,7 +169,7 @@ class CouplingMatrix(object):
 
     def __init__(self, z_slices, HH, KK, l_min,
             l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_b, r_b,
-            a_param, omega0, omega_s, eta=None, alpha_p=(), beta_p=(),
+            a_param, lambda_param, omega0, omega_s, eta=None, alpha_p=(), beta_p=(),
             R_tilde_lmn=None, R_lmn=None, MM = None, beta_fun_rescale=None,
             include_detuning_with_longit_amplitude = False,
             pool_size=0):
@@ -186,6 +187,7 @@ class CouplingMatrix(object):
         self.sigma_b  = sigma_b
         self.r_b      = r_b
         self.a_param  = a_param
+        self.lambda_param  = lambda_param
         self.omega0 = omega0
         self.omega_s = omega_s
         self.eta = eta
@@ -265,7 +267,7 @@ class CouplingMatrix(object):
                     R_plus_curr, R_minus_curr = compute_R_tilde_for_one_l(
                         i_l, ll, n_m, n_r, n_n, m_vect, i_l_zero, n_l_pos,
                         e_L_PHI_mat, r_vect, phi_vect,
-                        r_b, sigma_b, a_param, dr, dphi,
+                        r_b, sigma_b, a_param, lambda_param, dr, dphi,
                         cos_phi, cos2_phi, z_slices, HH, H_N_2_vect,
                         exp_j_dPhi_R_PHI)
                     R_tilde_lmn[i_l, :, :] = R_plus_curr
@@ -278,7 +280,7 @@ class CouplingMatrix(object):
                     pool = Pool(processes=pool_size)
                 other_args= [n_m, n_r, n_n, m_vect, i_l_zero, n_l_pos,
                     e_L_PHI_mat, r_vect, phi_vect,
-                    r_b, sigma_b, a_param, dr, dphi,
+                    r_b, sigma_b, a_param, lambda_param, dr, dphi,
                     cos_phi, cos2_phi, z_slices, HH, H_N_2_vect,
                     exp_j_dPhi_R_PHI]
                 i_l = 0
@@ -310,7 +312,7 @@ class CouplingMatrix(object):
                     R_plus_curr, R_minus_curr = compute_R_for_one_l(
                         i_l, ll, n_m, n_r, n_n, m_vect, i_l_zero, n_l_pos,
                         e_L_PHI_mat, r_vect, phi_vect,
-                        r_b, sigma_b, a_param, dr, dphi,
+                        r_b, sigma_b, a_param, lambda_param, dr, dphi,
                         cos_phi, z_slices, KK, exp_j_dPhi_R_PHI)
                     R_lmn[i_l, :, :] = R_plus_curr
                     i_ml = np.where(l_vect==-ll)[0][0]
@@ -322,7 +324,7 @@ class CouplingMatrix(object):
                     pool = Pool(processes=pool_size)
                 other_args= [n_m, n_r, n_n, m_vect, i_l_zero, n_l_pos,
                         e_L_PHI_mat, r_vect, phi_vect,
-                        r_b, sigma_b, a_param, dr, dphi,
+                        r_b, sigma_b, a_param, lambda_param, dr, dphi,
                         cos_phi, z_slices, KK, exp_j_dPhi_R_PHI]
                 i_l = 0
                 while (i_l<n_l):
@@ -436,6 +438,8 @@ class CouplingMatrix(object):
             self.eta = None
         if not hasattr(self, 'beta_p'):
             self.beta_p = ()
+        if not hasattr(self, 'lambda_param'):
+            self.lambda_param = 1
 
         new = CouplingMatrix(
             z_slices=self.z_slices,
@@ -451,6 +455,7 @@ class CouplingMatrix(object):
             sigma_b=self.sigma_b,
             r_b=self.r_b,
             a_param=self.a_param,
+            lambda_param=self.lambda_param,
             omega0 = self.omega0,
             omega_s = self.omega_s,
             eta=self.eta,

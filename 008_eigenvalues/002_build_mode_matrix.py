@@ -8,26 +8,28 @@ import PyECLOUD.myfilemanager as mfm
 from mode_coupling_matrix import CouplingMatrix
 
 eta = 0.000318152589
+lambda_param = 1
 
 # start-settings-section
 # Reference
 beta_fun_rescale = 92.7
 l_min = -7
 l_max = 7
-m_max = 20
+m_max = 0# 20
 n_phi = 3*360
 n_r = 3*200
 N_max = 49
 Qp = 0.
 alpha_N_custom = []
-n_tail_cut = 300
+n_tail_cut = 0
 save_pkl_fname = 'mode_coupling_matrix.pkl'
 response_matrix_file = '../001_sin_response_scan/response_data_processed.mat'
 z_strength_file = '../001a_sin_response_scan_unperturbed/linear_strength.mat'
-detuning_fit_order = 10
+detuning_fit_order =  10
 include_detuning_with_long_amplitude = True
 pool_size = 4
 flag_solve_and_plot = True
+lambda_param = 0. #1
 
 omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
 omega_s = 4.9e-3*omega0
@@ -79,7 +81,7 @@ z_slices = ob.z_slices
 # Build matrix
 MM_obj = CouplingMatrix(z_slices, HH, cloud_rescale_by*KK, l_min,
         l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_b, r_b,
-        a_param, omega0, omega_s, eta,
+        a_param, lambda_param, omega0, omega_s, eta,
         alpha_p=alpha_N,
         beta_p = beta_N, beta_fun_rescale=beta_fun_rescale,
         include_detuning_with_longit_amplitude=include_detuning_with_long_amplitude,
