@@ -10,7 +10,7 @@ pkl_fname = 'mode_coupling_matrix.pkl'
 l_min = -7
 l_max = 7
 m_max = 20
-N_max = 30
+N_max = 49
 abs_min_imag_unstab = 1.
 
 # Plot settings

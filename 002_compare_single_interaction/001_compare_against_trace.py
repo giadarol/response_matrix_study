@@ -172,7 +172,7 @@ for ifig, n_terms_to_be_kept in enumerate(n_terms_list):
     axg2.plot(1e2*slices_test.z_centers, 1e3*x_reconstr,
             label=f'n={n_terms_to_be_kept}', **kwargs, lw=2)
     ln = axg3.plot(1e2*slices_test.z_centers, 1e6*slices_test.mean_xp,
-            label=f'n={n_terms_to_be_kept}', **kwargs, lw=2)
+            label=f'N={n_terms_to_be_kept}', **kwargs, lw=2)
     line_list += ln
 
 #axg1.set_ylim(-2.5, 2.5)
@@ -187,7 +187,7 @@ axg3.legend(handles=lines_pic+line_list,
            ncol=4, mode="expand", borderaxespad=0., frameon=False)
 axg3.set_xlabel('z [cm]')
 axg2.set_ylabel('x [mm]')
-axg3.set_ylabel(r'$\Delta$p$_x$ [$\mu$rad]')
+axg3.set_ylabel(r"$\Delta$x' [$\mu$rad]")
 axg3.ticklabel_format(style='sci', scilimits=(0,0),axis='y')
 axg2.ticklabel_format(style='sci', scilimits=(0,0),axis='y')
 axg2.xaxis.set_tick_params(labelbottom=False)

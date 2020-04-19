@@ -10,6 +10,7 @@ n_r = 200
 beta_fun = 92.7
 omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
 omega_s = 4.9e-3*omega0
+sigma_b = 0.097057
 
 
 ob = mfm.myloadmat_to_obj('../001a_sin_response_scan_unperturbed/linear_strength.mat')
@@ -73,9 +74,11 @@ ax101.set_ylabel('Tune deviation')
 ax101.grid(True, linestyle=':')
 fig100.subplots_adjust(bottom=.12)
 
+lambda_b = np.exp(-z_slices**2/(2*sigma_b**2))
 # fig200 = plt.figure(200)
 # ax201 = fig200.add_subplot(111, polar=True)
 # ax201.pcolormesh(phi_vect[:-1], r_vect, d_Q_R_PHI)
 
+wavg_DQ = np.sum(lambda_b*dQ_obs)/np.sum(lambda_b)
 
 plt.show()
