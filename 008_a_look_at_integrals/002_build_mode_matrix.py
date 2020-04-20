@@ -20,7 +20,7 @@ sigma_b = 1e-9/4*clight
 r_b = 4*sigma_b
 
 a_param = 8./r_b**2
-
+lambda_param = 1.
 Nb_ref = 6e11
 ob = mfm.myloadmat_to_obj('../001_sin_response_scan/response_data.mat')
 HH = ob.x_mat
@@ -30,7 +30,7 @@ z_slices = ob.z_slices
 
 MM_obj = CouplingMatrix(z_slices, HH, KK, l_min,
         l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_b, r_b,
-        a_param, omega0=omega0, omega_s=omega_s, pool_size=n_pool)
+        a_param, lambda_param, omega0=omega0, omega_s=omega_s, pool_size=n_pool)
 
 
 # Mode coupling test
