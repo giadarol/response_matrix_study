@@ -17,6 +17,7 @@ max_strength_plot = 0.6
 tau_min_plot = 0
 tau_max_plot = 300
 flag_tilt_lines = False
+flag_mode0 = True
 
 ob = mfm.myloadmat_to_obj('eigenvalues.mat')
 Omega_mat = ob.Omega_mat
@@ -43,6 +44,10 @@ im_max_col = 200
 im_min_size = 5
 im_max_size = 50
 import matplotlib
+if flag_mode0:
+    maskmode0 = np.abs(np.real(M00_array)/omega_s)<0.9
+    ax.plot(strength_scan[maskmode0], np.real(M00_array)[maskmode0]/omega_s, '--',
+        linewidth=2, color='w', alpha=0.7)
 for ii in range(len(strength_scan)):
     Omega_ii = Omega_mat[ii, :]
     ind_sorted = np.argsort(-np.imag(Omega_ii))
@@ -54,7 +59,8 @@ for ii in range(len(strength_scan)):
             cmap=plt.cm.jet,
             s=np.clip(-im_sorted, im_min_size, im_max_size),
             vmin=im_min_col, vmax=im_max_col,
-            norm=matplotlib.colors.LogNorm())
+            norm=matplotlib.colors.LogNorm(),
+            )
 #plt.suptitle(title)
 ax.set_xlim(min_strength_plot, max_strength_plot)
 ax.set_ylim(l_min_plot, l_max_plot)

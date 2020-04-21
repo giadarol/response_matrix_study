@@ -53,7 +53,8 @@ for ii in range(0, len(strength_scan)):
                 Omega_array += DQ_0 * MM_obj.omega0
             DQ_0_list.append(DQ_0)
     Omega_mat.append(Omega_array)
-    M00_list.append(MM_obj.MM[0,0,0,0])
+    i_l0 = np.argmin(np.abs(MM_obj.l_vect))
+    M00_list.append(MM_obj.MM[i_l0,0,i_l0,0])
 
 Omega_mat = np.array(Omega_mat)
 import matplotlib.pyplot as plt
