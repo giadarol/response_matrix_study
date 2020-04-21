@@ -7,11 +7,19 @@ import PyECLOUD.mystyle as ms
 
 pkl_fname = 'mode_coupling_matrix.pkl'
 
-l_min = -5
-l_max = 5
-m_max = 5
-N_max = 30
+l_min = -7
+l_max = 7
+m_max = 20
+N_max = 29
 abs_min_imag_unstab = 1.
+
+# Plot settings
+l_min_plot = -5
+l_max_plot = 3
+min_strength_plot = 0
+max_strength_plot = 0.6
+tau_min_plot = 0
+tau_max_plot = 300
 
 with open(pkl_fname, 'rb') as fid:
     MM_orig = pickle.load(fid)
@@ -22,12 +30,12 @@ omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
 omega_s = 4.9e-3*omega0
 
 # Mode coupling test
-strength_scan = np.arange(0, 1, 0.005)
+strength_scan = np.arange(min_strength_plot, max_strength_plot, 0.005)
 Omega_mat = MM_obj.compute_mode_complex_freq(omega_s, rescale_by=strength_scan)
 
 import matplotlib.pyplot as plt
 plt.close('all')
-ms.mystyle(fontsz=14, traditional_look=False)
+ms.mystyle(fontsz=13, traditional_look=False)
 
 mask_unstable = np.imag(Omega_mat) < -abs_min_imag_unstab
 Omega_mat_unstable = Omega_mat.copy()
@@ -75,7 +83,7 @@ for ii in range(len(strength_scan)):
 plt.suptitle(title)
 plt.colorbar()
 
-fig500 = plt.figure(500, figsize=(1.3*6.4, 1.3*4.8))
+fig500 = plt.figure(500)#, figsize=(1.3*6.4, 1.3*4.8))
 ax = fig500.add_subplot(111)
 ax.set_facecolor('grey')
 im_min_col = 5
@@ -96,7 +104,23 @@ for ii in range(len(strength_scan)):
             vmin=im_min_col, vmax=im_max_col,
             norm=matplotlib.colors.LogNorm())
 plt.suptitle(title)
+ax.set_xlim(min_strength_plot, max_strength_plot)
+ax.set_ylim(l_min_plot, l_max_plot)
+fig500.subplots_adjust(right=1.)
+for lll in range(l_min_plot-10, l_max_plot+10):
+    ax.plot(strength_scan, 0*strength_scan+lll, color='w',
+            alpha=.5, linestyle='--')
 plt.colorbar()
 
+figtau = plt.figure(600)
+axtau = figtau.add_subplot(111)
+axtau.plot(strength_scan, np.imag(Omega_mat),
+        '.', color='grey', alpha=0.5)
+axtau.plot(strength_scan, np.max(-np.imag(Omega_mat), axis=1),
+        linewidth=2, color='b')
+axtau.set_xlim(min_strength_plot, max_strength_plot)
+axtau.set_ylim(tau_min_plot, tau_max_plot)
+axtau.grid(True, linestyle=':')
+figtau.suptitle(title)
 plt.show()
 

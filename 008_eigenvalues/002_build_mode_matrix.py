@@ -13,18 +13,19 @@ lambda_param = 1
 # start-settings-section
 # Reference
 beta_fun_rescale = 92.7
-l_min = -5
-l_max = 5
-m_max = 5
+l_min = -7
+l_max = 7
+m_max = 20
 n_phi = 3*360
 n_r = 3*200
-N_max = 49
+N_max = 29
 Qp=0.
 alpha_N_custom = [] #np.array([0., 0e-3, 2e-1])
 n_tail_cut = 0
 save_pkl_fname = 'mode_coupling_matrix.pkl'
 response_matrix_file = '../001_sin_response_scan/response_data.mat'
-z_strength_file = '../001a_sin_response_scan_unperturbed/linear_strength.mat'
+z_strength_file = '../001a_sin_response_scan_quadrupolar/linear_strength.mat'
+factor_on_strength_file = -1.
 detuning_fit_order = 0
 include_detuning_with_long_amplitude = True
 pool_size =  4
@@ -62,7 +63,7 @@ if detuning_fit_order > 0:
     obdet = mfm.myloadmat_to_obj(z_strength_file)
     z_slices = obdet.z_slices
     p = np.polyfit(obdet.z_slices, obdet.k_z_integrated, deg=detuning_fit_order)
-    alpha_N = cloud_rescale_by*p[::-1] # Here I fit the strength
+    alpha_N = factor_on_strength_file*cloud_rescale_by*p[::-1] # Here I fit the strength
 else:
     alpha_N = alpha_N_custom
 

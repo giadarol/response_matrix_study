@@ -59,7 +59,6 @@ T_rev = 88.9e-6
 strength_list = np.arange(0.02, 1.0, 0.005)
 strength_list = np.arange(0.01, 1.0, 0.01)
 strength_list = np.arange(0.01, 0.6, 0.005)
-#strength_list = np.arange(0.2, 0.3, 0.05)
 labels = [f'strength {ss:.3f}' for ss in strength_list]
 folders_compare = [
       #f'../005a_pyheadtail_impedance_strength_scan/simulations/strength_{ss:.2e}/' for ss in strength_list]
@@ -70,14 +69,14 @@ folders_compare = [
       #f'../005e1_imped_alone/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005e2_imped_phase_shift_zsquare/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005e3_imped_tune_shift_zsquare/simulations/strength_{ss:.2e}/' for ss in strength_list]
-      #f'../005f1_imped_dipolar_alone/simulations/strength_{ss:.2e}/' for ss in strength_list]
-      #f'../005f2_imped_dipolar_neg_quad/simulations/strength_{ss:.2e}/' for ss in strength_list]
-      f'../005f3_imped_dipolar_pos_quad/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005f1_imped_dipolar_alone/simulations_long/strength_{ss:.2e}/' for ss in strength_list]
+      f'../005f2_imped_dipolar_neg_quad/simulations_long/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005f3_imped_dipolar_pos_quad/simulations_long/strength_{ss:.2e}/' for ss in strength_list]
 fft2mod = 'lin'
-#fname = 'impedance_'
-fname = None
+fname = 'impedance_quad_neg'
+#fname = None
 i_start_list = None
-n_turns = len(folders_compare)*[10000000]
+n_turns = len(strength_list)*[8000]
 cmap = plt.cm.rainbow
 i_force_line = 0
 fit_cut = 5000
@@ -109,10 +108,14 @@ ax11 = fig1.add_subplot(3,1,1)
 ax12 = fig1.add_subplot(3,1,2, sharex=ax11)
 ax13 = fig1.add_subplot(3,1,3, sharex=ax11)
 
+figemi = plt.figure(5, figsize=(6.4*1.3, 4.8))
+axemi = figemi.add_subplot(111)
+
 p_list = []
 p_list_centroid = []
 freq_list = []
 ap_list = []
+n_sample_list = []
 an_list =[]
 for ifol, folder in enumerate(folders_compare):
 
@@ -126,8 +129,16 @@ for ifol, folder in enumerate(folders_compare):
     if not flag_no_slice:
         sim_curr_list_slice_ev = ps.sort_properly(
                 glob.glob(folder_curr_sim+'/slice_evolution_*.h5'))
-        ob_slice = mfm.monitorh5list_to_obj(
-                sim_curr_list_slice_ev, key='Slices', flag_transpose=True)
+        for attempt in range(10):
+            print('Attempt', attempt)
+            try:
+                ob_slice = mfm.monitorh5list_to_obj(
+                    sim_curr_list_slice_ev, key='Slices', flag_transpose=True)
+                break
+            except Exception as err:
+                ob_slice=None
+        if ob_slice is None:
+            raise(err)
 
     try:
         import pickle
@@ -139,6 +150,8 @@ for ifol, folder in enumerate(folders_compare):
         print(config_module_file)
         pars = mfm.obj_from_dict(
                 extract_info_from_sim_param(config_module_file))
+
+    q_frac = np.modf(pars.Q_x)[0]
 
     if not flag_no_slice:
         w_slices = ob_slice.n_macroparticles_per_slice
@@ -154,7 +167,9 @@ for ifol, folder in enumerate(folders_compare):
     else:
         kwargs = {}
     ax11.plot(ob.mean_x[mask_zero]*1e3, label=labels[ifol], **kwargs)
-    ax12.plot(ob.epsn_x[mask_zero]*1e6, **kwargs)
+    ax12.plot(ob.epsn_x[mask_zero]*1e6, label=labels[ifol], **kwargs)
+
+    axemi.plot(ob.epsn_x[mask_zero]*1e6, label=labels[ifol], **kwargs)
 
     # Fit risetime centroid
     x_fit_centroid = np.arange(len(ob.mean_x[mask_zero]), dtype=np.float)
@@ -373,7 +388,7 @@ for ifol, folder in enumerate(folders_compare):
     # r cos + j r sin + ji cos - i sin | + r cos -j r sin -jicos -i sin = 
     # 2r cos - 2 i sin
 
-    if fname is not None:
+    if fname is not None and not flag_no_slice:
         figffts.savefig(fname+'_' + labels[ifol].replace(
             ' ', '_').replace('=', '').replace('-_', '')+'.png', dpi=200)
     if flag_close_figffts:
@@ -392,11 +407,13 @@ for ifol, folder in enumerate(folders_compare):
 
         from PySUSSIX import Sussix
         SX = Sussix()
-        SX.sussix_inp(nt1=1, nt2=len(x_vect), idam=2, ir=1, tunex=.27, tuney=.27)
+        SX.sussix_inp(nt1=1, nt2=len(x_vect), idam=2, ir=1,
+                tunex=q_frac, tuney=q_frac)
         SX.sussix(x_vect, x_vect, x_vect, x_vect, x_vect, x_vect)
 
         freq_list.append(SX.ox)
-        ap_list.append(SX.ax/np.max(SX.ax))
+        ap_list.append(SX.ax)
+        n_sample_list.append(len(x_vect))
         N_lines = len(SX.ax)
 
 for ax in [ax11, ax12, ax13, axfft]:
@@ -414,12 +431,25 @@ fig1.subplots_adjust(
         hspace=0.2,
         wspace=0.2)
 
+axemi.set_ylabel('Transverse emittance [um]')
+axemi.set_xlabel('Turn')
+axemi.grid(True, linestyle='--', alpha=0.5)
+axemi.legend(bbox_to_anchor=(1, 1),  loc='upper left', prop={'size':8})
+figemi.subplots_adjust(
+    top=0.88,
+    bottom=0.11,
+    left=0.095,
+    right=0.8,
+    hspace=0.2,
+    wspace=0.2)
+
+
 figharm = plt.figure()
 maxsize =np.max(np.array(ap_list))
 
 axharm = figharm.add_subplot(111)
 str_mat = np.dot(np.atleast_2d(np.ones(N_lines)).T, np.atleast_2d(np.array(strength_list)))
-axharm.scatter(x=str_mat.flatten(), y=(np.abs(np.array(freq_list)).T.flatten()-.27)/Qs, s=np.clip(np.array(ap_list).T.flatten()/maxsize*10, 0.0, 100))
+axharm.scatter(x=str_mat.flatten(), y=(np.abs(np.array(freq_list)).T.flatten()-q_frac)/Qs, s=np.clip(np.array(ap_list).T.flatten()/maxsize*10, 0.0, 100))
 
 figtau = plt.figure(112)
 axtau = figtau.add_subplot(111)
@@ -430,5 +460,9 @@ legfft = axfft.legend(prop={'size':10})
 if fname is not None:
     fig1.savefig(fname+'.png', dpi=200)
     sio.savemat(fname+'_fit.mat', {
-        'p_coeff': np.array(p_list)[:, 0]})
+        'strength_list': strength_list,
+        'freq_list': np.array(freq_list),
+        'ap_list': np.array(ap_list),
+        'n_sample_list': np.array(n_sample_list),
+        'p_list_centroid': np.array(p_list_centroid)[:, 0]})
 plt.show()
