@@ -20,9 +20,9 @@ recenter_all_slices = True # Cancels initial kick from input
 strength_scale = 0.1
 
 Qp_x = 0.
-alpha_N = [0]
-beta_N = [0, 0]
-only_phase_shift = True
+alpha_N = []
+beta_N = []
+only_phase_shift = False
 
 n_segments = 8
 
@@ -44,6 +44,10 @@ for ff in sim_param_amend_files:
 # Set chromaticity
 sim_content.pp.Qp_x = Qp_x
 sim_content.pp.n_segments = n_segments
+
+# Make the slice output file smaller
+sim_content.pp.slice_stats_to_store = ['mean_x', 'mean_z',
+ 'n_macroparticles_per_slice']
 
 # Add ring of CPU information
 ring_cpu = pu.get_serial_CPUring(sim_content,
@@ -78,6 +82,7 @@ if len(alpha_N)>0 or len(beta_N)>0:
             only_phase_shift=only_phase_shift,
             v_eta__omegas=v_eta__omegas)
     machine.install_after_each_transverse_segment(mquad)
+
 # Recenter all slices
 if recenter_all_slices and sim_content.SimSt.first_run:
     slices = bunch.get_slices(slicer)

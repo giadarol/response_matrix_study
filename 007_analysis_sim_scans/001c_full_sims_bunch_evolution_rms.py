@@ -57,6 +57,8 @@ T_rev = 88.9e-6
 
 # Comparison strength
 strength_list = np.arange(0.02, 1.0, 0.005)
+strength_list = np.arange(0.01, 1.0, 0.01)
+strength_list = np.arange(0.01, 0.6, 0.005)
 #strength_list = np.arange(0.2, 0.3, 0.05)
 labels = [f'strength {ss:.3f}' for ss in strength_list]
 folders_compare = [
@@ -64,7 +66,13 @@ folders_compare = [
       #f'../005b_matrix_strength_scan/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005c_imp_neg_chroma/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005c2_imp_neg_chroma_modquads/simulations_corrected/strength_{ss:.2e}/' for ss in strength_list]
-      f'../005d_try_alpha2_plus/simulations_only_phaseshift/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005d_try_alpha2_plus/simulations_only_phaseshift/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005e1_imped_alone/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005e2_imped_phase_shift_zsquare/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005e3_imped_tune_shift_zsquare/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005f1_imped_dipolar_alone/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005f2_imped_dipolar_neg_quad/simulations/strength_{ss:.2e}/' for ss in strength_list]
+      f'../005f3_imped_dipolar_pos_quad/simulations/strength_{ss:.2e}/' for ss in strength_list]
 fft2mod = 'lin'
 #fname = 'impedance_'
 fname = None

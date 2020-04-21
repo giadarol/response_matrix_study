@@ -8,6 +8,7 @@ import PyECLOUD.myfilemanager as mfm
 from mode_coupling_matrix import CouplingMatrix
 
 eta = 0.000318152589
+lambda_param = 1
 
 # start-settings-section
 # Reference
@@ -19,12 +20,13 @@ n_phi = 3*360
 n_r = 3*200
 N_max = 49
 Qp=0.
-alpha_N_custom = np.array([0., 0e-3, 2e-1])
+alpha_N_custom = [] #np.array([0., 0e-3, 2e-1])
 n_tail_cut = 0
 save_pkl_fname = 'mode_coupling_matrix.pkl'
 response_matrix_file = '../001_sin_response_scan/response_data.mat'
 z_strength_file = '../001a_sin_response_scan_unperturbed/linear_strength.mat'
 detuning_fit_order = 0
+include_detuning_with_long_amplitude = True
 pool_size =  4
 flag_solve_and_plot = True
 
@@ -60,7 +62,7 @@ if detuning_fit_order > 0:
     obdet = mfm.myloadmat_to_obj(z_strength_file)
     z_slices = obdet.z_slices
     p = np.polyfit(obdet.z_slices, obdet.k_z_integrated, deg=detuning_fit_order)
-    alpha_N = p[::-1] # Here I fit the strength
+    alpha_N = cloud_rescale_by*p[::-1] # Here I fit the strength
 else:
     alpha_N = alpha_N_custom
 
@@ -78,8 +80,10 @@ z_slices = ob.z_slices
 # Build matrix
 MM_obj = CouplingMatrix(z_slices, HH, cloud_rescale_by*KK, l_min,
         l_max, m_max, n_phi, n_r, N_max, Q_full, sigma_b, r_b,
-        cloud_rescale_by * a_param, omega0, omega_s, eta,
-        alpha_p=alpha_N, beta_p = beta_N, beta_fun_rescale=beta_fun_rescale,
+        a_param, lambda_param, omega0, omega_s, eta,
+        alpha_p=alpha_N,
+        beta_p = beta_N, beta_fun_rescale=beta_fun_rescale,
+        include_detuning_with_longit_amplitude=include_detuning_with_long_amplitude,
         pool_size=pool_size)
 
 if save_pkl_fname is not None:
@@ -132,16 +136,17 @@ if flag_solve_and_plot:
         from scipy.interpolate import interp2d
         dQ_obs_fun = interp2d(MM_obj.r_vect, MM_obj.phi_vect[:-1], MM_obj.d_Q_R_PHI.T)
         dQ_obs = np.squeeze(np.array([ dQ_obs_fun(rr, pp) for rr,pp in zip(r_obs, phi_obs)]))
+        dQ_ave_obs = np.interp(r_obs, MM_obj.r_vect, MM_obj.dQ_ave_R)
         fig101 = plt.figure(101)
         ax1011 = fig101.add_subplot(111)
         ax1011.plot(z_slices, dQ_obs)
         if detuning_fit_order > 0:
-            k_obs = - dQ_obs*4*np.pi/MM_obj.beta_fun
-            plt.close('all')
+            #k_obs = - dQ_obs*4*np.pi/MM_obj.beta_fun_rescale
             fig100 = plt.figure(100)
             ax101 = fig100.add_subplot(111)
-            ax101.plot(ob.z_slices, obdet.k_z_integrated)
-            ax101.plot(ob.z_slices, k_obs)
+            ax101.plot(ob.z_slices, -obdet.k_z_integrated*MM_obj.beta_fun_rescale/(4*np.pi))
+            ax101.plot(ob.z_slices, dQ_obs)
+            ax101.plot(ob.z_slices, dQ_obs + dQ_ave_obs)
 
     plt.show()
 
