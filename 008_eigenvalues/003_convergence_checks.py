@@ -2,6 +2,7 @@ import pickle
 
 import numpy as np
 from scipy.constants import c as clight
+import scipy.io as sio
 
 import PyECLOUD.mystyle as ms
 
@@ -32,6 +33,22 @@ omega_s = 4.9e-3*omega0
 # Mode coupling test
 strength_scan = np.arange(min_strength_plot, max_strength_plot, 0.01)
 Omega_mat = MM_obj.compute_mode_complex_freq(omega_s, rescale_by=strength_scan)
+
+i_l0 = np.argmin(np.abs(MM_obj.l_vect))
+M00_array = MM_obj.MM[i_l0,0,i_l0,0] * strength_scan
+
+sio.savemat('eigenvalues.mat', {
+    'Omega_mat': Omega_mat,
+    'strength_scan': strength_scan,
+    'DQ_0_vect': 0*strength_scan,
+    'M00_array': M00_array,
+    'omega0': omega0,
+    'omega_s': omega_s,
+    'l_min': l_min,
+    'l_max': l_max,
+    'm_max': m_max,
+    'N_max': N_max})
+
 
 import matplotlib.pyplot as plt
 plt.close('all')

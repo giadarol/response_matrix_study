@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.special import assoc_laguerre, gamma
 from scipy.constants import c as clight
-from numpy.linalg import eigvals
+from numpy.linalg import eigvals, eig
 from multiprocessing import Pool
 
 def compute_R_tilde_for_one_l(
@@ -419,6 +419,16 @@ class CouplingMatrix(object):
 
     def get_sub_matrix(self, l_min, l_max, m_max, N_max=None):
 
+        # Patch to load old pickles
+        if not hasattr(self, 'eta'):
+            self.eta = None
+        if not hasattr(self, 'beta_p'):
+            self.beta_p = ()
+        if not hasattr(self, 'include_detuning_with_longit_amplitude'):
+            self.include_detuning_with_longit_amplitude = False
+        if not hasattr(self, 'lambda_param'):
+            self.lambda_param = 1
+
         assert(l_min >= self.l_min)
         assert(l_max <= self.l_max)
         assert(m_max <= self.m_max)
@@ -433,13 +443,6 @@ class CouplingMatrix(object):
         new_MM = new_MM[:, :, mask_l_keep, :]
         new_MM = new_MM[:, :, :, mask_m_keep]
 
-        # Patch to load old pickles
-        if not hasattr(self, 'eta'):
-            self.eta = None
-        if not hasattr(self, 'beta_p'):
-            self.beta_p = ()
-        if not hasattr(self, 'lambda_param'):
-            self.lambda_param = 1
 
         new = CouplingMatrix(
             z_slices=self.z_slices,
@@ -468,9 +471,11 @@ class CouplingMatrix(object):
 
         return new
 
-    def compute_mode_complex_freq(self, omega_s, rescale_by=np.array([1.])):
+    def compute_mode_complex_freq(self, omega_s, rescale_by=np.array([1.]),
+            flag_eigenvectors=False):
 
         Omega_mat = []
+        evect_mat = []
         n_l = len(self.l_vect)
         n_m = len(self.m_vect)
         for ii, rr in enumerate(rescale_by):
@@ -486,6 +491,20 @@ class CouplingMatrix(object):
                                 MM_m_l_omegas[i_l, i_m, i_lp, i_mp] += ll*omega_s
             mat_to_diag = MM_m_l_omegas.reshape((n_l*n_m,
                                     n_l*n_m))
-            Omega_mat.append(eigvals(mat_to_diag))
+            if flag_eigenvectors:
+                Omegas, evect_temp = eig(mat_to_diag)
+                evect_reshaped = evect_temp.reshape(
+                        n_l, n_m, n_l*n_m)
+                Omega_mat.append(Omegas)
+                evect_mat.append(evect_reshaped)
+            else:
+                Omegas = eigvals(mat_to_diag)
+                Omega_mat.append(Omegas)
 
-        return np.squeeze(np.array(Omega_mat))
+        if flag_eigenvectors:
+            tobereturned = (np.atleast_1d(np.squeeze(Omega_mat)),
+                    np.atleast_2d(np.squeeze(evect_mat)))
+        else:
+            tobereturned = np.atleast_1d(np.squeeze(Omega_mat))
+
+        return tobereturned

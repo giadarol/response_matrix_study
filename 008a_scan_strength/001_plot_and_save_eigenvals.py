@@ -2,6 +2,7 @@ import pickle
 
 import numpy as np
 from scipy.constants import c as clight
+import scipy.io as sio
 
 import PyECLOUD.mystyle as ms
 
@@ -15,9 +16,10 @@ pkl_fname = 'mode_coupling_matrix.pkl'
 l_min = -7
 l_max = 7
 m_max = 20
-N_max = 30
+N_max = 29
 min_imag_unstab = 1.
-flag_correct_tune = True
+flag_correct_tune = False
+flag_tilt_lines = False
 temp_rescale_DQ = .85
 
 # Plot settings
@@ -30,6 +32,7 @@ tau_max_plot = 300
 
 Omega_mat = []
 DQ_0_list = []
+M00_list = []
 for ii in range(0, len(strength_scan)):
     print(f'{ii}/{len(strength_scan)}')
     pkl_fname = simulation_folder+(f'/strength_{strength_scan[ii]:.3f}'
@@ -40,15 +43,18 @@ for ii in range(0, len(strength_scan)):
     MM_obj = MM_orig.get_sub_matrix(l_min, l_max, m_max, N_max)
 
     Omega_array = MM_obj.compute_mode_complex_freq(omega_s)
-    if flag_correct_tune:
+    if flag_correct_tune or flag_tilt_lines:
         if len(MM_obj.alpha_p)>0:
             print('alpha_p:')
             print(MM_obj.alpha_p)
             DQ_0 = -(MM_obj.beta_fun_rescale
                     * MM_obj.alpha_p[0] /(4*np.pi)*temp_rescale_DQ)
-            Omega_array += DQ_0 * MM_obj.omega0
+            if flag_correct_tune:
+                Omega_array += DQ_0 * MM_obj.omega0
             DQ_0_list.append(DQ_0)
     Omega_mat.append(Omega_array)
+    i_l0 = np.argmin(np.abs(MM_obj.l_vect))
+    M00_list.append(MM_obj.MM[i_l0,0,i_l0,0])
 
 Omega_mat = np.array(Omega_mat)
 import matplotlib.pyplot as plt
@@ -95,6 +101,18 @@ for ii in range(len(strength_scan)):
             cmap=plt.cm.seismic, s=3)
 plt.suptitle(title)
 plt.colorbar()
+
+sio.savemat('eigenvalues.mat', {
+    'Omega_mat': Omega_mat,
+    'strength_scan': strength_scan,
+    'DQ_0_vect': np.array(DQ_0_list),
+    'M00_array': np.array(M00_list),
+    'omega0': omega0,
+    'omega_s': omega_s,
+    'l_min': l_min,
+    'l_max': l_max,
+    'm_max': m_max,
+    'N_max': N_max})
 
 # fig500 = plt.figure(500, figsize=(1.3*6.4, 1.3*4.8))
 # ax = fig500.add_subplot(111)
@@ -144,7 +162,7 @@ ax.set_xlim(min_strength_plot, max_strength_plot)
 ax.set_ylim(l_min_plot, l_max_plot)
 fig500.subplots_adjust(right=1.)
 for lll in range(l_min_plot-10, l_max_plot+10):
-    if flag_correct_tune:
+    if flag_tilt_lines:
         add_to_line = np.array(DQ_0_list)*omega0/omega_s
     else:
         add_to_line = 0.
