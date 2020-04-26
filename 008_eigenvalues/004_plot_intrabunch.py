@@ -56,10 +56,6 @@ for i_ll, ll in enumerate(l_vect):
 
     R_L_R[i_ll, :] = Rl
 
-distr_R_Phi = np.zeros((n_r, n_phi), dtype=np.complex)
-for i_ll, ll in enumerate(l_vect):
-    distr_R_Phi += np.dot(np.atleast_2d(R_L_R[i_ll, :]).T,
-            np.atleast_2d(np.exp(-1j*ll*phi_vect)))
 
 z_vect = np.linspace(-r_max, r_max, n_z)
 delta_vect = np.linspace(-r_max, r_max, n_delta)
@@ -70,39 +66,16 @@ PP = np.arctan2(DD, ZZ)
 for i_ll, ll in enumerate(l_vect):
     Rl_this = np.interp(RR.flatten(), r_vect, R_L_R[i_ll, :]).reshape(RR.shape)
     distr_Z_Delta += Rl_this*np.exp(-1j*ll*PP)
+
 # Here we need to add the phase shift!!!!
 
-# # compute complex signal
-# from scipy.interpolate import interp2d
-# z_vect = np.linspace(-r_max, r_max, n_z)
-# distr_Z = (0+0j)*z_vect
-# distr_R_Phi_func_re = interp2d(r_vect, phi_vect, np.real(distr_R_Phi).T)
-# distr_R_Phi_func_im = interp2d(r_vect, phi_vect, np.imag(distr_R_Phi).T)
-# for i_z, zz in enumerate(z_vect):
-#     intv_max = np.sqrt(r_max**2-zz**2)*0.999
-#     delta_line = np.linspace(-intv_max, intv_max, n_delta)
-#     r_line = np.sqrt(delta_line**2 + zz**2)
-#     phi_line = np.arctan2(delta_line, zz)
-#     distr_R_Phi_re_line = np.array(
-#             [distr_R_Phi_func_re(rr, pp) for rr, pp in zip (r_line, phi_line)])
-#     distr_R_Phi_im_line = np.array(
-#             [distr_R_Phi_func_im(rr, pp) for rr, pp in zip (r_line, phi_line)])
-#     distr_Z[i_z] = np.sum(np.diff(delta_line)*
-#             (distr_R_Phi_re_line + 1j * distr_R_Phi_im_line)[:-1])
 distr_Z = np.sum(distr_Z_Delta, axis=0)
+
 n_traces =30
 phase_osc = np.linspace(0, 2*np.pi, n_traces+1)[:-1]
 
 import matplotlib.pyplot as plt
 plt.close('all')
-
-figpolre = plt.figure(200)
-axpolre = plt.subplot(1,1,1, projection='polar')
-axpolre.pcolormesh(phi_vect, r_vect, np.real(distr_R_Phi))
-
-figpolim = plt.figure(201)
-axpolim = plt.subplot(1,1,1, projection='polar')
-axpolim.pcolormesh(phi_vect, r_vect, np.imag(distr_R_Phi))
 
 fig2 = plt.figure(2)
 for i_trace in range(n_traces):
