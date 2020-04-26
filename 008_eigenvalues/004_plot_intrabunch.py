@@ -25,7 +25,7 @@ omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
 omega_s = 4.9e-3*omega0
 
 # Mode coupling test
-strength = 1.28
+strength = 2.0# 1.28
 Omega_mat, evect = MM_obj.compute_mode_complex_freq(omega_s,
         rescale_by=[strength], flag_eigenvectors=True)
 i_most_unstable = np.argmin(np.imag(Omega_mat))
@@ -59,35 +59,63 @@ for i_ll, ll in enumerate(l_vect):
 distr_R_Phi = np.zeros((n_r, n_phi), dtype=np.complex)
 for i_ll, ll in enumerate(l_vect):
     distr_R_Phi += np.dot(np.atleast_2d(R_L_R[i_ll, :]).T,
-            np.atleast_2d(np.exp(1j*ll*phi_vect)))
+            np.atleast_2d(np.exp(-1j*ll*phi_vect)))
 
+z_vect = np.linspace(-r_max, r_max, n_z)
+delta_vect = np.linspace(-r_max, r_max, n_delta)
+distr_Z_Delta = np.zeros((n_delta, n_z), dtype=np.complex)
+ZZ, DD = np.meshgrid(z_vect, delta_vect)
+RR = np.sqrt(ZZ**2 +DD**2)
+PP = np.arctan2(DD, ZZ)
+for i_ll, ll in enumerate(l_vect):
+    Rl_this = np.interp(RR.flatten(), r_vect, R_L_R[i_ll, :]).reshape(RR.shape)
+    distr_Z_Delta += Rl_this*np.exp(-1j*ll*PP)
 # Here we need to add the phase shift!!!!
 
-# compute complex signal
-from scipy.interpolate import interp2d
-z_vect = np.linspace(-r_max, r_max, n_z)
-distr_Z = (0+0j)*z_vect
-distr_R_Phi_func_re = interp2d(r_vect, phi_vect, np.real(distr_R_Phi).T)
-distr_R_Phi_func_im = interp2d(r_vect, phi_vect, np.imag(distr_R_Phi).T)
-for i_z, zz in enumerate(z_vect):
-    intv_max = np.sqrt(r_max**2-zz**2)*0.999
-    delta_line = np.linspace(-intv_max, intv_max, n_delta)
-    r_line = np.sqrt(delta_line**2 + zz**2)
-    phi_line = np.arctan2(delta_line, zz)
-    distr_R_Phi_re_line = [distr_R_Phi_func_re(rr, pp) for rr, pp in zip (r_line, phi_line)]
-    distr_R_Phi_im_line = [distr_R_Phi_func_im(rr, pp) for rr, pp in zip (r_line, phi_line)]
-    distr_Z[i_z] = (np.sum(distr_R_Phi_re_line)+  1j * np.sum(distr_R_Phi_im_line))
-
+# # compute complex signal
+# from scipy.interpolate import interp2d
+# z_vect = np.linspace(-r_max, r_max, n_z)
+# distr_Z = (0+0j)*z_vect
+# distr_R_Phi_func_re = interp2d(r_vect, phi_vect, np.real(distr_R_Phi).T)
+# distr_R_Phi_func_im = interp2d(r_vect, phi_vect, np.imag(distr_R_Phi).T)
+# for i_z, zz in enumerate(z_vect):
+#     intv_max = np.sqrt(r_max**2-zz**2)*0.999
+#     delta_line = np.linspace(-intv_max, intv_max, n_delta)
+#     r_line = np.sqrt(delta_line**2 + zz**2)
+#     phi_line = np.arctan2(delta_line, zz)
+#     distr_R_Phi_re_line = np.array(
+#             [distr_R_Phi_func_re(rr, pp) for rr, pp in zip (r_line, phi_line)])
+#     distr_R_Phi_im_line = np.array(
+#             [distr_R_Phi_func_im(rr, pp) for rr, pp in zip (r_line, phi_line)])
+#     distr_Z[i_z] = np.sum(np.diff(delta_line)*
+#             (distr_R_Phi_re_line + 1j * distr_R_Phi_im_line)[:-1])
+distr_Z = np.sum(distr_Z_Delta, axis=0)
 n_traces =30
 phase_osc = np.linspace(0, 2*np.pi, n_traces+1)[:-1]
 
 import matplotlib.pyplot as plt
 plt.close('all')
+
+figpolre = plt.figure(200)
+axpolre = plt.subplot(1,1,1, projection='polar')
+axpolre.pcolormesh(phi_vect, r_vect, np.real(distr_R_Phi))
+
+figpolim = plt.figure(201)
+axpolim = plt.subplot(1,1,1, projection='polar')
+axpolim.pcolormesh(phi_vect, r_vect, np.imag(distr_R_Phi))
+
 fig2 = plt.figure(2)
 for i_trace in range(n_traces):
     plt.plot(z_vect, np.real(distr_Z*np.exp(1j*phase_osc[i_trace])))
 
-prrr
+fig3 = plt.figure(3)
+for i_trace in range(n_traces):
+    plt.plot(z_vect, np.imag(distr_Z*np.exp(1j*phase_osc[i_trace])))
+
+
+
+
+
 def R_computation_v2(eigenvector, ldown, lup, nmax, r, a, b, taub, beta=1):
     ''' Computes R(tau) as defined in as in N. Mounet, "DELPHI_expanded", slide 22
 
@@ -280,20 +308,20 @@ def headtail_signal(Rl_table, max_freq, nb_points, lup, ldown, eigenvalue,
     return omega/(2*np.pi), lambda1tot, time[ind], list_signals
 
 sigma_b = MM_obj.sigma_b
-r_vect = np.linspace(0., 3*sigma_b, 1000)
+rrr = np.linspace(0., 3*sigma_b, 1000)
 Rl_table = R_computation_v2(
         evect[:,:,i_most_unstable].reshape(
             len(MM_obj.l_vect)*len(MM_obj.m_vect)),
         MM_obj.l_min, MM_obj.l_max,
         MM_obj.m_max,
-        r_vect, 8.,
+        rrr, 8.,
         8., 4*sigma_b/clight,
         beta=1)
 
 freq, lambda1tot, times, list_signals = headtail_signal(
         Rl_table, 30e9, 1000, MM_obj.l_max, MM_obj.l_min,
                 Omega_mat[i_most_unstable],
-                r_vect, MM_obj.Q_full,
+                rrr, MM_obj.Q_full,
                 0., MM_obj.eta,
                 27e3/(2*np.pi),
                 beta=1, n_signals=21)
@@ -301,5 +329,5 @@ freq, lambda1tot, times, list_signals = headtail_signal(
 fig1 = plt.figure(1)
 ax1 = fig1.add_subplot(111)
 for ss in list_signals:
-    ax1.plot(times, ss)
+    ax1.plot(-times*clight, ss)
 plt.show()
