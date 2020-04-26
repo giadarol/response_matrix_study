@@ -30,6 +30,59 @@ Omega_mat, evect = MM_obj.compute_mode_complex_freq(omega_s,
         rescale_by=[strength], flag_eigenvectors=True)
 i_most_unstable = np.argmin(np.imag(Omega_mat))
 
+# Plot intrabunch
+i_intrab = i_most_unstable
+r_max = 3*MM_obj.sigma_b
+n_r = 200
+n_phi = 200
+n_z = 220
+n_delta = 250
+r_vect = np.linspace(0, r_max, n_r)
+phi_vect = np.linspace(0, 2*np.pi, n_phi+1)[:-1]
+l_vect = MM_obj.l_vect
+m_vect = MM_obj.m_vect
+n_l = len(l_vect)
+
+R_L_R = np.zeros((n_l, n_r), dtype=np.complex)
+for i_ll, ll in enumerate(l_vect):
+    sumRl = (0 + 0j) * r_vect
+    for i_mm, mm in enumerate(m_vect):
+        sumRl += (evect[i_ll, i_mm, i_intrab]
+               * scipy.special.eval_genlaguerre(mm, abs(ll),
+                       MM_obj.a_param * r_vect  ** 2))
+
+    Rl = (sumRl * (r_vect / MM_obj.r_b)**np.abs(ll)
+              * np.exp(-MM_obj.a_param * r_vect**2))
+
+    R_L_R[i_ll, :] = Rl
+
+distr_R_Phi = np.zeros((n_r, n_phi), dtype=np.complex)
+for i_ll, ll in enumerate(l_vect):
+    distr_R_Phi += np.dot(np.atleast_2d(R_L_R[i_ll, :]).T,
+            np.atleast_2d(np.exp(1j*ll*phi_vect)))
+
+# Here we need to add the phase shift!!!!
+
+# compute complex signal
+from scipy.interpolate import interp2d
+z_vect = np.linspace(-r_max, r_max, n_z)
+distr_Z = (0+0j)*z_vect
+distr_R_Phi_func_re = interp2d(r_vect, phi_vect, np.real(distr_R_Phi).T)
+distr_R_Phi_func_im = interp2d(r_vect, phi_vect, np.imag(distr_R_Phi).T)
+for i_z, zz in enumerate(z_vect):
+    intv_max = np.sqrt(r_max**2-zz**2)*0.999
+    delta_line = np.linspace(-intv_max, intv_max, n_delta)
+    r_line = np.sqrt(delta_line**2 + zz**2)
+    phi_line = np.arctan2(delta_line, zz)
+    distr_Z[i_z] = (np.sum(distr_R_Phi_func_re(r_line, phi_line))
+                    + 1j * np.sum(distr_R_Phi_func_im(r_line, phi_line)))
+
+n_traces =30
+phase_osc = np.linspace(0, 2*np.pi, n_traces+1)[:-1]
+fig2 = plt.figure(1)
+for i_trace in range(n_traces):
+    plot(z_vect, np.real(distr_Z*np.exp(1j*phase_osc[i_trace])))
+
 def R_computation_v2(eigenvector, ldown, lup, nmax, r, a, b, taub, beta=1):
     ''' Computes R(tau) as defined in as in N. Mounet, "DELPHI_expanded", slide 22
 
