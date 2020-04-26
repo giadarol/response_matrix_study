@@ -34,11 +34,11 @@ i_most_unstable = np.argmin(np.imag(Omega_mat))
 i_intrab = i_most_unstable
 r_max = 3*MM_obj.sigma_b
 n_r = 200
-n_phi = 200
+n_phi = 210
 n_z = 220
 n_delta = 250
 r_vect = np.linspace(0, r_max, n_r)
-phi_vect = np.linspace(0, 2*np.pi, n_phi+1)[:-1]
+phi_vect = np.linspace(0, 2*np.pi, n_phi)
 l_vect = MM_obj.l_vect
 m_vect = MM_obj.m_vect
 n_l = len(l_vect)
@@ -74,15 +74,20 @@ for i_z, zz in enumerate(z_vect):
     delta_line = np.linspace(-intv_max, intv_max, n_delta)
     r_line = np.sqrt(delta_line**2 + zz**2)
     phi_line = np.arctan2(delta_line, zz)
-    distr_Z[i_z] = (np.sum(distr_R_Phi_func_re(r_line, phi_line))
-                    + 1j * np.sum(distr_R_Phi_func_im(r_line, phi_line)))
+    distr_R_Phi_re_line = [distr_R_Phi_func_re(rr, pp) for rr, pp in zip (r_line, phi_line)]
+    distr_R_Phi_im_line = [distr_R_Phi_func_im(rr, pp) for rr, pp in zip (r_line, phi_line)]
+    distr_Z[i_z] = (np.sum(distr_R_Phi_re_line)+  1j * np.sum(distr_R_Phi_im_line))
 
 n_traces =30
 phase_osc = np.linspace(0, 2*np.pi, n_traces+1)[:-1]
-fig2 = plt.figure(1)
-for i_trace in range(n_traces):
-    plot(z_vect, np.real(distr_Z*np.exp(1j*phase_osc[i_trace])))
 
+import matplotlib.pyplot as plt
+plt.close('all')
+fig2 = plt.figure(2)
+for i_trace in range(n_traces):
+    plt.plot(z_vect, np.real(distr_Z*np.exp(1j*phase_osc[i_trace])))
+
+prrr
 def R_computation_v2(eigenvector, ldown, lup, nmax, r, a, b, taub, beta=1):
     ''' Computes R(tau) as defined in as in N. Mounet, "DELPHI_expanded", slide 22
 
@@ -293,8 +298,6 @@ freq, lambda1tot, times, list_signals = headtail_signal(
                 27e3/(2*np.pi),
                 beta=1, n_signals=21)
 
-import matplotlib.pyplot as plt
-plt.close('all')
 fig1 = plt.figure(1)
 ax1 = fig1.add_subplot(111)
 for ss in list_signals:
