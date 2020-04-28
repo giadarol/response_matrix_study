@@ -11,10 +11,15 @@ import PyECLOUD.mystyle as ms
 # strength = 1.35
 # pkl_fname = '../008_eigenvalues/mode_coupling_matrix.pkl'
 
-strength = 1.18 # 1.18
+strength_in_fname= 1.24 # 1.18
+strength_rescale = 1.
 pkl_fname = ('../008a1_scan_strength_wlampldet/simulations/'
-            f'strength_{strength:.3f}/mode_coupling_matrix.pkl')
+            f'strength_{strength_in_fname:.3f}/mode_coupling_matrix.pkl')
 
+# strength_in_fname = 0.6 # 1.18
+# strength_rescale = 1.
+# pkl_fname = ('../008b_scan_strength_wlampldet_Qp5/simulations/'
+#             f'strength_{strength_in_fname:.3f}/mode_coupling_matrix.pkl')
 
 omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
 omega_s = 4.9e-3*omega0
@@ -22,15 +27,15 @@ omega_mode_plot = None # -omega_s
 
 l_min = -7
 l_max = 7
-m_max = 20
-N_max = 29
+m_max = 29
+N_max = 29#9
 abs_min_imag_unstab = 30.
 n_r = 200
 n_phi = 210
 n_z = 220
 n_delta = 250
 n_traces = 15
-n_modes_plot = 5
+n_modes_plot = 6
 flag_with_phase_shift = True
 
 with open(pkl_fname, 'rb') as fid:
@@ -41,9 +46,13 @@ MM_obj = MM_orig.get_sub_matrix(l_min, l_max, m_max, N_max)
 
 # Mode coupling test
 Omega_mat, evect = MM_obj.compute_mode_complex_freq(omega_s,
-        rescale_by=[strength], flag_eigenvectors=True)
+        rescale_by=[strength_rescale], flag_eigenvectors=True)
 i_most_unstable = np.argmin(np.imag(Omega_mat))
 i_sorted_by_risetime = np.argsort(np.imag(Omega_mat))
+
+i_selected = i_sorted_by_risetime[:n_modes_plot]
+temp_index = np.argsort(Omega_mat.real[i_selected])
+i_selected_sorted = np.take(i_selected, temp_index)
 
 # # Plot intrabunch
 # if omega_mode_plot is None:
@@ -67,7 +76,7 @@ plt.close('all')
 fig2 = plt.figure(2, figsize=(6.4*1.6, 4.8*1.4))
 axlist = [fig2.add_subplot(3, 2, ii+1) for ii in range(6)]
 for i_plot in range(n_modes_plot):
-    i_intrab = i_sorted_by_risetime[i_plot]
+    i_intrab = i_selected_sorted[i_plot]
 
     R_L_R = np.zeros((n_l, n_r), dtype=np.complex)
     for i_ll, ll in enumerate(l_vect):
@@ -117,18 +126,21 @@ for i_plot in range(n_modes_plot):
                     np.exp(1j * 2*np.pi
                     * (MM_obj.Q_full + Omega_mat[i_intrab].real/omega0)*i_trace)))
     ax.set_title(
-            f'strength={strength:.3f} '
-            r'$\Delta$Q/$\omega_s$'+ f'={Omega_mat[i_intrab].real/omega_s:.3}'
-            f' risetime={Omega_mat[i_intrab].imag:.1f}')
+            r'Q'+ f'={np.modf(MM_obj.Q_full)[0] + Omega_mat[i_intrab].real/omega0:.3}'
+            r' $\Delta$Q/Q$_s$'+ f'={Omega_mat[i_intrab].real/omega_s:.3}'
+            f' risetime={-Omega_mat[i_intrab].imag:.1f}')
 
    # fig3 = plt.figure(3)
    # for i_trace in range(n_traces):
    #     plt.plot(z_vect, np.imag(distr_Z*np.exp(1j*phase_osc[i_trace])))
+
+fig2.suptitle(f'strength: {strength_in_fname:.3f} strength_rescale: {strength_rescale:.3f}')
 fig2.subplots_adjust(
-        top=0.935,
+        top=0.91,
         bottom=0.07,
-        left=0.11,
-        right=0.9,
+        left=0.075,
+        right=0.96,
         hspace=0.385,
         wspace=0.2)
+
 plt.show()

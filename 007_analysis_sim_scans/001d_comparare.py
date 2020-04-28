@@ -24,8 +24,9 @@ dict_plot = {
         #'t2af':{'fname':'./processed_data/compact_t2af_fit.mat', 'tilt_lines':True, 'scale_x':1},
         #'t3': {'fname':'./processed_data/compact_t3_fit.mat', 'tilt_lines':True, 'scale_x':1},
         #'t4': {'fname':'./processed_data/compact_t4_fit.mat', 'tilt_lines':True, 'scale_x':1},
-        't6': {'fname':'./processed_data/compact_t6_fit.mat', 'tilt_lines':True, 'scale_x':1},
+        #'t6': {'fname':'./processed_data/compact_t6_fit.mat', 'tilt_lines':True, 'scale_x':1},
         'pic':{'fname':'./processed_data/compact_pic_fit.mat', 'tilt_lines':True, 'scale_x':1.},
+        'picQp5':{'fname':'./processed_data/compact_picQp5_fit.mat', 'tilt_lines':True, 'scale_x':1.},
         }
 colorlist = ['b', 'r', 'g', 'orange', 'k']
 colorlist = ['C0', 'C3']

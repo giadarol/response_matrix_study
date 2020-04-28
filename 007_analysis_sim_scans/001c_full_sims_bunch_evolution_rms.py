@@ -138,6 +138,7 @@ T_rev = 88.9e-6
 #strength_list = np.arange(0.1, 2.1, 0.1)
 #strength_list = np.arange(0.02, 2.0, 0.02)
 strength_list = np.arange(0.1, 1.5, 0.02)
+strength_list = np.arange(0.8, 1.5, 0.02)
 #strength_list = np.arange(0.1, 2.0, 0.02)
 labels = [f'strength {ss:.3f}' for ss in strength_list]
 folders_compare = [
@@ -180,13 +181,18 @@ folders_compare = [
        '_sey_1.4_intensity_1.2e11ppb_VRF_6MV_scan_length_factor_0.1_1.5'
        '/simulations_PyPARIS/'
        f'initial_kick_no_damper_no_recenter_slices_length_factor_{ss:.3f}') for ss in strength_list]
+     #('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_019/'
+     # 'inj_arcQuad_no_initial_kick_no_damper_recenter_slice'
+     # '_sey_1.4_intensity_1.2e11ppb_VRF_6MV_Qpxy_5_scan_length_factor_0.1_1.5/'
+     #  '/simulations_PyPARIS/'
+     #  f'initial_kick_no_damper_no_recenter_slices_length_factor_{ss:.3f}') for ss in strength_list]
 fft2mod = 'lin'
 fname = 'compact_pic'
 #fname = None
 i_start_list = None
 n_turns = len(strength_list)*[8000]
 cmap = plt.cm.rainbow
-i_force_line = None
+i_force_line = 2 #None
 fit_cut = 5000
 flag_no_slice = False
 flag_compact = True
@@ -225,18 +231,34 @@ freq_list = []
 ap_list = []
 n_sample_list = []
 an_list =[]
+tune_1mode_re_list = []
+tune_1mode_im_list = []
+freqs_1mode_re_list = []
+freqs_1mode_im_list = []
+ap_1mode_re_list = []
+ap_1mode_im_list = []
+freqs_naff_1mode_re_list = []
+freqs_naff_1mode_im_list = []
+ap_naff_1mode_re_list = []
+ap_naff_1mode_im_list = []
 for ifol, folder in enumerate(folders_compare):
 
     print('Folder %d/%d'%(ifol, len(folders_compare)))
 
     folder_curr_sim = folder
     sim_curr_list = ps.sort_properly(glob.glob(folder_curr_sim+'/bunch_evolution_*.h5'))
+
+    # ##### Tempporary fix!!!!!!!!!!!!!!!!
+    # if len(sim_curr_list)>20:
+    #     sim_curr_list = sim_curr_list[:-1]
+
     # sim_curr_list = [folder_curr_sim+'/bunch_evolution.h5']
     ob = mfm.monitorh5list_to_obj(sim_curr_list)
 
     if not flag_no_slice:
         sim_curr_list_slice_ev = ps.sort_properly(
                 glob.glob(folder_curr_sim+'/slice_evolution_*.h5'))
+        sim_curr_list_slice_ev = sim_curr_list_slice_ev[: len(sim_curr_list)]
         for attempt in range(10):
             print('Attempt', attempt)
             try:
@@ -414,6 +436,9 @@ for ifol, folder in enumerate(folders_compare):
         tune_1mode_re = nl.get_tune(np.real(ffts[i_mode, :]))
         tune_1mode_im = nl.get_tune(np.imag(ffts[i_mode, :]))
 
+        tune_1mode_re_list.append(tune_1mode_re)
+        tune_1mode_im_list.append(tune_1mode_im)
+
     if flag_compact and not flag_no_slice:
         ax1mode.text(0.02, 0.02,
             (f'Tau: {tau:.0f} turns\n'
@@ -502,14 +527,12 @@ for ifol, folder in enumerate(folders_compare):
     if flag_close_figffts:
         plt.close(figffts)
 
-    # I try some NAFF on the centroid
     if flag_naff:
 
         x_vect = ob.mean_x[mask_zero]
 
         # N_lines = 50
         # freq, ap, an = nl.get_tunes(x_vect, N_lines)
-
         # freq_list.append(freq)
         # ap_list.append(np.abs(ap)/np.max(np.abs(ap)))
 
@@ -523,6 +546,27 @@ for ifol, folder in enumerate(folders_compare):
         ap_list.append(SX.ax)
         n_sample_list.append(len(x_vect))
         N_lines = len(SX.ax)
+
+        # One intra-bunch mode
+        signal_re = np.real(np.sum(ffts[:5, :], axis=0))
+        SX.sussix(signal_re, signal_re,
+                signal_re, signal_re, signal_re, signal_re)
+        freqs_1mode_re_list.append(SX.ox)
+        ap_1mode_re_list.append(SX.ax)
+
+        signal_im = np.imag(ffts[i_mode, :])
+        SX.sussix(signal_im, signal_im,
+                signal_im, signal_im, signal_im, signal_im)
+        freqs_1mode_im_list.append(SX.ox)
+        ap_1mode_im_list.append(SX.ax)
+
+        N_lines_naff = 5
+        freq_naff_1mode_re, ap_naff_1mode_re, an = nl.get_tunes(signal_re, N_lines_naff)
+        freq_naff_1mode_im, ap_naff_1mode_im, an = nl.get_tunes(signal_im, N_lines_naff)
+        freqs_naff_1mode_re_list.append(freq_naff_1mode_re)
+        freqs_naff_1mode_im_list.append(freq_naff_1mode_im)
+        ap_naff_1mode_re_list.append(ap_naff_1mode_re)
+        ap_naff_1mode_im_list.append(ap_naff_1mode_im)
 
 for ax in [ax11, ax12, ax13, axfft]:
     ax.grid(True, linestyle='--', alpha=0.5)
@@ -554,10 +598,21 @@ figemi.subplots_adjust(
 
 figharm = plt.figure()
 maxsize =np.max(np.array(ap_list))
-
 axharm = figharm.add_subplot(111)
 str_mat = np.dot(np.atleast_2d(np.ones(N_lines)).T, np.atleast_2d(np.array(strength_list)))
 axharm.scatter(x=str_mat.flatten(), y=(np.abs(np.array(freq_list)).T.flatten()-q_frac)/Qs, s=np.clip(np.array(ap_list).T.flatten()/maxsize*10, 0.0, 100))
+
+figharm_re = plt.figure()
+maxsize = np.max(np.array(ap_1mode_re_list))
+axharm = figharm_re.add_subplot(111)
+str_mat = np.dot(np.atleast_2d(np.ones(N_lines)).T, np.atleast_2d(np.array(strength_list)))
+axharm.scatter(x=str_mat.flatten(), y=(np.abs(np.array(freqs_1mode_re_list)).T.flatten()-q_frac)/Qs, s=np.clip(np.array(ap_1mode_re_list).T.flatten()/maxsize*10, 0.0, 100000))
+
+figharm_im = plt.figure()
+maxsize = np.max(np.array(ap_1mode_im_list))
+axharm = figharm_im.add_subplot(111)
+str_mat = np.dot(np.atleast_2d(np.ones(N_lines)).T, np.atleast_2d(np.array(strength_list)))
+axharm.scatter(x=str_mat.flatten(), y=(np.abs(np.array(freqs_1mode_im_list)).T.flatten()-q_frac)/Qs, s=np.clip(np.array(ap_1mode_im_list).T.flatten()/maxsize*10, 0.0, 100000))
 
 figtau = plt.figure(112)
 axtau = figtau.add_subplot(111)
@@ -572,5 +627,9 @@ if fname is not None:
         'freq_list': np.array(freq_list),
         'ap_list': np.array(ap_list),
         'n_sample_list': np.array(n_sample_list),
-        'p_list_centroid': np.array(p_list_centroid)[:, 0]})
+        'p_list_centroid': np.array(p_list_centroid)[:, 0],
+        'tune_1mode_re_list': np.array(tune_1mode_re_list),
+        'tune_1mode_im_list': np.array(tune_1mode_im_list),
+        })
+
 plt.show()
