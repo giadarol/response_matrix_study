@@ -86,27 +86,25 @@ for ii, ll in enumerate(dict_plot.keys()):
 
     mask_strength = (oo.strength_list <= max_strength)
 
+    # Centrois sussix spectrogram
     ap_list = oo.ap_list
     N_lines = ap_list.shape[1]
     strength_list = oo.strength_list[mask_strength]*scale_x
     freq_list = oo.freq_list[mask_strength, :]
+
     figharm = plt.figure(100+ii)
     maxsize = np.max(np.array(ap_list))
     axharm = figharm.add_subplot(111, sharex=axshare, sharey=axshare)
     axshare = axharm
     str_mat = np.dot(np.atleast_2d(np.ones(N_lines)).T,
             np.atleast_2d(np.array(strength_list)))
-    for lll in range(l_min-10, l_max+10):
-        axharm.plot(strength_list, lll + float(tilt_lines)*DQ_0*strength_list/Qs,
-                alpha=0.5, linestyle='-', color='grey')
+    # for lll in range(l_min-10, l_max+10):
+    #     axharm.plot(strength_list, lll + float(tilt_lines)*DQ_0*strength_list/Qs,
+    #             alpha=0.5, linestyle='-', color='grey')
     axharm.scatter(x=str_mat.flatten(),
             y=(np.abs(np.array(freq_list)).T.flatten()-q_frac)/Qs,
             s=np.clip(np.array(ap_list).T.flatten()/maxsize*10, 0.0, 10))
-    axharm.set_ylim(l_min, l_max)
-    axharm.set_xlim(min_strength, max_strength)
-    figharm.suptitle(ll)
-    figharm.subplots_adjust(right=.83)
-    fig_harm_list.append(figharm)
+
     all_freq_indep_0, all_aps_indep_0, all_stre_indep_0 = extract_independent_lines(
         strength_list, np.abs(np.array(freq_list)), np.array(ap_list),
         min_dist=3e-3, n_indep_list=np.zeros_like(strength_list, dtype=np.int)+3)
@@ -119,9 +117,20 @@ for ii, ll in enumerate(dict_plot.keys()):
         strength_list, np.abs(np.array(freq_list)), np.array(ap_list),
         min_dist=3e-3, n_indep_list=np.zeros_like(strength_list, dtype=np.int)+1,
         allowed_range=(.27, .27+4e-3))
+
+    axharm.set_ylim(l_min, l_max)
+    axharm.set_xlim(min_strength, max_strength)
+    figharm.suptitle(ll)
+    figharm.subplots_adjust(right=.83)
+    fig_harm_list.append(figharm)
+
     # Plot data from intrabunch motion
-    all_freqs = np.concatenate((oo.freqs_1mode_re_list, oo.freqs_1mode_im_list), axis=1)
-    all_aps = np.concatenate((oo.ap_1mode_re_list, oo.ap_1mode_im_list), axis=1)
+    all_freqs = np.concatenate(
+            (oo.freqs_1mode_re_list[mask_strength],
+             oo.freqs_1mode_im_list[mask_strength]), axis=1)
+    all_aps = np.concatenate(
+            (oo.ap_1mode_re_list[mask_strength],
+             oo.ap_1mode_im_list[mask_strength]), axis=1)
     maxsizeintra = np.max(np.array(all_aps))
     figintra = plt.figure(200+ii)
     axintra = figintra.add_subplot(111, sharex=axshare, sharey=axshare)
