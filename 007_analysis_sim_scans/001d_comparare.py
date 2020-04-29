@@ -32,6 +32,39 @@ colorlist = ['b', 'r', 'g', 'orange', 'k']
 colorlist = ['C0', 'C3']
 #colorlist = None
 
+
+
+def extract_independent_lines(strength_list,
+        all_freqs, all_aps, min_dist, n_indep_list):
+
+    all_freq_indep = []
+    all_aps_indep = []
+    all_stre_indep = []
+    for jjj, sss in enumerate(strength_list):
+        this_freqs = np.abs(all_freqs[jjj, :])
+        this_aps = np.abs(all_aps[jjj, :])
+
+        i_sorted = np.argsort(this_aps)[::-1]
+
+        this_f_indep = [this_freqs[i_sorted[0]]]
+        this_ap_indep = [this_aps[i_sorted[0]]]
+        this_stren_indep = [sss]
+        for ifr in i_sorted:
+            if len(this_f_indep) == n_indep_list[jjj]:
+                break
+            ff = this_freqs[ifr]
+            if np.min(np.abs(ff - np.array(this_f_indep))) > min_dist:
+                this_f_indep.append(ff)
+                this_ap_indep.append(this_aps[ifr])
+                this_stren_indep.append(sss)
+
+        all_freq_indep += this_f_indep
+        all_aps_indep += this_ap_indep
+        all_stre_indep += this_stren_indep
+
+    return all_freq_indep, all_aps_indep, all_stre_indep
+
+
 plt.close('all')
 fig1 = plt.figure(1, figsize=(6.4*1.2, 4.8))
 ax1 = fig1.add_subplot(111)
@@ -70,6 +103,13 @@ for ii, ll in enumerate(dict_plot.keys()):
     figharm.suptitle(ll)
     figharm.subplots_adjust(right=.83)
     fig_harm_list.append(figharm)
+    all_freq_indep_0, all_aps_indep_0, all_stre_indep_0 = extract_independent_lines(
+        strength_list, np.abs(np.array(freq_list)), np.array(ap_list),
+        min_dist=3e-3, n_indep_list=np.zeros_like(strength_list, dtype=np.int)+3)
+    indep_normalized_0 = (np.array(all_freq_indep_0)-.27)/Qs
+    mask_keep_0 = np.abs(indep_normalized_0)<1.5
+    axharm.plot(np.array(all_stre_indep_0)[mask_keep_0],
+                indep_normalized_0[mask_keep_0], '.', color='C03')
 
     # Plot data from intrabunch motion
     all_freqs = np.concatenate((oo.freqs_1mode_re_list, oo.freqs_1mode_im_list), axis=1)
@@ -86,33 +126,12 @@ for ii, ll in enumerate(dict_plot.keys()):
     min_dist = 3e-3
     n_indep_list = np.zeros_like(strength_list, dtype=np.int) + 50
     n_indep_list[oo.n_sample_list<1000] = 1
-    all_freq_indep = []
-    all_aps_indep = []
-    all_stre_indep = []
-    for jjj, sss in enumerate(strength_list):
-        this_freqs = np.abs(all_freqs[jjj, :])
-        this_aps = np.abs(all_aps[jjj, :])
+    all_freq_indep, all_aps_indep, all_stre_indep = extract_independent_lines(
+        strength_list, all_freqs, all_aps, min_dist, n_indep_list)
 
-        i_sorted = np.argsort(this_aps)[::-1]
-
-        this_f_indep = [this_freqs[i_sorted[0]]]
-        this_ap_indep = [this_aps[i_sorted[0]]]
-        this_stren_indep = [sss]
-        for ifr in i_sorted:
-            if len(this_f_indep) == n_indep_list[jjj]:
-                break
-            ff = this_freqs[ifr]
-            if np.min(np.abs(ff - np.array(this_f_indep))) > min_dist:
-                this_f_indep.append(ff)
-                this_ap_indep.append(this_aps[ifr])
-                this_stren_indep.append(sss)
-
-        all_freq_indep += this_f_indep
-        all_aps_indep += this_ap_indep
-        all_stre_indep += this_stren_indep
-        indep_normalized = (np.array(all_freq_indep)-.27)/Qs
-        mask_keep = np.abs(indep_normalized)<1.5
-        axintra.plot(np.array(all_stre_indep)[mask_keep],
+    indep_normalized = (np.array(all_freq_indep)-.27)/Qs
+    mask_keep = np.abs(indep_normalized)<1.5
+    axintra.plot(np.array(all_stre_indep)[mask_keep],
                 indep_normalized[mask_keep], '.', color='C03')
 
 ax1.legend(bbox_to_anchor=(1, 1),  loc='upper left', fontsize='small')
