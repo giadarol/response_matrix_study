@@ -83,6 +83,38 @@ for ii, ll in enumerate(dict_plot.keys()):
             y=(np.abs(np.array(all_freqs)).T.flatten()-q_frac)/Qs,
             s=np.clip(np.array(all_aps).T.flatten()/maxsizeintra*10, 0.0, 10))
 
+    min_dist = 3e-3
+    n_indep_list = np.zeros_like(strength_list, dtype=np.int) + 50
+    n_indep_list[oo.n_sample_list<1000] = 1
+    all_freq_indep = []
+    all_aps_indep = []
+    all_stre_indep = []
+    for jjj, sss in enumerate(strength_list):
+        this_freqs = np.abs(all_freqs[jjj, :])
+        this_aps = np.abs(all_aps[jjj, :])
+
+        i_sorted = np.argsort(this_aps)[::-1]
+
+        this_f_indep = [this_freqs[i_sorted[0]]]
+        this_ap_indep = [this_aps[i_sorted[0]]]
+        this_stren_indep = [sss]
+        for ifr in i_sorted:
+            if len(this_f_indep) == n_indep_list[jjj]:
+                break
+            ff = this_freqs[ifr]
+            if np.min(np.abs(ff - np.array(this_f_indep))) > min_dist:
+                this_f_indep.append(ff)
+                this_ap_indep.append(this_aps[ifr])
+                this_stren_indep.append(sss)
+
+        all_freq_indep += this_f_indep
+        all_aps_indep += this_ap_indep
+        all_stre_indep += this_stren_indep
+        indep_normalized = (np.array(all_freq_indep)-.27)/Qs
+        mask_keep = np.abs(indep_normalized)<1.5
+        axintra.plot(np.array(all_stre_indep)[mask_keep],
+                indep_normalized[mask_keep], '.', color='C03')
+
 ax1.legend(bbox_to_anchor=(1, 1),  loc='upper left', fontsize='small')
 ax1.grid(True, linestyle=':')
 ax1.set_xlim(min_strength, max_strength)
