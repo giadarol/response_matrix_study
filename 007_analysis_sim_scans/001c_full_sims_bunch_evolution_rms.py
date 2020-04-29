@@ -136,8 +136,8 @@ T_rev = 88.9e-6
 
 # Comparison strength
 #strength_list = np.arange(0.1, 2.1, 0.1)
-#strength_list = np.arange(0.02, 2.0, 0.02)
-strength_list = np.arange(0.1, 1.5, 0.02)
+strength_list = np.arange(0.02, 2.0, 0.02)
+#strength_list = np.arange(0.1, 1.5, 0.02)
 #strength_list = np.arange(0.1, 2.0, 0.02)
 labels = [f'strength {ss:.3f}' for ss in strength_list]
 folders_compare = [
@@ -147,7 +147,7 @@ folders_compare = [
 #      f'../005q_strength_scan_linrf6MV_all_harmonics_dip_matrix_fullmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005r_strength_scan_linrf6MV_all_harmonics_dip_matrix_linmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005s_strength_scan_linrf6MV_all_harmonics_dip_matrix_nomap/simulations/strength_{ss:.2e}/' for ss in strength_list]
-      #f'../005t1_strength_scan_linrf6MV_all_harmonics_dip_matrix_only/simulations_long/strength_{ss:.2e}/' for ss in strength_list]
+      f'../005t1_strength_scan_linrf6MV_all_harmonics_dip_matrix_only/simulations_long/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t2_strength_scan_linrf6MV_all_harmonics_dip_matrix_phshift/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t2a_strength_scan_linrf6MV_all_harmonics_dip_matrix_phshift_staticDq/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t2af_strength_scan_linrf6MV_all_harmonics_dip_matrix_phshift_staticDqwfactor/simulations_long/strength_{ss:.2e}/' for ss in strength_list]
@@ -175,18 +175,18 @@ folders_compare = [
      # '_intensity_1.2e11ppb_VRF_6MV_scan_length_factor_0.1_2.0/'
      # 'simulations_PyPARIS/'
      # f'initial_kick_no_damper_no_recenter_slices_length_factor_{ss:.1f}') for ss in strength_list]
-     ('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_019/'
-      '/inj_arcQuad_no_initial_kick_no_damper_recenter_slice'
-       '_sey_1.4_intensity_1.2e11ppb_VRF_6MV_scan_length_factor_0.1_1.5'
-       '/simulations_PyPARIS/'
-       f'initial_kick_no_damper_no_recenter_slices_length_factor_{ss:.3f}') for ss in strength_list]
+     #('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_019/'
+     # '/inj_arcQuad_no_initial_kick_no_damper_recenter_slice'
+     #  '_sey_1.4_intensity_1.2e11ppb_VRF_6MV_scan_length_factor_0.1_1.5'
+     #  '/simulations_PyPARIS/'
+     #  f'initial_kick_no_damper_no_recenter_slices_length_factor_{ss:.3f}') for ss in strength_list]
      #('/afs/cern.ch/project/spsecloud/Sim_PyPARIS_019/'
      # 'inj_arcQuad_no_initial_kick_no_damper_recenter_slice'
      # '_sey_1.4_intensity_1.2e11ppb_VRF_6MV_Qpxy_5_scan_length_factor_0.1_1.5/'
      #  '/simulations_PyPARIS/'
      #  f'initial_kick_no_damper_no_recenter_slices_length_factor_{ss:.3f}') for ss in strength_list]
 fft2mod = 'lin'
-fname = 'compact_pic'
+fname = 'compact_t1'
 #fname = None
 i_start_list = None
 n_turns = len(strength_list)*[8000]

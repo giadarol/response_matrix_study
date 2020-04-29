@@ -1,35 +1,38 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
+from matplotlib import cm
+from matplotlib.colors import Normalize
+import PyECLOUD.mystyle as ms
 import PyECLOUD.myfilemanager as mfm
 
 beta_func = 92.7
 T_rev = 88.9e-6
 q_frac = .27
 Qs = 4.9e-3
-l_min = -5
-l_max = 3
+l_min = -6
+l_max = 4
 alpha_0 = -1.61237838e-03
 min_strength = 0
 max_strength = 1.5
 tau_min = 0
 tau_max = 300
-
+flag_mode_0 = False
+flag_mode_unstab = False
 factor_DQ0 = 0.85
 DQ_0 = -alpha_0 * beta_func/4/np.pi*factor_DQ0
 
 dict_plot = {
-        #'t1':  {'fname':'./processed_data/compact_t1_fit.mat', 'tilt_lines':False, 'scale_x':1},
-        #'t2': {'fname':'./processed_data/compact_t2_fit.mat', 'tilt_lines':False, 'scale_x':1},
+        't1':  {'fname':'./processed_data/compact_t1_fit.mat', 'tilt_lines':False, 'scale_x':1},
+        't2': {'fname':'./processed_data/compact_t2_fit.mat', 'tilt_lines':False, 'scale_x':1},
         #'t2af':{'fname':'./processed_data/compact_t2af_fit.mat', 'tilt_lines':True, 'scale_x':1},
-        #'t3': {'fname':'./processed_data/compact_t3_fit.mat', 'tilt_lines':True, 'scale_x':1},
+        't3': {'fname':'./processed_data/compact_t3_fit.mat', 'tilt_lines':True, 'scale_x':1},
         #'t4': {'fname':'./processed_data/compact_t4_fit.mat', 'tilt_lines':True, 'scale_x':1},
         #'t6': {'fname':'./processed_data/compact_t6_fit.mat', 'tilt_lines':True, 'scale_x':1},
         'pic':{'fname':'./processed_data/compact_pic_fit.mat', 'tilt_lines':True, 'scale_x':1.},
         #'picQp5':{'fname':'./processed_data/compact_picQp5_fit.mat', 'tilt_lines':True, 'scale_x':1.},
         }
 colorlist = ['b', 'r', 'g', 'orange', 'k']
-colorlist = ['C0', 'C3']
+#colorlist = ['C0', 'C3']
 #colorlist = None
 
 
@@ -70,10 +73,12 @@ def extract_independent_lines(strength_list,
 
 
 plt.close('all')
+ms.mystyle_arial(fontsz=14, dist_tick_lab=5, traditional_look=False)
 fig1 = plt.figure(1, figsize=(6.4*1.2, 4.8))
 ax1 = fig1.add_subplot(111)
 axshare = None
-fig_harm_list = []
+figharm_list = []
+figintra_list = []
 for ii, ll in enumerate(dict_plot.keys()):
     oo = mfm.myloadmat_to_obj(dict_plot[ll]['fname'])
     tilt_lines = dict_plot[ll]['tilt_lines']
@@ -107,8 +112,8 @@ for ii, ll in enumerate(dict_plot.keys()):
 
     all_freq_indep_0, all_aps_indep_0, all_stre_indep_0 = extract_independent_lines(
         strength_list, np.abs(np.array(freq_list)), np.array(ap_list),
-        min_dist=3e-3, n_indep_list=np.zeros_like(strength_list, dtype=np.int)+3)
-    indep_normalized_0 = (np.array(all_freq_indep_0)-.27)/Qs
+        min_dist=3e-3, n_indep_list=np.zeros_like(strength_list, dtype=np.int)+2)
+    indep_normalized_0 = (np.array(all_freq_indep_0)-q_frac)/Qs
     mask_keep_0 = np.abs(indep_normalized_0)<1.5
     axharm.plot(np.array(all_stre_indep_0)[mask_keep_0],
                 indep_normalized_0[mask_keep_0], '.', color='C03')
@@ -116,13 +121,13 @@ for ii, ll in enumerate(dict_plot.keys()):
     freq_mode_0, ap_mode_0, stre_mode_0 = extract_independent_lines(
         strength_list, np.abs(np.array(freq_list)), np.array(ap_list),
         min_dist=3e-3, n_indep_list=np.zeros_like(strength_list, dtype=np.int)+1,
-        allowed_range=(.27, .27+4e-3))
+        allowed_range=(q_frac, q_frac + .8*Qs))
 
     axharm.set_ylim(l_min, l_max)
     axharm.set_xlim(min_strength, max_strength)
     figharm.suptitle(ll)
     figharm.subplots_adjust(right=.83)
-    fig_harm_list.append(figharm)
+    figharm_list.append(figharm)
 
     # Plot data from intrabunch motion
     all_freqs = np.concatenate(
@@ -131,25 +136,69 @@ for ii, ll in enumerate(dict_plot.keys()):
     all_aps = np.concatenate(
             (oo.ap_1mode_re_list[mask_strength],
              oo.ap_1mode_im_list[mask_strength]), axis=1)
+    # Renorm to each colunms
+    for jjj, sss in enumerate(strength_list):
+        all_aps[jjj, :] /= np.mean(all_aps[jjj, all_aps[jjj, :]>0])
     maxsizeintra = np.max(np.array(all_aps))
     figintra = plt.figure(200+ii)
     axintra = figintra.add_subplot(111, sharex=axshare, sharey=axshare)
     str_mat_intra = np.dot(np.atleast_2d(np.ones(all_freqs.shape[1])).T,
             np.atleast_2d(np.array(strength_list)))
+    scale_marker = 1.5
     axintra.scatter(x=str_mat_intra.flatten(),
             y=(np.abs(np.array(all_freqs)).T.flatten()-q_frac)/Qs,
-            s=np.clip(np.array(all_aps).T.flatten()/maxsizeintra*10, 0.0, 10))
+            s=np.clip(np.array(all_aps).T.flatten()/maxsizeintra*scale_marker,
+                0.0, scale_marker),
+            c=np.clip(np.array(all_aps).T.flatten()/maxsizeintra, 0.3, 0.4),
+            cmap=cm.Blues, norm=Normalize(vmin=0, vmax=0.5)
+            )
 
-    min_dist = 3e-3
-    n_indep_list = np.zeros_like(strength_list, dtype=np.int) + 50
-    n_indep_list[oo.n_sample_list<1000] = 1
-    all_freq_indep, all_aps_indep, all_stre_indep = extract_independent_lines(
-        strength_list, all_freqs, all_aps, min_dist, n_indep_list)
+    if flag_mode_0:
+        # Plot mode zero
+        insta_thresh = 1.21
+        mask_plot_mode_0 = np.array(stre_mode_0) < insta_thresh
+        axintra.plot(np.array(stre_mode_0)[mask_plot_mode_0],
+                (np.array(freq_mode_0)[mask_plot_mode_0]-q_frac)/Qs, '.k')
+    if flag_mode_unstab:
+        # Plot unstable freq
+        freq_instab, ap_instab, stre_instab = extract_independent_lines(
+            strength_list, all_freqs, all_aps, 1e-3,
+            np.ones_like(strength_list, dtype=np.int))
+        mask_instab = np.array(stre_instab) > insta_thresh
+        axintra.plot(np.array(stre_instab)[mask_instab],
+                (np.array(freq_instab)[mask_instab]-q_frac)/Qs, '.r')
 
-    indep_normalized = (np.array(all_freq_indep)-.27)/Qs
-    mask_keep = np.abs(indep_normalized)<1.5
-    axintra.plot(np.array(all_stre_indep)[mask_keep],
-                indep_normalized[mask_keep], '.', color='C03')
+    axintra.set_yticks(np.arange(l_min+1, l_max-0.2))
+    axintra.grid(axis='y', linestyle='--')
+    axintra.set_xlabel('e-cloud strength')
+    axintra.set_ylabel(r'(Q - Q$_0$)/Q$_s$')
+    figintra.suptitle(ll)
+    figintra.subplots_adjust(bottom=.12)
+    figintra_list.append(figintra)
+
+    # min_dist = 3e-3
+    # n_indep_list = np.zeros_like(strength_list, dtype=np.int) + 2
+    # n_indep_list[oo.n_sample_list<1000] = 1
+    # all_freq_indep, all_aps_indep, all_stre_indep = extract_independent_lines(
+    #     strength_list, all_freqs, all_aps, min_dist, n_indep_list)
+    # min_dist = 3e-3
+    # n_indep_list = np.zeros_like(strength_list, dtype=np.int) + 2
+    # n_indep_list[oo.n_sample_list<1000] = 1
+    # all_freq_indep, all_aps_indep, all_stre_indep = extract_independent_lines(
+    #     strength_list, all_freqs, all_aps, min_dist, n_indep_list)
+
+    # indep_normalized = (np.array(all_freq_indep)-q_frac)/Qs
+    # mask_keep = np.abs(indep_normalized)<2
+    # axintra.plot(np.array(all_stre_indep)[mask_keep],
+    #             indep_normalized[mask_keep], '.', color='C03')
+
+    # for i_sb in [-1, 1.1]:
+    #     freq_sb, ap_sb, stre_sb = extract_independent_lines(
+    #         strength_list, np.abs(np.array(freq_list)), np.array(ap_list),
+    #         min_dist=3e-3, n_indep_list=np.zeros_like(strength_list, dtype=np.int)+1,
+    #         allowed_range=(q_frac+(i_sb*Qs-0.1*Qs), q_frac + (i_sb + 1.)*Qs))
+    #     sb_normalized = (np.array(freq_sb)-q_frac)/Qs
+    #     axintra.plot(np.array(stre_sb), sb_normalized, '.', color='C01')
 
 ax1.legend(bbox_to_anchor=(1, 1),  loc='upper left', fontsize='small')
 ax1.grid(True, linestyle=':')
