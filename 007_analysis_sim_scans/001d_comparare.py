@@ -26,7 +26,7 @@ dict_plot = {
         #'t4': {'fname':'./processed_data/compact_t4_fit.mat', 'tilt_lines':True, 'scale_x':1},
         #'t6': {'fname':'./processed_data/compact_t6_fit.mat', 'tilt_lines':True, 'scale_x':1},
         'pic':{'fname':'./processed_data/compact_pic_fit.mat', 'tilt_lines':True, 'scale_x':1.},
-        'picQp5':{'fname':'./processed_data/compact_picQp5_fit.mat', 'tilt_lines':True, 'scale_x':1.},
+        #'picQp5':{'fname':'./processed_data/compact_picQp5_fit.mat', 'tilt_lines':True, 'scale_x':1.},
         }
 colorlist = ['b', 'r', 'g', 'orange', 'k']
 colorlist = ['C0', 'C3']
@@ -70,6 +70,18 @@ for ii, ll in enumerate(dict_plot.keys()):
     figharm.suptitle(ll)
     figharm.subplots_adjust(right=.83)
     fig_harm_list.append(figharm)
+
+    # Plot data from intrabunch motion
+    all_freqs = np.concatenate((oo.freqs_1mode_re_list, oo.freqs_1mode_im_list), axis=1)
+    all_aps = np.concatenate((oo.ap_1mode_re_list, oo.ap_1mode_im_list), axis=1)
+    maxsizeintra = np.max(np.array(all_aps))
+    figintra = plt.figure(200+ii)
+    axintra = figintra.add_subplot(111, sharex=axshare, sharey=axshare)
+    str_mat_intra = np.dot(np.atleast_2d(np.ones(all_freqs.shape[1])).T,
+            np.atleast_2d(np.array(strength_list)))
+    axintra.scatter(x=str_mat_intra.flatten(),
+            y=(np.abs(np.array(all_freqs)).T.flatten()-q_frac)/Qs,
+            s=np.clip(np.array(all_aps).T.flatten()/maxsizeintra*10, 0.0, 10))
 
 ax1.legend(bbox_to_anchor=(1, 1),  loc='upper left', fontsize='small')
 ax1.grid(True, linestyle=':')

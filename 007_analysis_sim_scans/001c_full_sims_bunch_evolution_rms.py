@@ -138,7 +138,6 @@ T_rev = 88.9e-6
 #strength_list = np.arange(0.1, 2.1, 0.1)
 #strength_list = np.arange(0.02, 2.0, 0.02)
 strength_list = np.arange(0.1, 1.5, 0.02)
-strength_list = np.arange(0.8, 1.5, 0.02)
 #strength_list = np.arange(0.1, 2.0, 0.02)
 labels = [f'strength {ss:.3f}' for ss in strength_list]
 folders_compare = [
@@ -237,10 +236,10 @@ freqs_1mode_re_list = []
 freqs_1mode_im_list = []
 ap_1mode_re_list = []
 ap_1mode_im_list = []
-freqs_naff_1mode_re_list = []
-freqs_naff_1mode_im_list = []
-ap_naff_1mode_re_list = []
-ap_naff_1mode_im_list = []
+#freqs_naff_1mode_re_list = []
+#freqs_naff_1mode_im_list = []
+#ap_naff_1mode_re_list = []
+#ap_naff_1mode_im_list = []
 for ifol, folder in enumerate(folders_compare):
 
     print('Folder %d/%d'%(ifol, len(folders_compare)))
@@ -548,25 +547,27 @@ for ifol, folder in enumerate(folders_compare):
         N_lines = len(SX.ax)
 
         # One intra-bunch mode
-        signal_re = np.real(np.sum(ffts[:5, :], axis=0))
+        N_terms_intra = 10
+        signal_re = np.real(np.sum(ffts[:N_terms_intra, :], axis=0))
         SX.sussix(signal_re, signal_re,
                 signal_re, signal_re, signal_re, signal_re)
         freqs_1mode_re_list.append(SX.ox)
         ap_1mode_re_list.append(SX.ax)
 
-        signal_im = np.imag(ffts[i_mode, :])
+        #signal_im = np.imag(ffts[i_mode, :])
+        signal_im = np.imag(np.sum(ffts[:N_terms_intra, :], axis=0))
         SX.sussix(signal_im, signal_im,
                 signal_im, signal_im, signal_im, signal_im)
         freqs_1mode_im_list.append(SX.ox)
         ap_1mode_im_list.append(SX.ax)
 
-        N_lines_naff = 5
-        freq_naff_1mode_re, ap_naff_1mode_re, an = nl.get_tunes(signal_re, N_lines_naff)
-        freq_naff_1mode_im, ap_naff_1mode_im, an = nl.get_tunes(signal_im, N_lines_naff)
-        freqs_naff_1mode_re_list.append(freq_naff_1mode_re)
-        freqs_naff_1mode_im_list.append(freq_naff_1mode_im)
-        ap_naff_1mode_re_list.append(ap_naff_1mode_re)
-        ap_naff_1mode_im_list.append(ap_naff_1mode_im)
+        # N_lines_naff = 5
+        # freq_naff_1mode_re, ap_naff_1mode_re, an = nl.get_tunes(signal_re, N_lines_naff)
+        # freq_naff_1mode_im, ap_naff_1mode_im, an = nl.get_tunes(signal_im, N_lines_naff)
+        # freqs_naff_1mode_re_list.append(freq_naff_1mode_re)
+        # freqs_naff_1mode_im_list.append(freq_naff_1mode_im)
+        # ap_naff_1mode_re_list.append(ap_naff_1mode_re)
+        # ap_naff_1mode_im_list.append(ap_naff_1mode_im)
 
 for ax in [ax11, ax12, ax13, axfft]:
     ax.grid(True, linestyle='--', alpha=0.5)
@@ -602,17 +603,15 @@ axharm = figharm.add_subplot(111)
 str_mat = np.dot(np.atleast_2d(np.ones(N_lines)).T, np.atleast_2d(np.array(strength_list)))
 axharm.scatter(x=str_mat.flatten(), y=(np.abs(np.array(freq_list)).T.flatten()-q_frac)/Qs, s=np.clip(np.array(ap_list).T.flatten()/maxsize*10, 0.0, 100))
 
-figharm_re = plt.figure()
+figharm_intra = plt.figure()
+clip_size = 0.01
 maxsize = np.max(np.array(ap_1mode_re_list))
-axharm = figharm_re.add_subplot(111)
+axharm = figharm_intra.add_subplot(111)
 str_mat = np.dot(np.atleast_2d(np.ones(N_lines)).T, np.atleast_2d(np.array(strength_list)))
-axharm.scatter(x=str_mat.flatten(), y=(np.abs(np.array(freqs_1mode_re_list)).T.flatten()-q_frac)/Qs, s=np.clip(np.array(ap_1mode_re_list).T.flatten()/maxsize*10, 0.0, 100000))
-
-figharm_im = plt.figure()
+axharm.scatter(x=str_mat.flatten(), y=(np.abs(np.array(freqs_1mode_re_list)).T.flatten()-q_frac)/Qs, s=np.clip(np.array(ap_1mode_re_list).T.flatten()/maxsize*1, 0.0, clip_size)/clip_size, color = 'C0')
 maxsize = np.max(np.array(ap_1mode_im_list))
-axharm = figharm_im.add_subplot(111)
 str_mat = np.dot(np.atleast_2d(np.ones(N_lines)).T, np.atleast_2d(np.array(strength_list)))
-axharm.scatter(x=str_mat.flatten(), y=(np.abs(np.array(freqs_1mode_im_list)).T.flatten()-q_frac)/Qs, s=np.clip(np.array(ap_1mode_im_list).T.flatten()/maxsize*10, 0.0, 100000))
+axharm.scatter(x=str_mat.flatten(), y=(np.abs(np.array(freqs_1mode_im_list)).T.flatten()-q_frac)/Qs, s=np.clip(np.array(ap_1mode_im_list).T.flatten()/maxsize*1, 0.0, clip_size)/clip_size, color = 'C3')
 
 figtau = plt.figure(112)
 axtau = figtau.add_subplot(111)
@@ -628,8 +627,10 @@ if fname is not None:
         'ap_list': np.array(ap_list),
         'n_sample_list': np.array(n_sample_list),
         'p_list_centroid': np.array(p_list_centroid)[:, 0],
-        'tune_1mode_re_list': np.array(tune_1mode_re_list),
-        'tune_1mode_im_list': np.array(tune_1mode_im_list),
+        'freqs_1mode_re_list': np.array(freqs_1mode_re_list),
+        'freqs_1mode_im_list': np.array(freqs_1mode_im_list),
+        'ap_1mode_re_list': np.array(ap_1mode_re_list),
+        'ap_1mode_im_list': np.array(ap_1mode_im_list),
         })
 
 plt.show()
