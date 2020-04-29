@@ -35,7 +35,8 @@ colorlist = ['C0', 'C3']
 
 
 def extract_independent_lines(strength_list,
-        all_freqs, all_aps, min_dist, n_indep_list):
+        all_freqs, all_aps, min_dist, n_indep_list,
+        allowed_range=None):
 
     all_freq_indep = []
     all_aps_indep = []
@@ -46,21 +47,24 @@ def extract_independent_lines(strength_list,
 
         i_sorted = np.argsort(this_aps)[::-1]
 
-        this_f_indep = [this_freqs[i_sorted[0]]]
-        this_ap_indep = [this_aps[i_sorted[0]]]
-        this_stren_indep = [sss]
+        this_f_indep = [0]
+        this_ap_indep = [0]
+        this_stren_indep = [0]
         for ifr in i_sorted:
-            if len(this_f_indep) == n_indep_list[jjj]:
+            if len(this_f_indep) > n_indep_list[jjj]:
                 break
             ff = this_freqs[ifr]
+            if allowed_range is not None:
+                if ff>allowed_range[1] or ff<allowed_range[0]:
+                    continue
             if np.min(np.abs(ff - np.array(this_f_indep))) > min_dist:
                 this_f_indep.append(ff)
                 this_ap_indep.append(this_aps[ifr])
                 this_stren_indep.append(sss)
 
-        all_freq_indep += this_f_indep
-        all_aps_indep += this_ap_indep
-        all_stre_indep += this_stren_indep
+        all_freq_indep += this_f_indep[1:]
+        all_aps_indep += this_ap_indep[1:]
+        all_stre_indep += this_stren_indep[1:]
 
     return all_freq_indep, all_aps_indep, all_stre_indep
 
@@ -111,6 +115,10 @@ for ii, ll in enumerate(dict_plot.keys()):
     axharm.plot(np.array(all_stre_indep_0)[mask_keep_0],
                 indep_normalized_0[mask_keep_0], '.', color='C03')
 
+    freq_mode_0, ap_mode_0, stre_mode_0 = extract_independent_lines(
+        strength_list, np.abs(np.array(freq_list)), np.array(ap_list),
+        min_dist=3e-3, n_indep_list=np.zeros_like(strength_list, dtype=np.int)+1,
+        allowed_range=(.27, .27+4e-3))
     # Plot data from intrabunch motion
     all_freqs = np.concatenate((oo.freqs_1mode_re_list, oo.freqs_1mode_im_list), axis=1)
     all_aps = np.concatenate((oo.ap_1mode_re_list, oo.ap_1mode_im_list), axis=1)
