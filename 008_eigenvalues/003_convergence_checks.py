@@ -10,7 +10,7 @@ pkl_fname = 'mode_coupling_matrix.pkl'
 
 l_min = -7
 l_max = 7
-m_max = 20
+m_max = 39
 N_max = 49
 abs_min_imag_unstab = 1.
 
@@ -18,7 +18,7 @@ abs_min_imag_unstab = 1.
 l_min_plot = -5
 l_max_plot = 3
 min_strength_plot = 0
-max_strength_plot = 1.55
+max_strength_plot = 2.0
 tau_min_plot = 0
 tau_max_plot = 300
 

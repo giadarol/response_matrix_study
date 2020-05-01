@@ -1,7 +1,7 @@
 import os
 import numpy as np
 
-scan_folder_rel = 'simulations'
+scan_folder_rel = 'simulations_fine'
 
 environment_preparation = f'''
 source /afs/cern.ch/work/g/giadarol/sim_workspace_mpi_py3/venvs/py3/bin/activate
@@ -10,7 +10,7 @@ PYTHONPATH=$PYTHONPATH:{os.path.abspath('../')}
 '''
 # Last one is to get response matrix path
 
-strength_scan = np.arange(0., 2., 0.02)
+strength_scan = np.arange(0., 2., 0.01)
 
 files_to_be_copied = [
         '../008_eigenvalues/002_build_mode_matrix.py',
@@ -43,10 +43,10 @@ for ii in range(len(strength_scan)):
 beta_fun_rescale = 92.7
 l_min = -7
 l_max = 7
-m_max = 30
+m_max = 39
 n_phi = 3*360
 n_r = 3*200
-N_max = 29
+N_max = 49
 Qp=0.
 alpha_N_custom = []
 n_tail_cut = 0

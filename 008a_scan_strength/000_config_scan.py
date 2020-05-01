@@ -1,7 +1,7 @@
 import os
 import numpy as np
 
-scan_folder_rel = 'simulations'
+scan_folder_rel = 'simulations_fine'
 
 environment_preparation = f'''
 source /afs/cern.ch/work/g/giadarol/sim_workspace_mpi_py3/venvs/py3/bin/activate
@@ -10,7 +10,7 @@ PYTHONPATH=$PYTHONPATH:{os.path.abspath('../')}
 '''
 # Last one is to get response matrix path
 
-strength_scan = np.arange(0., 2., 0.02)
+strength_scan = np.arange(0., 2., 0.01)
 
 files_to_be_copied = [
         '../008_eigenvalues/002_build_mode_matrix.py',
@@ -54,6 +54,7 @@ save_pkl_fname = 'mode_coupling_matrix.pkl'
 response_matrix_file = '../../../001_sin_response_scan/response_data_processed.mat'
 z_strength_file = '../../../001a_sin_response_scan_unperturbed/linear_strength.mat'
 detuning_fit_order = 10
+include_detuning_with_long_amplitude = False
 pool_size = 0
 flag_solve_and_plot = False
 

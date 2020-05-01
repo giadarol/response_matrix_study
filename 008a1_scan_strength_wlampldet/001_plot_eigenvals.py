@@ -6,17 +6,17 @@ import scipy.io as sio
 
 import PyECLOUD.mystyle as ms
 
-strength_scan = np.arange(0., 2., 0.02)[1::]
+strength_scan = np.arange(0., 2., 0.01)[1::]
 
 omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
 omega_s = 4.9e-3*omega0
-simulation_folder = './simulations'
+simulation_folder = './simulations_fine'
 pkl_fname = 'mode_coupling_matrix.pkl'
 
 l_min = -7
 l_max = 7
-m_max = 20
-N_max = 29
+m_max = 39
+N_max = 49
 min_imag_unstab = 1.
 flag_correct_tune = False
 flag_tilt_lines = False
