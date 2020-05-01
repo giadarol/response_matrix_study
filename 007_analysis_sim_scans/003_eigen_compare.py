@@ -88,7 +88,7 @@ for ill, ll in enumerate(dict_plot.keys()):
         maskmode0 = ((np.real(M00_array)/omega_s>-0.9) & (strength_scan<0.75))
         ax.plot(strength_scan_0[maskmode0],
                 np.real(M00_array)[maskmode0]/omega_s, '--',
-                linewidth=2, color='r', alpha=1.)
+                linewidth=2, color='orange', alpha=1.)
     for jj in range(len(strength_scan)):
         Omega_jj = Omega_mat[jj, :]
         ind_sorted = np.argsort(-np.imag(Omega_jj))
@@ -155,7 +155,7 @@ for ill, ll in enumerate(dict_plot.keys()):
     if mpsim_fname is not None:
         oo = mfm.myloadmat_to_obj(mpsim_fname)
         ax1.plot(oo.strength_list, oo.p_list_centroid/T_rev, '.', alpha=.5,
-                **kwargs)
+            markeredgewidth=0, **kwargs)
         from scipy.signal import savgol_filter
         mask_plot = oo.strength_list < max_strength_tau_plot
         smooth_gr = savgol_filter(oo.p_list_centroid[mask_plot]/T_rev, 31, 5)
@@ -167,7 +167,7 @@ ax1.legend(loc='upper left', fontsize='medium', frameon=False)
 ax1.set_xlim(0, max_strength_tau_plot)
 ax1.set_ylim(tau_min_plot, tau_max_plot)
 ax1.set_xlabel('e-cloud strength')
-ax1.set_ylabel('Instability growth rate [1/s]')
+ax1.set_ylabel(r'Instability growth rate [s$-1$]')
 fig1.subplots_adjust(right=.71, bottom=.12, top=.85)
 fig1.savefig(fig_fname + '_glob.png', dpi=200)
 plt.show()

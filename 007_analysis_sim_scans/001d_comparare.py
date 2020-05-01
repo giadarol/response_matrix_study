@@ -108,7 +108,8 @@ for ii, ll in enumerate(dict_plot.keys()):
     #             alpha=0.5, linestyle='-', color='grey')
     axharm.scatter(x=str_mat.flatten(),
             y=(np.abs(np.array(freq_list)).T.flatten()-q_frac)/Qs,
-            s=np.clip(np.array(ap_list).T.flatten()/maxsize*10, 0.0, 10))
+            s=np.clip(np.array(ap_list).T.flatten()/maxsize*10, 0.0, 10),
+            color='darkblue')
 
     all_freq_indep_0, all_aps_indep_0, all_stre_indep_0 = extract_independent_lines(
         strength_list, np.abs(np.array(freq_list)), np.array(ap_list),
@@ -149,9 +150,9 @@ for ii, ll in enumerate(dict_plot.keys()):
             y=(np.abs(np.array(all_freqs)).T.flatten()-q_frac)/Qs,
             s=np.clip(np.array(all_aps).T.flatten()/maxsizeintra*scale_marker,
                 0.0, scale_marker),
-            c=np.clip(np.array(all_aps).T.flatten()/maxsizeintra, 0.3, 0.4),
-            cmap=cm.Blues, norm=Normalize(vmin=0, vmax=0.5)
-            )
+            #c=np.clip(np.array(all_aps).T.flatten()/maxsizeintra, 0.3, 0.4),
+            cmap=cm.Blues, norm=Normalize(vmin=0, vmax=0.5),
+            color='C0')
 
     if flag_mode_0:
         # Plot mode zero
@@ -173,7 +174,7 @@ for ii, ll in enumerate(dict_plot.keys()):
     axintra.set_xlabel('e-cloud strength')
     axintra.set_ylabel(r'(Q - Q$_0$)/Q$_s$')
     figintra.suptitle(ll)
-    figintra.subplots_adjust(bottom=.12)
+    figintra.subplots_adjust(bottom=.12, right=.85)
     figintra_list.append(figintra)
 
     # min_dist = 3e-3
