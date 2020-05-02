@@ -13,26 +13,31 @@ l_min = -6
 l_max = 4
 alpha_0 = -1.61237838e-03
 min_strength = 0
-max_strength = 1.5
+max_strength = 1.6
+max_strength_tau_plot = 1.6
 tau_min = 0
 tau_max = 300
 flag_mode_0 = False
-flag_mode_unstab = False
+flag_mode_unstab = True
 factor_DQ0 = 0.85
 DQ_0 = -alpha_0 * beta_func/4/np.pi*factor_DQ0
 
+
+# Comparison for paper
 dict_plot = {
         't1':  {'fname':'./processed_data/compact_t1_fit.mat', 'tilt_lines':False, 'scale_x':1},
         't2': {'fname':'./processed_data/compact_t2_fit.mat', 'tilt_lines':False, 'scale_x':1},
-        #'t2af':{'fname':'./processed_data/compact_t2af_fit.mat', 'tilt_lines':True, 'scale_x':1},
         't3': {'fname':'./processed_data/compact_t3_fit.mat', 'tilt_lines':True, 'scale_x':1},
-        #'t4': {'fname':'./processed_data/compact_t4_fit.mat', 'tilt_lines':True, 'scale_x':1},
-        #'t6': {'fname':'./processed_data/compact_t6_fit.mat', 'tilt_lines':True, 'scale_x':1},
-        'pic':{'fname':'./processed_data/compact_pic_fit.mat', 'tilt_lines':True, 'scale_x':1.},
-        #'picQp5':{'fname':'./processed_data/compact_picQp5_fit.mat', 'tilt_lines':True, 'scale_x':1.},
         }
+
+
+dict_plot = {
+        'pic':{'fname':'./processed_data/compact_pic_fit.mat', 'tilt_lines':True, 'scale_x':1., 'insta_thresh': 1.23, 'label': 'Particle In Cell'},
+        't6': {'fname':'./processed_data/compact_t6_fit.mat', 'tilt_lines':True, 'scale_x':1, 'insta_thresh': 1.42, 'label': r'$\Delta$Q$_\Phi\neq$0, $\Delta$Q$_R\neq$0'+'\n+ transverse non-linear map'},
+        }
+
 colorlist = ['b', 'r', 'g', 'orange', 'k']
-#colorlist = ['C0', 'C3']
+colorlist = ['C3', 'g']
 #colorlist = None
 
 
@@ -81,13 +86,22 @@ figharm_list = []
 figintra_list = []
 for ii, ll in enumerate(dict_plot.keys()):
     oo = mfm.myloadmat_to_obj(dict_plot[ll]['fname'])
+    insta_thresh = dict_plot[ll]['insta_thresh']
     tilt_lines = dict_plot[ll]['tilt_lines']
     scale_x = dict_plot[ll]['scale_x']
     kwargs = {}
     if colorlist is not None:
         kwargs['color'] = colorlist[ii]
-    ax1.plot(oo.strength_list*scale_x, oo.p_list_centroid/T_rev, label=ll,
-            linewidth=2, **kwargs)
+    # ax1.plot(oo.strength_list*scale_x, oo.p_list_centroid/T_rev, label=ll,
+    #         linewidth=2, **kwargs)
+    ax1.plot(oo.strength_list, oo.p_list_centroid/T_rev, '.', alpha=.5,
+        markeredgewidth=0, **kwargs)
+    from scipy.signal import savgol_filter
+    mask_plot = oo.strength_list < max_strength_tau_plot
+    smooth_gr = savgol_filter(oo.p_list_centroid[mask_plot]/T_rev, 31, 5)
+    ax1.plot(oo.strength_list[mask_plot], smooth_gr,
+            label=dict_plot[ll]['label'],
+            linestyle='--', linewidth=3, **kwargs)
 
     mask_strength = (oo.strength_list <= max_strength)
 
@@ -156,7 +170,6 @@ for ii, ll in enumerate(dict_plot.keys()):
 
     if flag_mode_0:
         # Plot mode zero
-        insta_thresh = 1.21
         mask_plot_mode_0 = np.array(stre_mode_0) < insta_thresh
         axintra.plot(np.array(stre_mode_0)[mask_plot_mode_0],
                 (np.array(freq_mode_0)[mask_plot_mode_0]-q_frac)/Qs, '.k')
@@ -167,7 +180,8 @@ for ii, ll in enumerate(dict_plot.keys()):
             np.ones_like(strength_list, dtype=np.int))
         mask_instab = np.array(stre_instab) > insta_thresh
         axintra.plot(np.array(stre_instab)[mask_instab],
-                (np.array(freq_instab)[mask_instab]-q_frac)/Qs, '.r')
+                (np.array(freq_instab)[mask_instab]-q_frac)/Qs, '.',
+                color='C3')
 
     axintra.set_yticks(np.arange(l_min+1, l_max-0.2))
     axintra.grid(axis='y', linestyle='--')
@@ -201,11 +215,11 @@ for ii, ll in enumerate(dict_plot.keys()):
     #     sb_normalized = (np.array(freq_sb)-q_frac)/Qs
     #     axintra.plot(np.array(stre_sb), sb_normalized, '.', color='C01')
 
-ax1.legend(bbox_to_anchor=(1, 1),  loc='upper left', fontsize='small')
-ax1.grid(True, linestyle=':')
+ax1.legend(loc='upper left', fontsize='medium', frameon=False)
+#ax1.grid(True, linestyle=':')
 ax1.set_xlim(min_strength, max_strength)
 ax1.set_ylim(tau_min, tau_max)
 ax1.set_xlabel('e-cloud strength')
-ax1.set_ylabel('Instability growth rate [1/s]')
-fig1.subplots_adjust(right=.77)
+ax1.set_ylabel(r'Instability growth rate [s$^{-1}$]')
+fig1.subplots_adjust(right=.71, bottom=.12, top=.85)
 plt.show()

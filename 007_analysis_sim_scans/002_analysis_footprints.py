@@ -60,6 +60,8 @@ fighlist = []
 figvlist = []
 fig_comb_h = plt.figure(2)
 ax_comb_h = fig_comb_h.add_subplot(111)
+figtest = plt.figure(3)
+axtest = figtest.add_subplot(111)
 for ifol, folder in enumerate(folders):
     try:
         import pickle
@@ -182,7 +184,7 @@ for ifol, folder in enumerate(folders):
         kwargs['color'] = ['C0', 'C3'][ifol]
         kwargs['markersize'] = [1, 5][ifol]
     ax_comb_h.plot(ob.z_init*1e2,
-            np.abs(ob.qy_i)-frac_qy, '.', **kwargs)
+            np.abs(ob.qx_i)-frac_qx, '.', **kwargs)
     # sigma_x = np.sqrt(pars['epsn_x']*betax/machine.betagamma)
     # sigma_y = np.sqrt(pars['epsn_y']*betay/machine.betagamma)
     # mask_small_amplitude = np.sqrt(
@@ -190,6 +192,17 @@ for ifol, folder in enumerate(folders):
     # z_small = ob.z_init[mask_small_amplitude]
     # qx_small = ob.qx_i[mask_small_amplitude]
     # ax2.plot(z_small*1e2, qx_small - frac_qx, 'k.', markersize=10)
+
+    sigma_z = np.std(ob.z_init)
+    z_vector = np.linspace(-3*sigma_z, 3*sigma_z, 100)
+    Dz = z_vector[1] - z_vector[0]
+    Qx_ave = 0*z_vector
+    for i_z, zz in enumerate(z_vector):
+        mask_in_slice = np.abs(ob.z_init - zz) <= Dz/2.
+        Qx_ave[i_z] = np.mean(np.abs(ob.qx_i)[mask_in_slice]-frac_qx)
+
+    axtest.plot(z_vector, Qx_ave)
+
 
     for ff in [fig1, fig2]:
         ff.suptitle(labels[ifol] + ' - I$_{LOF}$=%.1fA'%machine.i_octupole_focusing)

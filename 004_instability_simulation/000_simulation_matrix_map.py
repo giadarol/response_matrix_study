@@ -16,7 +16,7 @@ import response_matrix.modulated_quadrupole as mq
 
 # Default value
 flag_suppress_alpha_0 = False
-
+alpha_scale = 1.
 # start-settings-section
 n_terms_to_be_kept = 12
 n_tail_cut = 10
@@ -59,7 +59,7 @@ if include_detuning_with_z:
     else:
         alpha_N = alpha_N_custom
 
-    alpha_N = alpha_N[:N_poly_cut]
+    alpha_N = alpha_N[:N_poly_cut]*alpha_scale
 
 # Instantiate simulation
 sim_content = sim_mod.Simulation(param_file=sim_param_file)

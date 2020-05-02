@@ -4,6 +4,7 @@ sys.path.append("PyHEADTAIL")
 
 import math
 import numpy as np
+import os,sys
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import glob
@@ -147,7 +148,7 @@ folders_compare = [
 #      f'../005q_strength_scan_linrf6MV_all_harmonics_dip_matrix_fullmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005r_strength_scan_linrf6MV_all_harmonics_dip_matrix_linmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005s_strength_scan_linrf6MV_all_harmonics_dip_matrix_nomap/simulations/strength_{ss:.2e}/' for ss in strength_list]
-      f'../005t1_strength_scan_linrf6MV_all_harmonics_dip_matrix_only/simulations_long/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005t1_strength_scan_linrf6MV_all_harmonics_dip_matrix_only/simulations_long/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t2_strength_scan_linrf6MV_all_harmonics_dip_matrix_phshift/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t2a_strength_scan_linrf6MV_all_harmonics_dip_matrix_phshift_staticDq/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t2af_strength_scan_linrf6MV_all_harmonics_dip_matrix_phshift_staticDqwfactor/simulations_long/strength_{ss:.2e}/' for ss in strength_list]
@@ -164,6 +165,7 @@ folders_compare = [
       #f'../005t5_strength_scan_linrf6MV_all_harmonics_dip_matrix_phase_and_recentered_nlmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t5a_strength_scan_linrf6MV_all_harmonics_dip_matrix_tune_and_recentered_nlmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t6_strength_scan_linrf6MV_all_harmonics_dip_matrix_zdetuning_staticnlmap/simulations_long/strength_{ss:.2e}/' for ss in strength_list]
+      f'../005t6a_strength_scan_linrf6MV_all_harmonics_dip_matrix_0.9zdetuning_staticnlmap/simulations_long/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005d_strength_scan_6MV_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005e_strength_scan_6MV_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005f_strength_scan_6MV_map_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
@@ -186,7 +188,7 @@ folders_compare = [
      #  '/simulations_PyPARIS/'
      #  f'initial_kick_no_damper_no_recenter_slices_length_factor_{ss:.3f}') for ss in strength_list]
 fft2mod = 'lin'
-fname = 'compact_t1'
+fname = 'compact_t6a'
 #fname = None
 i_start_list = None
 n_turns = len(strength_list)*[8000]

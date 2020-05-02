@@ -113,18 +113,18 @@ ax81 = fig80.add_subplot(111)
 response_ene = np.sum(MM_plot**2, axis=0)
 response_ene = response_ene/np.max(response_ene)
 ax81.plot(response_ene[0::2], '.-',
-        label='cosine',
-        color='b', lw=2, markersize=10)
+        label='cosine terms', alpha=.6, markeredgewidth=0,
+        color='C0', lw=3, markersize=10)
 ax81.plot([np.nan]+list(response_ene)[1::2], '.-',
-        label='sine',
-        color='g', lw=2, markersize=8)
+        label='sine terms', alpha=.6, markeredgewidth=0,
+        color='C1', lw=3, markersize=10)
 ax81.set_ylim(bottom=0)
 ax81.set_xlim(left=0)
-ax81.grid(True, linestyle=':')
-ax81.legend(loc='upper right', fontsize='medium')
-ax81.set_xlabel('Number of oscillations')
-ax81.set_ylabel('Response normalized energy')
-fig80.subplots_adjust(bottom=.12)
+#ax81.grid(True, linestyle=':')
+ax81.legend(loc='upper right', fontsize='medium', frameon=False)
+ax81.set_xlabel(r'$f_n^z L_\mathrm{bucket}$')
+ax81.set_ylabel(r'$\int k^2_n(z)\,dz$')
+fig80.subplots_adjust(bottom=.13, right=.85)
 #ax81.ticklabel_format(style='sci', scilimits=(0, 0), axis='x')
 
 

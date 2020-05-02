@@ -68,7 +68,7 @@ for ii in i_plot_list:
     ax21.set_ylim(-2.5, 2.5)
     ax22.set_ylabel(r'$\Delta$p$_{x}$ [$\mu$rad]')
     ax22.set_xlabel('z [cm]')
-    ax22.grid(linestyle=':', alpha=.9)
+    #ax22.grid(linestyle=':', alpha=.9)
     axcb.set_ylabel(r'Charge density [e$^-$/m$^3$]')
     for ax in [ax21, ax22]:
         ax.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
