@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.constants import c as clight
 
+from scipy.constants import e as qe
+
 import PyECLOUD.myfilemanager as mfm
 import PyECLOUD.mystyle as ms
 
@@ -11,7 +13,7 @@ beta_fun = 92.7
 omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
 omega_s = 4.9e-3*omega0
 sigma_b = 0.097057
-
+vmax_edens = 0.85e14
 
 ob = mfm.myloadmat_to_obj('../001a_sin_response_scan_unperturbed/linear_strength.mat')
 z_slices = ob.z_slices
@@ -61,7 +63,8 @@ k_obs = - dQ_obs*4*np.pi/beta_fun
 plt.close('all')
 ms.mystyle_arial(fontsz=14, dist_tick_lab=5, traditional_look=False)
 fig100 = plt.figure(100)
-ax101 = fig100.add_subplot(111)
+ax100 = fig100.add_subplot(211)
+ax101 = fig100.add_subplot(212, sharex=ax100)
 ax101.plot(100*ob.z_slices, -1/(4*np.pi)*beta_fun*ob.k_z_integrated, lw=2)
 ax101.plot(100*ob.z_slices, dQ_obs, linestyle='--',
         lw=2, color='C3', alpha=0.8)
@@ -81,4 +84,11 @@ lambda_b = np.exp(-z_slices**2/(2*sigma_b**2))
 
 wavg_DQ = np.sum(lambda_b*dQ_obs)/np.sum(lambda_b)
 
+obmap = mfm.myloadmat_to_obj('../003_generate_field_map/rho_map_ec0.mat')
+iy_zero = np.argmin(np.abs(obmap.yg))
+
+mpbl = ax100.pcolormesh(1e2*obmap.zg, 1e3*obmap.xg,
+        -(1/qe)*np.mean(obmap.rho[:,:,iy_zero-5: iy_zero+5], axis=2).T,
+        vmin=0, vmax=vmax_edens)
+ax100.set_ylim(-4, 4)
 plt.show()

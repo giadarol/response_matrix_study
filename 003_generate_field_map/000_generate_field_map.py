@@ -50,11 +50,20 @@ slices_list_for_map = bunch_for_map.extract_slices(slicer)
 # Record field maps
 Ex_L_map = 0.
 Ey_L_map = 0.
-for ee in sim_content.parent_eclouds:
+for iee, ee in enumerate(sim_content.parent_eclouds):
+    ee.save_ele_distributions_last_track = True
     ee.track_once_and_replace_with_recorded_field_map(
         slices_list_for_map)
     Ex_L_map = Ex_L_map + ee.efieldmap.Ex * ee.efieldmap.L_interaction * sim_content.n_segments
     Ey_L_map = Ey_L_map + ee.efieldmap.Ey * ee.efieldmap.L_interaction * sim_content.n_segments
+    sio.savemat(f'rho_map_ec{iee}.mat', {
+        'xg': ee.efieldmap.pic.xg,
+        'yg': ee.efieldmap.pic.yg,
+        'zg': [ss.slice_info['z_bin_center'] for ss in slices_list_for_map],
+        'rho': ee.rho_ele_last_track,
+        'sigma_x': bunch_for_map.sigma_x(),
+        'sigma_y': bunch_for_map.sigma_y()
+        })
 
 sio.savemat('field_map.mat', {
     'xg': ee.efieldmap.pic.xg,
