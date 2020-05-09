@@ -10,7 +10,7 @@ import PyPARIS.util as pu
 
 
 # start-settings-section
-cos_amplitude = 1.00000000e-04
+cos_amplitude = 100*1.00000000e-04
 sin_amplitude = 0.00000000e+00
 N_oscillations = 3.00000000e+00
 

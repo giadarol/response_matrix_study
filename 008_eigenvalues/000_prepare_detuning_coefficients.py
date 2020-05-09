@@ -11,7 +11,7 @@ omega0 = 2*np.pi*clight/27e3 # Revolution angular frquency
 omega_s = 4.9e-3*omega0
 
 
-ob = mfm.myloadmat_to_obj('../001a_sin_response_scan_unperturbed/linear_strength.mat')
+ob = mfm.myloadmat_to_obj('../001a_sin_response_scan_quadrupolar/linear_strength.mat')
 z_slices = ob.z_slices
 p = np.polyfit(ob.z_slices, ob.k_z_integrated, deg=10)
 
