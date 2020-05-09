@@ -20,6 +20,7 @@ max_strength_tau_plot = 1.5001
 flag_tilt_lines = False
 flag_mode0 = True
 fig_fname = 'vlas'
+flag_intra = False
 
 colorlist = None
 colorlist = 'C0 C1 C2'.split()
@@ -154,11 +155,15 @@ for ill, ll in enumerate(dict_plot.keys()):
     mpsim_fname = dict_plot[ll]['mpsim_fname']
     if mpsim_fname is not None:
         oo = mfm.myloadmat_to_obj(mpsim_fname)
-        ax1.plot(oo.strength_list, oo.p_list_centroid/T_rev, '.', alpha=.5,
+        if flag_intra:
+            gr_sim = oo.p_list_intra/T_rev
+        else:
+            gr_sim = oo.p_list_centroid/T_rev
+        ax1.plot(oo.strength_list, gr_sim, '.', alpha=.5,
             markeredgewidth=0, **kwargs)
         from scipy.signal import savgol_filter
         mask_plot = oo.strength_list < max_strength_tau_plot
-        smooth_gr = savgol_filter(oo.p_list_centroid[mask_plot]/T_rev, 31, 5)
+        smooth_gr = savgol_filter(gr_sim[mask_plot], 31, 5)
         ax1.plot(oo.strength_list[mask_plot],
                 smooth_gr, '--', linewidth=3, **kwargs)
 

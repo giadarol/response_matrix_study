@@ -148,7 +148,7 @@ folders_compare = [
 #      f'../005q_strength_scan_linrf6MV_all_harmonics_dip_matrix_fullmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005r_strength_scan_linrf6MV_all_harmonics_dip_matrix_linmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005s_strength_scan_linrf6MV_all_harmonics_dip_matrix_nomap/simulations/strength_{ss:.2e}/' for ss in strength_list]
-      #f'../005t1_strength_scan_linrf6MV_all_harmonics_dip_matrix_only/simulations_long/strength_{ss:.2e}/' for ss in strength_list]
+      f'../005t1_strength_scan_linrf6MV_all_harmonics_dip_matrix_only/simulations_long/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t2_strength_scan_linrf6MV_all_harmonics_dip_matrix_phshift/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t2a_strength_scan_linrf6MV_all_harmonics_dip_matrix_phshift_staticDq/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t2af_strength_scan_linrf6MV_all_harmonics_dip_matrix_phshift_staticDqwfactor/simulations_long/strength_{ss:.2e}/' for ss in strength_list]
@@ -165,7 +165,7 @@ folders_compare = [
       #f'../005t5_strength_scan_linrf6MV_all_harmonics_dip_matrix_phase_and_recentered_nlmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t5a_strength_scan_linrf6MV_all_harmonics_dip_matrix_tune_and_recentered_nlmap/simulations/strength_{ss:.2e}/' for ss in strength_list]
       #f'../005t6_strength_scan_linrf6MV_all_harmonics_dip_matrix_zdetuning_staticnlmap/simulations_long/strength_{ss:.2e}/' for ss in strength_list]
-      f'../005t6a_strength_scan_linrf6MV_all_harmonics_dip_matrix_0.9zdetuning_staticnlmap/simulations_long/strength_{ss:.2e}/' for ss in strength_list]
+      #f'../005t6a_strength_scan_linrf6MV_all_harmonics_dip_matrix_0.9zdetuning_staticnlmap/simulations_long/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005d_strength_scan_6MV_matrix_map/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005e_strength_scan_6MV_matrix_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
 #     f'../005f_strength_scan_6MV_map_only/simulations/strength_{ss:.2e}/' for ss in strength_list]
@@ -188,7 +188,7 @@ folders_compare = [
      #  '/simulations_PyPARIS/'
      #  f'initial_kick_no_damper_no_recenter_slices_length_factor_{ss:.3f}') for ss in strength_list]
 fft2mod = 'lin'
-fname = 'compact_t6a'
+fname = 'compact_t1'
 #fname = None
 i_start_list = None
 n_turns = len(strength_list)*[8000]
@@ -228,6 +228,7 @@ axemi = figemi.add_subplot(111)
 
 p_list = []
 p_list_centroid = []
+p_list_intra = []
 freq_list = []
 ap_list = []
 n_sample_list = []
@@ -550,19 +551,24 @@ for ifol, folder in enumerate(folders_compare):
 
         # One intra-bunch mode
         N_terms_intra = 10
-        signal_re = np.real(np.sum(ffts[:N_terms_intra, :], axis=0))
+        intra_signal = np.sum(ffts[:N_terms_intra, mask_zero], axis=0)
+        signal_re = np.real(intra_signal)
         SX.sussix(signal_re, signal_re,
                 signal_re, signal_re, signal_re, signal_re)
         freqs_1mode_re_list.append(SX.ox)
         ap_1mode_re_list.append(SX.ax)
 
         #signal_im = np.imag(ffts[i_mode, :])
-        signal_im = np.imag(np.sum(ffts[:N_terms_intra, :], axis=0))
+        signal_im = np.imag(intra_signal)
         SX.sussix(signal_im, signal_im,
                 signal_im, signal_im, signal_im, signal_im)
         freqs_1mode_im_list.append(SX.ox)
         ap_1mode_im_list.append(SX.ax)
 
+        x_fit_intra = np.arange(len(intra_signal), dtype=np.float)
+        p_fit_intra = np.polyfit(x_fit_intra,
+            np.log(np.abs(intra_signal)), deg = 1)
+        p_list_intra.append(p_fit_intra)
         # N_lines_naff = 5
         # freq_naff_1mode_re, ap_naff_1mode_re, an = nl.get_tunes(signal_re, N_lines_naff)
         # freq_naff_1mode_im, ap_naff_1mode_im, an = nl.get_tunes(signal_im, N_lines_naff)
@@ -618,6 +624,7 @@ axharm.scatter(x=str_mat.flatten(), y=(np.abs(np.array(freqs_1mode_im_list)).T.f
 figtau = plt.figure(112)
 axtau = figtau.add_subplot(111)
 axtau.plot(strength_list, np.array(p_list_centroid)[:, 0]/T_rev)
+axtau.plot(strength_list, np.array(p_list_intra)[:, 0]/T_rev)
 
 leg = ax11.legend(prop={'size':10})
 legfft = axfft.legend(prop={'size':10})
@@ -629,6 +636,7 @@ if fname is not None:
         'ap_list': np.array(ap_list),
         'n_sample_list': np.array(n_sample_list),
         'p_list_centroid': np.array(p_list_centroid)[:, 0],
+        'p_list_intra': np.array(p_list_intra)[:, 0],
         'freqs_1mode_re_list': np.array(freqs_1mode_re_list),
         'freqs_1mode_im_list': np.array(freqs_1mode_im_list),
         'ap_1mode_re_list': np.array(ap_1mode_re_list),
